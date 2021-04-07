@@ -35,12 +35,6 @@ addDataClass.prototype.addEventsOnButtons = function() {
         if (dataType !== '' && dataValue !== '') {
 
             switch(dataType) {
-                case "airport":
-                    self.DB.addAirport(dataValue)
-                    break;
-                case "port":
-                    self.DB.addPort(dataValue)
-                    break
                 case "city":
                     self.DB.addCity(dataValue)
                     break;

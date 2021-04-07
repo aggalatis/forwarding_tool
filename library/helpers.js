@@ -1,6 +1,6 @@
 let HelpersClass = function () {
 
-
+    $.fn.modal.Constructor.prototype._enforceFocus = function() {};
     this.username = '';
     this.user_fullname = '';
     this.use_role_id = '';
@@ -97,6 +97,7 @@ HelpersClass.prototype.initializeUser = function () {
     if (userFileData[3] != 1) {
 
         $('#statistics_list').attr('hidden', null)
+        $('#add_data_list').attr('hidden', null)
         $('#vessel-option').show()
 
     }
@@ -158,8 +159,6 @@ HelpersClass.prototype.initliazeModalToEditJob = function (divisions, ports, pro
         case "Air": {
             $('#ex-select-port-div').hide()
             $('#to-select-port-div').hide()
-            $('#to-input-div').hide()
-            $('#ex-input-div').hide()
 
             $('#ex-select-airport').val(jobData[7]).trigger("chosen:updated")
             $('#to-select-airport').val(jobData[8]).trigger("chosen:updated")
@@ -172,8 +171,6 @@ HelpersClass.prototype.initliazeModalToEditJob = function (divisions, ports, pro
         case "Sea": {
             $('#ex-select-airport-div').hide()
             $('#to-select-airport-div').hide()
-            $('#to-input-div').hide()
-            $('#ex-input-div').hide()
 
             $('#ex-select-port').val(jobData[7]).trigger("chosen:updated")
             $('#to-select-port').val(jobData[8]).trigger("chosen:updated")
@@ -365,4 +362,26 @@ HelpersClass.prototype.formatFloatValue = function (num) {
     }
 
 
+}
+
+HelpersClass.prototype.addCityAlert = function (myDB) {
+
+    let self = this;
+    Swal.fire({
+        title: 'Create a new city',
+        input: 'text',
+        inputLabel: 'Type a name for your city.',
+        inputPlaceholder: "City name",
+        showCancelButton: true,
+        showConfirmButton: true,
+        inputValidator: (value) => {
+        if (!value) {
+            return 'You need to write something!'
+        }
+        }
+
+    }).then((cityObj) => {
+        myDB.addCity(cityObj.value)
+
+    })
 }

@@ -29,21 +29,9 @@ TransfersClass.prototype.bindEventsOnButtons = function() {
     $('#product-select').chosen()
     $('#mode-select').chosen()
     $('#vessel-select').chosen()
-    $('#ex-select-port').chosen()
-    $('#ex-select-airport').chosen()
-    $('#to-select-port').chosen()
-    $('#to-select-airport').chosen()
-    $('#scheldure_select').chosen()
     $('#ex-input').chosen()
     $('#to-input').chosen()
     $('#type_select').chosen()
-    $('#actual_weight').mask('0000000000')
-    $('#volume_weight').mask('0000000000')
-    $('#long').mask('0000')
-    $('#width').mask('0000')
-    $('#height').mask('0000')
-    $('#pieces').mask('0000')
-
 
     $('#logout-ref').on('click', function() {
 
@@ -62,8 +50,6 @@ TransfersClass.prototype.bindEventsOnButtons = function() {
         $('#scheldure_select').val('').trigger("chosen:updated")
         $('#ex-select-airport-div').hide()
         $('#to-select-airport-div').hide()
-        $('#to-input-div').hide()
-        $('#ex-input-div').hide()
         $('#ex-select-port-div').hide()
         $('#to-select-port-div').hide()
         $('#forwarder').val('')
@@ -102,12 +88,6 @@ TransfersClass.prototype.bindEventsOnButtons = function() {
 
     })
 
-    $('#mode-select').on('change', function() {
-
-        self.initialiazeExToSelect($(this).val())
-
-    })
-
     $('#save-costs').on('click', function() {
 
         var groupCost = $('#group_cost').val();
@@ -136,6 +116,19 @@ TransfersClass.prototype.bindEventsOnButtons = function() {
 
     })
 
+    $('#add-city-btn').on('click',function() {
+
+        self.Helpers.addCityAlert(self.DB, self)
+
+    })
+
+    $('#refresh-city-btn').on('click', function() {
+        self.DB.getAllCities();
+        setTimeout(function() {
+            self.initialiazeCitiesSelect()
+        }, 1000)
+
+    })
 
 }
 
@@ -154,42 +147,24 @@ TransfersClass.prototype.bindSaveEventOnSaveJobButton = function() {
         var productSelectValue = $('#product-select').val()
         var vesselSelectValue = $('#vessel-select').val()
         var estimatecostSelectValue = self.Helpers.formatFloatValue($('#estimate_cost').val())
-        var scheldureSelectValue = $('#scheldure_select').val()
         var forwarder = $('#forwarder').val()
+        var ind_ex = $('#ex-input').val();
+        var ind_to = $('#to-input').val();
 
-
-        if (modeSelectValue != '' && divisionSelectValue != '' && productSelectValue != '' && vesselSelectValue != '' && estimatecostSelectValue != '' && scheldureSelectValue != '' && forwarder != '') {
+        console.log(productSelectValue)
+        exit();
+        if (modeSelectValue != '' && divisionSelectValue != '' && productSelectValue != '' && vesselSelectValue != '' && estimatecostSelectValue != '' && forwarder != '') {
 
             $(this).attr('disabled', 'disabled')
-            var ind_ex = '';
-            var ind_to = '';
-            if (modeSelectValue == "Air") {
-
-                ind_ex = $('#ex-select-airport').val();
-                ind_to = $('#to-select-airport').val();
-
-            } else if (modeSelectValue == "Sea") {
-
-                ind_ex = $('#ex-select-port').val();
-                ind_to = $('#to-select-port').val();
-
-
-            } else {
-
-                ind_ex = $('#ex-input').val();
-                ind_to = $('#to-input').val();
-
-            }
-
             if (ind_ex != '' && ind_to != '') {
 
                 var individual_id = {
 
                     ind_user_id: self.Helpers.user_id,
-                    ind_division_id: $('#division-select').val(),
-                    ind_product_id: $('#product-select').val(),
+                    ind_division_id: divisionSelectValue,
+                    ind_product_id: productSelectValue.join(','),
                     ind_mode: $('#mode-select').val(),
-                    ind_vessel_id: $('#vessel-select').val(),
+                    ind_vessel_id: vesselSelectValue.join(','),
                     ind_ex: ind_ex,
                     ind_to: ind_to,
                     ind_timescheldure: $('#scheldure_select').val(),
@@ -237,8 +212,6 @@ TransfersClass.prototype.initializetable = function() {
     self.DB.getAllCities();
     self.DB.getAllProducts();
     self.DB.getAllVessels();
-    self.DB.getAllPorts();
-    self.DB.getAllAirports();
     self.DB.getAllColors();
 
 
@@ -281,51 +254,6 @@ TransfersClass.prototype.initializeProductsSelect = function(divisionID) {
 
 }
 
-TransfersClass.prototype.initialiazeExToSelect = function(modeValue) {
-
-    let self = this;
-
-
-
-    switch (modeValue) {
-        case "Air":
-            $('#ex-select-port-div').hide()
-            $('#to-select-port-div').hide()
-            $('#to-input-div').hide()
-            $('#ex-input-div').hide()
-
-
-            $('#ex-select-airport-div').show('500');
-            $('#to-select-airport-div').show('500');
-            break;
-        case "Sea":
-            $('#ex-select-airport-div').hide()
-            $('#to-select-airport-div').hide()
-            $('#to-input-div').hide()
-            $('#ex-input-div').hide()
-
-            $('#ex-select-port-div').show('500');
-            $('#to-select-port-div').show('500');
-            break;
-        default:
-            $('#ex-select-airport-div').hide()
-            $('#to-select-airport-div').hide()
-            $('#ex-select-port-div').hide()
-            $('#to-select-port-div').hide()
-
-            $('#to-input-div').show('500')
-            $('#ex-input-div').show('500')
-            break;
-
-
-
-
-
-    }
-
-
-
-}
 
 TransfersClass.prototype.initialiazeVesselsSelect = function() {
 

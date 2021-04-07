@@ -8,9 +8,7 @@ let DbClass = function () {
     this.products = [];
     this.divisions = [];
     this.vessels = [];
-    this.ports = [];
     this.colors = [];
-    this.airports = [];
     this.pieCreated = false;
     this.getServerDataFromRegistry();
 
@@ -105,17 +103,12 @@ DbClass.prototype.getAllIndividuals = function () {
         ' divisions.division_description,' +
         ' products.product_description,' +
         ' ind_jobs.ind_mode,' +
-        ' ind_jobs.ind_carrier,' +
         ' vessels.vessel_description,' +
         ' ind_jobs.ind_ex as ex_port, ' +
         ' ind_jobs.ind_to as to_port,' +
-        ' ind_jobs.ind_scheldure,' +
-        ' DATE_FORMAT(ind_jobs.ind_request_date, "%d/%m/%Y %H:%i:%s" ) as ind_request_date,' +
         ' DATE_FORMAT(ind_jobs.ind_deadline, "%d/%m/%Y") as ind_deadline,' +
-        ' DATE_FORMAT(ind_jobs.ind_cut_off_date, "%d/%m/%Y") as ind_cut_off_date,' +
-        ' ind_jobs.ind_status,' +
+        ' DATE_FORMAT(ind_jobs.ind_request_date, "%d/%m/%Y %H:%i:%s" ) as ind_request_date,' +
         ' ind_jobs.ind_forwarder,' +
-        ' ind_jobs.ind_type,' +
         ' Round(ind_jobs.ind_estimate_cost,2) as ind_estimate_cost,' +
         ' ind_jobs.ind_notes,' +
         ' ind_jobs.ind_group_id,' +
@@ -142,26 +135,15 @@ DbClass.prototype.getAllIndividuals = function () {
         for (i = 0; i < data.length; i++) {
             let values = Object.values(data[i])
             dataset[i] = [];
+
             for (j = 0; j < values.length; j++) {
 
-                if (j == 13) {
-
-                    dataset[i].push("<p style='color: #FFA500'>" + values[j] + "</p>")
-
-                } else if (j == 16) {
-
-                    dataset[i].push(self.Helpers.formatFloatValue(String(values[j])))
-
-                } else {
-
-                    dataset[i].push(values[j])
-                }
+                dataset[i].push(values[j])
 
 
             }
 
         }
-
 
         var jobs_table = $('#jobs_table').DataTable({
             "data": dataset,
@@ -178,19 +160,14 @@ DbClass.prototype.getAllIndividuals = function () {
                 {"title": "DEPARTMENT", "orderable": false},
                 {"title": "PRODUCT", "orderable": false},
                 {"title": "MODE", "orderable": false},
-                {"title": "CARRIER", "orderable": false},
                 {"title": "VESSEL", "orderable": false},
                 {"title": "EX", "orderable": false, className: "danger-header"},
                 {"title": "TO", "orderable": false, className: "danger-header"},
-                {"title": "SCHEDULE", "orderable": false, className: "danger-header"},
+                {"title": "DEADLINE", "orderable": false,  className: "danger-header"},
                 {"title": "REQ. DATE", "orderable": false},
-                {"title": "DEADLINE", "orderable": false},
-                {"title": "CUT-OFF DATE", "orderable": false},
-                {"title": "STATUS", "orderable": false},
-                {"title": "FORWADER", "orderable": false},
-                {"title": "Type", "visible": false, "orderable": false},
-                {"title": "ESTIMATE COST €", "orderable": false},
-                {"title": "NOTES", "orderable": false},
+                {"title": "FORWARDER", "orderable": false},
+                {"title": "ESTIMATE COST (€)", "orderable": false},
+                {"title": "NOTES", "visible": false},
                 {
                     "title": "Group",
                     "visible": false
@@ -229,13 +206,13 @@ DbClass.prototype.getAllIndividuals = function () {
 
             ],
             "rowCallback": function (row, data, index) {
+                //Here I am changing background Color
+                if (data[15] != "empty") {
 
-                if (data[20] != "empty") {
-
-                    $('td', row).css('background-color', data[20]);
+                    $('td', row).css('background-color', data[15]);
                 }
             },
-            "order": [[19, 'desc'], [18, 'asc']],
+            "order": [[14, 'desc'], [13, 'asc']],
             "pageLength": 25
 
         });
@@ -1257,51 +1234,6 @@ DbClass.prototype.getAllVessels = function () {
 
 }
 
-DbClass.prototype.getAllPorts = function () {
-
-    let self = this;
-
-    var mysql = require('mysql');
-
-    var connection = mysql.createConnection({
-        host: self.serverIP,
-        user: self.user,
-        password: self.dbpass,
-        database: self.database,
-        port: self.port,
-        dateStrings: true
-    });
-
-    connection.connect();
-
-    var sql = 'SELECT * FROM ports order by port_name'
-
-    connection.query(sql, function (error, ports) {
-        if (error) throw error;
-
-
-        self.ports = ports;
-        $('#ex-select-port').empty();
-        $('#to-select-port').empty();
-        $('#ex-select-port').append("<option></option>")
-        $('#to-select-port').append("<option></option>")
-        for (i = 0; i < ports.length; i++) {
-
-            $('#ex-select-port').append(new Option(ports[i].port_name, ports[i].port_name))
-            $('#to-select-port').append(new Option(ports[i].port_name, ports[i].port_name))
-
-
-        }
-        $('#ex-select-port').trigger("chosen:updated")
-        $('#to-select-port').trigger("chosen:updated")
-
-    });
-
-    connection.end();
-
-
-}
-
 DbClass.prototype.getAllColors = function () {
 
     let self = this;
@@ -1326,52 +1258,6 @@ DbClass.prototype.getAllColors = function () {
 
 
         self.colors = colors;
-
-
-    });
-
-    connection.end();
-
-
-}
-
-DbClass.prototype.getAllAirports = function () {
-
-    let self = this;
-
-    var mysql = require('mysql');
-
-    var connection = mysql.createConnection({
-        host: self.serverIP,
-        user: self.user,
-        password: self.dbpass,
-        database: self.database,
-        port: self.port,
-        dateStrings: true
-    });
-
-    connection.connect();
-
-    var sql = 'SELECT * FROM airports order by airport_name'
-
-    connection.query(sql, function (error, airports) {
-        if (error) throw error;
-
-
-        self.airports = airports;
-        $('#ex-select-airport').empty();
-        $('#to-select-airport').empty();
-        $('#ex-select-airport').append("<option></option>")
-        $('#to-select-airport').append("<option></option>")
-        for (i = 0; i < airports.length; i++) {
-
-            $('#ex-select-airport').append(new Option(airports[i].airport_name, airports[i].airport_name))
-            $('#to-select-airport').append(new Option(airports[i].airport_name, airports[i].airport_name))
-
-
-        }
-        $('#ex-select-airport').trigger("chosen:updated")
-        $('#to-select-airport').trigger("chosen:updated")
 
 
     });
@@ -1703,7 +1589,6 @@ DbClass.prototype.updateConsolidation = function (jobObject) {
     connection.end()
 
 }
-
 
 DbClass.prototype.confirmIndividualGroup = function (groupID) {
 
@@ -2656,6 +2541,7 @@ DbClass.prototype.addCity = function (cityName) {
             $('#data-type-select').val('').trigger("chosen:updated");
             $('#data-value').val('')
             $('#add-new-data').attr('disabled', null)
+
         }
 
     });

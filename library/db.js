@@ -30,6 +30,7 @@ DbClass.prototype.getServerDataFromRegistry = function () {
     self.port = dbFileData[1];
     self.serverIP = dbFileData[2];
     self.user = dbFileData[3];
+    self.dbpass = dbFileData[4];
 
 
 }
@@ -44,7 +45,7 @@ DbClass.prototype.verifyLogin = function (username, password) {
     var connection = mysql.createConnection({
         host: self.serverIP,
         user: self.user,
-        password: '1q2w3e4r',
+        password: self.dbpass,
         database: self.database,
         port: self.port
     });
@@ -90,7 +91,7 @@ DbClass.prototype.getAllIndividuals = function () {
     var connection = mysql.createConnection({
         host: self.serverIP,
         user: self.user,
-        password: '1q2w3e4r',
+        password: self.dbpass,
         database: self.database,
         port: self.port,
         dateStrings: true
@@ -457,7 +458,7 @@ DbClass.prototype.getAllDoneIndividuals = function () {
     var connection = mysql.createConnection({
         host: self.serverIP,
         user: self.user,
-        password: '1q2w3e4r',
+        password: self.dbpass,
         database: self.database,
         port: self.port,
         dateStrings: true
@@ -647,7 +648,7 @@ DbClass.prototype.getAllDoneConsolidations = function () {
     var connection = mysql.createConnection({
         host: self.serverIP,
         user: self.user,
-        password: '1q2w3e4r',
+        password: self.dbpass,
         database: self.database,
         port: self.port,
         dateStrings: true
@@ -842,7 +843,7 @@ DbClass.prototype.getAllConsolidations = function () {
     var connection = mysql.createConnection({
         host: self.serverIP,
         user: self.user,
-        password: '1q2w3e4r',
+        password: self.dbpass,
         database: self.database,
         port: self.port,
         dateStrings: true
@@ -1169,7 +1170,7 @@ DbClass.prototype.getAllDivisions = function () {
     var connection = mysql.createConnection({
         host: self.serverIP,
         user: self.user,
-        password: '1q2w3e4r',
+        password: self.dbpass,
         database: self.database,
         port: self.port,
         dateStrings: true
@@ -1201,7 +1202,7 @@ DbClass.prototype.getAllProducts = function () {
     var connection = mysql.createConnection({
         host: self.serverIP,
         user: self.user,
-        password: '1q2w3e4r',
+        password: self.dbpass,
         database: self.database,
         port: self.port,
         dateStrings: true
@@ -1233,7 +1234,7 @@ DbClass.prototype.getAllVessels = function () {
     var connection = mysql.createConnection({
         host: self.serverIP,
         user: self.user,
-        password: '1q2w3e4r',
+        password: self.dbpass,
         database: self.database,
         port: self.port,
         dateStrings: true
@@ -1265,7 +1266,7 @@ DbClass.prototype.getAllPorts = function () {
     var connection = mysql.createConnection({
         host: self.serverIP,
         user: self.user,
-        password: '1q2w3e4r',
+        password: self.dbpass,
         database: self.database,
         port: self.port,
         dateStrings: true
@@ -1310,7 +1311,7 @@ DbClass.prototype.getAllColors = function () {
     var connection = mysql.createConnection({
         host: self.serverIP,
         user: self.user,
-        password: '1q2w3e4r',
+        password: self.dbpass,
         database: self.database,
         port: self.port,
         dateStrings: true
@@ -1343,7 +1344,7 @@ DbClass.prototype.getAllAirports = function () {
     var connection = mysql.createConnection({
         host: self.serverIP,
         user: self.user,
-        password: '1q2w3e4r',
+        password: self.dbpass,
         database: self.database,
         port: self.port,
         dateStrings: true
@@ -1389,7 +1390,7 @@ DbClass.prototype.getAllCities = function () {
     var connection = mysql.createConnection({
         host: self.serverIP,
         user: self.user,
-        password: '1q2w3e4r',
+        password: self.dbpass,
         database: self.database,
         port: self.port,
         dateStrings: true
@@ -1457,7 +1458,7 @@ DbClass.prototype.addIndividual = function (indiavidualObject) {
     var connection = mysql.createConnection({
         host: self.serverIP,
         user: self.user,
-        password: '1q2w3e4r',
+        password: self.dbpass,
         database: self.database,
         port: self.port,
         dateStrings: true
@@ -1545,7 +1546,7 @@ DbClass.prototype.addConsolidation = function (consolidationObj) {
     var connection = mysql.createConnection({
         host: self.serverIP,
         user: self.user,
-        password: '1q2w3e4r',
+        password: self.dbpass,
         database: self.database,
         port: self.port,
         dateStrings: true
@@ -1603,7 +1604,7 @@ DbClass.prototype.updateJob = function (jobObject) {
     var connection = mysql.createConnection({
         host: self.serverIP,
         user: self.user,
-        password: '1q2w3e4r',
+        password: self.dbpass,
         database: self.database,
         port: self.port,
         dateStrings: true
@@ -1677,7 +1678,7 @@ DbClass.prototype.updateConsolidation = function (jobObject) {
     var connection = mysql.createConnection({
         host: self.serverIP,
         user: self.user,
-        password: '1q2w3e4r',
+        password: self.dbpass,
         database: self.database,
         port: self.port,
         dateStrings: true
@@ -1719,7 +1720,7 @@ DbClass.prototype.confirmIndividualGroup = function (groupID) {
     var connection = mysql.createConnection({
         host: self.serverIP,
         user: self.user,
-        password: '1q2w3e4r',
+        password: self.dbpass,
         database: self.database,
         port: self.port,
         dateStrings: true,
@@ -1763,7 +1764,7 @@ DbClass.prototype.saveNotesChanges = function (jobID, noteText) {
     var connection = mysql.createConnection({
         host: self.serverIP,
         user: self.user,
-        password: '1q2w3e4r',
+        password: self.dbpass,
         database: self.database,
         port: self.port,
         dateStrings: true
@@ -1808,7 +1809,7 @@ DbClass.prototype.saveConsolidationNotes = function (jobID, noteText) {
     var connection = mysql.createConnection({
         host: self.serverIP,
         user: self.user,
-        password: '1q2w3e4r',
+        password: self.dbpass,
         database: self.database,
         port: self.port,
         dateStrings: true
@@ -1854,7 +1855,7 @@ DbClass.prototype.handleIndividualGroups = function (individualData, insertedID)
     var connection = mysql.createConnection({
         host: self.serverIP,
         user: self.user,
-        password: '1q2w3e4r',
+        password: self.dbpass,
         database: self.database,
         port: self.port,
         dateStrings: true
@@ -1883,7 +1884,7 @@ DbClass.prototype.handleIndividualGroups = function (individualData, insertedID)
                 var insertConnection = mysql.createConnection({
                     host: self.serverIP,
                     user: self.user,
-                    password: '1q2w3e4r',
+                    password: self.dbpass,
                     database: self.database,
                     port: self.port,
                     dateStrings: true
@@ -1900,7 +1901,7 @@ DbClass.prototype.handleIndividualGroups = function (individualData, insertedID)
                         var newConnection = mysql.createConnection({
                             host: self.serverIP,
                             user: self.user,
-                            password: '1q2w3e4r',
+                            password: self.dbpass,
                             database: self.database,
                             port: self.port,
                             dateStrings: true
@@ -1933,7 +1934,7 @@ DbClass.prototype.handleIndividualGroups = function (individualData, insertedID)
                     var updateConnections = mysql.createConnection({
                         host: self.serverIP,
                         user: self.user,
-                        password: '1q2w3e4r',
+                        password: self.dbpass,
                         database: self.database,
                         port: self.port,
                         dateStrings: true
@@ -1952,7 +1953,7 @@ DbClass.prototype.handleIndividualGroups = function (individualData, insertedID)
                             var newConnection = mysql.createConnection({
                                 host: self.serverIP,
                                 user: self.user,
-                                password: '1q2w3e4r',
+                                password: self.dbpass,
                                 database: self.database,
                                 port: self.port,
                                 dateStrings: true,
@@ -1982,7 +1983,7 @@ DbClass.prototype.handleIndividualGroups = function (individualData, insertedID)
                     var newConnection = mysql.createConnection({
                         host: self.serverIP,
                         user: self.user,
-                        password: '1q2w3e4r',
+                        password: self.dbpass,
                         database: self.database,
                         port: self.port,
                         dateStrings: true
@@ -2029,7 +2030,7 @@ DbClass.prototype.handleIndividualGroupsUpdate = function (individualData) {
     var connection = mysql.createConnection({
         host: self.serverIP,
         user: self.user,
-        password: '1q2w3e4r',
+        password: self.dbpass,
         database: self.database,
         port: self.port,
         dateStrings: true
@@ -2057,7 +2058,7 @@ DbClass.prototype.handleIndividualGroupsUpdate = function (individualData) {
                 var insertConnection = mysql.createConnection({
                     host: self.serverIP,
                     user: self.user,
-                    password: '1q2w3e4r',
+                    password: self.dbpass,
                     database: self.database,
                     port: self.port,
                     dateStrings: true
@@ -2075,7 +2076,7 @@ DbClass.prototype.handleIndividualGroupsUpdate = function (individualData) {
                         var newConnection = mysql.createConnection({
                             host: self.serverIP,
                             user: self.user,
-                            password: '1q2w3e4r',
+                            password: self.dbpass,
                             database: self.database,
                             port: self.port,
                             dateStrings: true
@@ -2112,7 +2113,7 @@ DbClass.prototype.handleIndividualGroupsUpdate = function (individualData) {
                         var updateConnections = mysql.createConnection({
                             host: self.serverIP,
                             user: self.user,
-                            password: '1q2w3e4r',
+                            password: self.dbpass,
                             database: self.database,
                             port: self.port,
                             dateStrings: true
@@ -2131,7 +2132,7 @@ DbClass.prototype.handleIndividualGroupsUpdate = function (individualData) {
                                 var newConnection = mysql.createConnection({
                                     host: self.serverIP,
                                     user: self.user,
-                                    password: '1q2w3e4r',
+                                    password: self.dbpass,
                                     database: self.database,
                                     port: self.port,
                                     dateStrings: true,
@@ -2161,7 +2162,7 @@ DbClass.prototype.handleIndividualGroupsUpdate = function (individualData) {
                         var ungrouConn = mysql.createConnection({
                             host: self.serverIP,
                             user: self.user,
-                            password: '1q2w3e4r',
+                            password: self.dbpass,
                             database: self.database,
                             port: self.port,
                             dateStrings: true,
@@ -2187,7 +2188,7 @@ DbClass.prototype.handleIndividualGroupsUpdate = function (individualData) {
                     var newConnection = mysql.createConnection({
                         host: self.serverIP,
                         user: self.user,
-                        password: '1q2w3e4r',
+                        password: self.dbpass,
                         database: self.database,
                         port: self.port,
                         dateStrings: true,
@@ -2228,7 +2229,7 @@ DbClass.prototype.checkIfThereIsOneJobAloneGrouped = function () {
     var newConnection = mysql.createConnection({
         host: self.serverIP,
         user: self.user,
-        password: '1q2w3e4r',
+        password: self.dbpass,
         database: self.database,
         port: self.port,
         dateStrings: true,
@@ -2247,7 +2248,7 @@ DbClass.prototype.checkIfThereIsOneJobAloneGrouped = function () {
                 var ungrouConn = mysql.createConnection({
                     host: self.serverIP,
                     user: self.user,
-                    password: '1q2w3e4r',
+                    password: self.dbpass,
                     database: self.database,
                     port: self.port,
                     dateStrings: true,
@@ -2298,7 +2299,7 @@ DbClass.prototype.updateGroupCost = function (groupCostData) {
     var connection = mysql.createConnection({
         host: self.serverIP,
         user: self.user,
-        password: '1q2w3e4r',
+        password: self.dbpass,
         database: self.database,
         port: self.port,
         dateStrings: true
@@ -2341,7 +2342,7 @@ DbClass.prototype.handleConsolidationsGroups = function (consolidationObj, inser
     var connection = mysql.createConnection({
         host: self.serverIP,
         user: self.user,
-        password: '1q2w3e4r',
+        password: self.dbpass,
         database: self.database,
         port: self.port,
         dateStrings: true
@@ -2371,7 +2372,7 @@ DbClass.prototype.handleConsolidationsGroups = function (consolidationObj, inser
                 var insertConnection = mysql.createConnection({
                     host: self.serverIP,
                     user: self.user,
-                    password: '1q2w3e4r',
+                    password: self.dbpass,
                     database: self.database,
                     port: self.port,
                     dateStrings: true
@@ -2388,7 +2389,7 @@ DbClass.prototype.handleConsolidationsGroups = function (consolidationObj, inser
                         var newConnection = mysql.createConnection({
                             host: self.serverIP,
                             user: self.user,
-                            password: '1q2w3e4r',
+                            password: self.dbpass,
                             database: self.database,
                             port: self.port,
                             dateStrings: true
@@ -2421,7 +2422,7 @@ DbClass.prototype.handleConsolidationsGroups = function (consolidationObj, inser
                 var newConnection = mysql.createConnection({
                     host: self.serverIP,
                     user: self.user,
-                    password: '1q2w3e4r',
+                    password: self.dbpass,
                     database: self.database,
                     port: self.port,
                     dateStrings: true
@@ -2467,7 +2468,7 @@ DbClass.prototype.updateConsolidationGroupCost = function (groupCostData) {
     var connection = mysql.createConnection({
         host: self.serverIP,
         user: self.user,
-        password: '1q2w3e4r',
+        password: self.dbpass,
         database: self.database,
         port: self.port,
         dateStrings: true
@@ -2513,7 +2514,7 @@ DbClass.prototype.confirmConsolidationGroup = function (groupID) {
     var connection = mysql.createConnection({
         host: self.serverIP,
         user: self.user,
-        password: '1q2w3e4r',
+        password: self.dbpass,
         database: self.database,
         port: self.port,
         dateStrings: true,
@@ -2554,7 +2555,7 @@ DbClass.prototype.addAirport = function (airportName) {
     var connection = mysql.createConnection({
         host: self.serverIP,
         user: self.user,
-        password: '1q2w3e4r',
+        password: self.dbpass,
         database: self.database,
         port: self.port,
         dateStrings: true,
@@ -2594,7 +2595,7 @@ DbClass.prototype.addPort = function (portName) {
     var connection = mysql.createConnection({
         host: self.serverIP,
         user: self.user,
-        password: '1q2w3e4r',
+        password: self.dbpass,
         database: self.database,
         port: self.port,
         dateStrings: true,
@@ -2634,7 +2635,7 @@ DbClass.prototype.addCity = function (cityName) {
     var connection = mysql.createConnection({
         host: self.serverIP,
         user: self.user,
-        password: '1q2w3e4r',
+        password: self.dbpass,
         database: self.database,
         port: self.port,
         dateStrings: true,
@@ -2674,7 +2675,7 @@ DbClass.prototype.addVessel = function (vesselName) {
     var connection = mysql.createConnection({
         host: self.serverIP,
         user: self.user,
-        password: '1q2w3e4r',
+        password: self.dbpass,
         database: self.database,
         port: self.port,
         dateStrings: true,
@@ -2725,7 +2726,7 @@ DbClass.prototype.getManagerData = function (fromDate, toDate) {
     var connection = mysql.createConnection({
         host: self.serverIP,
         user: self.user,
-        password: '1q2w3e4r',
+        password: self.dbpass,
         database: self.database,
         port: self.port,
         dateStrings: true

@@ -101,14 +101,16 @@ DbClass.prototype.getAllIndividuals = function () {
         ' ind_jobs.ind_id,' +
         ' users.user_username,' +
         ' divisions.division_description,' +
-        ' products.product_description,' +
+        ' ind_jobs.ind_products,' +
         ' ind_jobs.ind_mode,' +
-        ' vessels.vessel_description,' +
-        ' ind_jobs.ind_ex as ex_port, ' +
-        ' ind_jobs.ind_to as to_port,' +
+        ' ind_jobs.ind_vessels,' +
+        ' ex_city.city_name as ex_city,' +
+        ' to_city.city_name as to_city,' +
         ' DATE_FORMAT(ind_jobs.ind_deadline, "%d/%m/%Y") as ind_deadline,' +
         ' DATE_FORMAT(ind_jobs.ind_request_date, "%d/%m/%Y %H:%i:%s" ) as ind_request_date,' +
         ' ind_jobs.ind_forwarder,' +
+        ' ind_jobs.ind_reference,' +
+        ' ind_jobs.ind_kg,' +
         ' Round(ind_jobs.ind_estimate_cost,2) as ind_estimate_cost,' +
         ' ind_jobs.ind_notes,' +
         ' ind_jobs.ind_group_id,' +
@@ -121,30 +123,26 @@ DbClass.prototype.getAllIndividuals = function () {
         ' FROM individuals as ind_jobs' +
         ' LEFT JOIN divisions on divisions.division_id = ind_jobs.ind_division_id' +
         ' LEFT JOIN users on users.user_id = ind_jobs.ind_user_id' +
-        ' LEFT JOIN products on products.product_id = ind_jobs.ind_product_id' +
-        ' LEFT JOIN vessels on vessels.vessel_id = ind_jobs.ind_vessel_id' +
         ' LEFT JOIN individual_groups on individual_groups.ind_group_id = ind_jobs.ind_group_id' +
-        ' WHERE ind_jobs.ind_status = "Pending"' +
+        ' LEFT JOIN cities as ex_city on ex_city.city_id = ind_jobs.ind_ex' +
+        ' LEFT JOIN cities as to_city on to_city.city_id = ind_jobs.ind_to' +
+        ' WHERE ind_jobs.ind_status = "Pending" AND ind_deleted = 0' +
         ' ORDER BY ind_jobs.ind_group_id DESC;'
 
 
     connection.query(sql, function (error, data) {
         if (error) throw error;
-
         var dataset = [];
         for (i = 0; i < data.length; i++) {
             let values = Object.values(data[i])
             dataset[i] = [];
 
             for (j = 0; j < values.length; j++) {
-
                 dataset[i].push(values[j])
-
 
             }
 
         }
-
         var jobs_table = $('#jobs_table').DataTable({
             "data": dataset,
             "processing": true,
@@ -158,14 +156,16 @@ DbClass.prototype.getAllIndividuals = function () {
                 {"title": "ID", "orderable": false},
                 {"title": "USER", "orderable": false},
                 {"title": "DEPARTMENT", "orderable": false},
-                {"title": "PRODUCT", "orderable": false},
+                {"title": "PRODUCTS", "orderable": false},
                 {"title": "MODE", "orderable": false},
-                {"title": "VESSEL", "orderable": false},
+                {"title": "VESSELS", "orderable": false},
                 {"title": "EX", "orderable": false, className: "danger-header"},
                 {"title": "TO", "orderable": false, className: "danger-header"},
                 {"title": "DEADLINE", "orderable": false,  className: "danger-header"},
                 {"title": "REQ. DATE", "orderable": false},
                 {"title": "FORWARDER", "orderable": false},
+                {"title": "REFERENCE", "orderable": false},
+                {"title": "KG", "orderable": false},
                 {"title": "ESTIMATE COST (€)", "orderable": false},
                 {"title": "NOTES", "visible": false},
                 {
@@ -185,8 +185,8 @@ DbClass.prototype.getAllIndividuals = function () {
                     "visible": false
                 },
                 {
-                    "title": "Group cut-off-date",
-                    "visible": false
+                    "title": "GROUP COD",
+                    "visible": true
                 },
 
                 {
@@ -201,18 +201,18 @@ DbClass.prototype.getAllIndividuals = function () {
                 {
                     "title": "ACTIONS",
                     "orderable": false,
-                    "defaultContent": "<i class='fa fa-search job-edit action-btn' style='cursor: pointer'></i><i class='fa fa-check confirm-job action-btn' style='cursor: pointer' ></i><i class='fa fa-dollar costs-job action-btn' style='cursor: pointer' ></i>"
+                    "defaultContent": "<i class='fa fa-search job-edit action-btn' style='cursor: pointer'></i><i class='fa fa-check confirm-job action-btn' style='cursor: pointer' ></i><i class='fa fa-dollar costs-job action-btn' style='cursor: pointer' ></i><i class='fa fa-trash delete-job action-btn' style='cursor: pointer' ></i>"
                 }
 
             ],
             "rowCallback": function (row, data, index) {
                 //Here I am changing background Color
-                if (data[15] != "empty") {
+                if (data[17] != "empty") {
 
-                    $('td', row).css('background-color', data[15]);
+                    $('td', row).css('background-color', data[17]);
                 }
             },
-            "order": [[14, 'desc'], [13, 'asc']],
+            "order": [[16, 'desc'], [15, 'asc']],
             "pageLength": 25
 
         });
@@ -221,7 +221,7 @@ DbClass.prototype.getAllIndividuals = function () {
         $('#jobs_table').on('click', 'i.job-edit', function () {
 
             var data = jobs_table.row($(this).closest('tr')).data();
-            self.Helpers.initliazeModalToEditJob(self.divisions, self.ports, self.products, self.vessels, self.cities, data);
+            self.Helpers.initliazeModalToEditJob(self.divisions, self.products, self.vessels, self.cities, data);
 
             $('#job-modal-header').removeClass('noFloat floatMeLeft floatMeRight')
             $('#save-job-btn').unbind('click')
@@ -234,52 +234,53 @@ DbClass.prototype.getAllIndividuals = function () {
                 var productSelectValue = $('#product-select').val()
                 var vesselSelectValue = $('#vessel-select').val()
                 var estimatecostSelectValue = self.Helpers.formatFloatValue($('#estimate_cost').val())
-                var scheldureSelectValue = $('#scheldure_select').val()
                 var forwarder = $('#forwarder').val()
+                var ind_ex = $('#ex-input').val();
+                var ind_to = $('#to-input').val();
+                var reference = $('#reference').val();
+                var kg = $('#kg').val();
+                var deadline = $('#deadline_date').val()
 
-
-                if (modeSelectValue != '' && divisionSelectValue != '' && productSelectValue != '' && vesselSelectValue != '' && estimatecostSelectValue != '' && scheldureSelectValue != '' && forwarder != '') {
+                console.log(data)
+                if (deadline != '' & modeSelectValue != '' && divisionSelectValue != '' && productSelectValue != '' && vesselSelectValue != '' && estimatecostSelectValue != '' && forwarder != '') {
 
                     $(this).attr('disabled', 'disabled')
-                    var ind_ex = '';
-                    var ind_to = '';
-                    if (modeSelectValue == "Air") {
 
-                        ind_ex = $('#ex-select-airport').val();
-                        ind_to = $('#to-select-airport').val();
+                    //change productIds to product Names
+                    var productsNames = [];
+                    for (i = 0; i < self.products.length; i++) {
+                        if (productSelectValue.indexOf(self.products[i].product_id.toString()) !== -1) {
+                            //this means i found the product
+                            productsNames.push(self.products[i].product_description)
+                        }
+                    }
 
-                    } else if (modeSelectValue == "Sea") {
-
-                        ind_ex = $('#ex-select-port').val();
-                        ind_to = $('#to-select-port').val();
-
-
-                    } else {
-
-                        ind_ex = $('#ex-input').val();
-                        ind_to = $('#to-input').val();
-
+                    var vesselsNames = [];
+                    for (i = 0; i < self.vessels.length; i++) {
+                        if (vesselSelectValue.indexOf(self.vessels[i].vessel_id.toString()) !== -1) {
+                            //this means i found the vessel
+                            vesselsNames.push(self.vessels[i].vessel_description)
+                        }
                     }
 
                     if (ind_ex != '' && ind_to != '') {
                         var jobObject = {
                             ind_id: data[0],
                             ind_user_id: self.Helpers.user_id,
-                            ind_division_id: $('#division-select').val(),
-                            ind_product_id: $('#product-select').val(),
-                            ind_mode: $('#mode-select').val(),
-                            ind_vessel_id: $('#vessel-select').val(),
+                            ind_division_id: divisionSelectValue,
+                            ind_products: productsNames.join(';'),
+                            ind_mode: modeSelectValue,
+                            ind_vessels: vesselsNames.join(';'),
                             ind_ex: ind_ex,
                             ind_to: ind_to,
-                            ind_timescheldure: $('#scheldure_select').val(),
-                            ind_deadline: self.Helpers.changeDateToMysql($('#deadline_date').val()),
-                            ind_cut_off_date: self.Helpers.changeDateToMysql($('#cutoff_date').val()),
-                            ind_forwarder: $('#forwarder').val(),
+                            ind_deadline: self.Helpers.changeDateToMysql(deadline),
+                            ind_forwarder: forwarder,
                             ind_notes: $('#notes').val(),
-                            ind_estimate_cost: $('#estimate_cost').val(),
-                            ind_carrier: $('#carrier').val(),
+                            ind_estimate_cost: estimatecostSelectValue,
+                            ind_reference: reference,
+                            ind_kg: kg,
                             ind_group_id: 0,
-                            old_group_id: data[18]
+                            old_group_id: data[15]
 
 
                         }
@@ -308,58 +309,61 @@ DbClass.prototype.getAllIndividuals = function () {
         $('#jobs_table').on('click', 'i.confirm-job', function () {
 
             var data = jobs_table.row($(this).closest('tr')).data();
+            //checking if the individual is grouped...
+            if (data[16] == 0) {
 
-            if (data[19] == 0) {
-
-                swal({
+                Swal.fire({
                     title: "Are you sure?",
                     text: "If you confirm the job you will be unable to edit it!",
-                    type: "warning",
+                    icon: "warning",
                     showCancelButton: true,
                     cancelButtonText: "Cancel",
                     confirmButtonColor: "#dc3545",
                     confirmButtonText: "Confirm",
-                    closeOnConfirm: true
 
-                }, function () {
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                    self.confirmIndividualGroup(data[15]);
 
-                    self.confirmIndividualGroup(data[18]);
+                    }
 
                 })
+
+
+
 
             } else {
 
 
-                if (data[21] == "" || data[21] == 0 || data[22] == "" || data[21] === null || data[23] == '' || data[23] === null) {
+                if (data[18] == "" || data[18] == 0 || data[19] == "" || data[19] === null || data[20] == '' || data[20] === null) {
 
-                    swal({
+                    Swal.fire({
                         title: "Unable to confirm this group.",
                         text: "Some group data are empty. Please fill the missing data and try again. ",
-                        type: "error",
+                        icon: "error",
                         showCancelButton: true,
                         showConfirmButton: false
-
-
                     })
 
 
                 } else {
 
-                    swal({
+                    Swal.fire({
                         title: "Are you sure?",
                         text: "If you confirm this group you will not be able to edit it!",
-                        type: "warning",
+                        icon: "warning",
                         showCancelButton: true,
                         cancelButtonText: "Cancel",
                         confirmButtonColor: "#dc3545",
                         confirmButtonText: "Confirm",
-                        closeOnConfirm: true
 
-                    }, function () {
+                    }).then((result) => {
+                        if (result.isConfirmed) {
+                        self.confirmIndividualGroup(data[15]);
 
-                        self.confirmIndividualGroup(data[18]);
+                    }
 
-                    })
+                })
                 }
 
 
@@ -367,21 +371,20 @@ DbClass.prototype.getAllIndividuals = function () {
 
         })
 
-
         $('#jobs_table').on('click', 'i.costs-job', function () {
 
             var data = jobs_table.row($(this).closest('tr')).data();
             $('#cost-modal-header').removeClass('noFloat floatMeLeft floatMeRight')
-            $('#job_estimate_costs').val(data[16])
+            $('#job_estimate_costs').val(data[13])
 
-            if (data[19] == 0) {
+            if (data[16] == 0) {
 
                 $('#group-cost-div').hide();
                 $('#save-costs').hide()
 
             } else {
 
-                if (data[23] == null || data[22] == null || data[21] == null)
+                if (data[18] == null || data[19] == null || data[20] == null)
                 {
 
                     $('#saving-data').hide();
@@ -390,28 +393,49 @@ DbClass.prototype.getAllIndividuals = function () {
 
                 }
 
-                $('#group_cut_off_date').val(data[22])
-                var sum_estimate_cost = data[24]
-                var group_cost = data[21]
+                $('#group_cut_off_date').val(data[19])
+                var sum_estimate_cost = data[21]
+                var group_cost = data[18]
 
                 var savings_percent = ((1 - (group_cost / sum_estimate_cost)) * 100).toFixed(2)
 
-                var savings_amount = (data[16] * savings_percent / 100).toFixed(2)
-                var shared_cost = ((group_cost / sum_estimate_cost) * data[16]).toFixed(2)
+                var savings_amount = (data[13] * savings_percent / 100).toFixed(2)
+                var shared_cost = ((group_cost / sum_estimate_cost) * data[13]).toFixed(2)
 
 
                 $('#group_cost').val(self.Helpers.formatFloatValue(String(group_cost)))
-                $('#group_id').val(data[18])
+                $('#group_id').val(data[15])
                 $('#saving_amount').val(savings_amount)
                 $('#saving_percent').val(savings_percent)
                 $('#shared_cost').val(shared_cost)
-                $('#group_forwarder').val(data[23])
+                $('#group_forwarder').val(data[20])
 
                 $('#group-cost-div').show();
                 $('#save-costs').show()
             }
 
             $('#costs-modal').modal('show');
+        })
+
+        $('#jobs_table').on('click', 'i.delete-job', function () {
+
+            var data = jobs_table.row($(this).closest('tr')).data();
+            Swal.fire({
+                title: "Delete Job?",
+                text: "Are you sure you want to delete this job? You won't be able to revert it!",
+                icon: "warning",
+                showCancelButton: true,
+                cancelButtonText: "Cancel",
+                confirmButtonColor: "#dc3545",
+                confirmButtonText: "Confirm",
+
+            }).then((result) => {
+                if (result.isConfirmed) {
+                self.deleteIndividual(data);
+
+            }
+
+        })
         })
 
 
@@ -1099,7 +1123,6 @@ DbClass.prototype.getAllConsolidations = function () {
                         cancelButtonText: "Cancel",
                         confirmButtonColor: "#dc3545",
                         confirmButtonText: "Confirm",
-                        closeOnConfirm: true
 
                     }, function () {
 
@@ -1303,40 +1326,38 @@ DbClass.prototype.getAllCities = function () {
 DbClass.prototype.addIndividual = function (indiavidualObject) {
 
     let self = this;
-
     var sql = 'INSERT INTO individuals (' +
         'ind_user_id, ' +
         'ind_division_id, ' +
-        'ind_product_id, ' +
+        'ind_products, ' +
         'ind_mode, ' +
-        'ind_vessel_id, ' +
+        'ind_vessels, ' +
         'ind_ex, ' +
         'ind_to, ' +
-        'ind_scheldure, ' +
         'ind_request_date, ' +
         'ind_deadline, ' +
-        'ind_cut_off_date, ' +
         'ind_forwarder, ' +
         'ind_status, ' +
+        'ind_reference, ' +
+        'ind_kg, ' +
         'ind_estimate_cost, ' +
-        'ind_carrier, ' +
-        'ind_notes) VALUES (' +
+        'ind_notes, ' +
+        'ind_deleted' + ') VALUES (' +
         indiavidualObject.ind_user_id + ', ' +
-        indiavidualObject.ind_division_id + ', ' +
-        indiavidualObject.ind_product_id + ', "' +
-        indiavidualObject.ind_mode + '", ' +
-        indiavidualObject.ind_vessel_id + ', "' +
-        indiavidualObject.ind_ex + '", "' +
-        indiavidualObject.ind_to + '", "' +
-        indiavidualObject.ind_timescheldure + '", '
-        + '"' + indiavidualObject.ind_request_date + '", '
-        + '"' + indiavidualObject.ind_deadline + '", '
-        + '"' + indiavidualObject.ind_cut_off_date + '", "' +
+        indiavidualObject.ind_division_id + ', "' +
+        indiavidualObject.ind_products + '", "' +
+        indiavidualObject.ind_mode + '", "' +
+        indiavidualObject.ind_vessels + '", ' +
+        indiavidualObject.ind_ex + ', ' +
+        indiavidualObject.ind_to + ', "' +
+        self.Helpers.getDateTimeNow() + '", "' +
+        indiavidualObject.ind_deadline + '", "' +
         indiavidualObject.ind_forwarder + '", "' +
-        "Pending" + '", ' +
+        "Pending" + '", "' +
+        indiavidualObject.ind_reference + '", ' +
+        indiavidualObject.ind_kg + ',' +
         indiavidualObject.ind_estimate_cost + ', "' +
-        indiavidualObject.ind_carrier + '", "' +
-        indiavidualObject.ind_notes + '")'
+        indiavidualObject.ind_notes + '", 0)'
 
 
     var mysql = require('mysql');
@@ -1469,19 +1490,18 @@ DbClass.prototype.updateJob = function (jobObject) {
 
     var sql = 'UPDATE individuals SET ' +
         'ind_division_id = ' + jobObject.ind_division_id + ', ' +
-        'ind_product_id = ' + jobObject.ind_product_id + ', ' +
+        'ind_products = "' + jobObject.ind_products + '", ' +
         'ind_mode = "' + jobObject.ind_mode + '", ' +
-        'ind_vessel_id = ' + jobObject.ind_vessel_id + ', ' +
-        'ind_ex = "' + jobObject.ind_ex + '", ' +
-        'ind_to = "' + jobObject.ind_to + '", ' +
-        'ind_scheldure = "' + jobObject.ind_timescheldure + '", ' +
+        'ind_vessels = "' + jobObject.ind_vessels + '", ' +
+        'ind_ex = ' + jobObject.ind_ex + ', ' +
+        'ind_to = ' + jobObject.ind_to + ', ' +
         'ind_deadline = "' + jobObject.ind_deadline + '", ' +
-        'ind_cut_off_date = "' + jobObject.ind_cut_off_date + '", ' +
         'ind_forwarder = "' + jobObject.ind_forwarder + '", ' +
+        'ind_reference = "' + jobObject.ind_reference + '", ' +
+        'ind_kg = ' + jobObject.ind_kg + ', ' +
         'ind_estimate_cost = ' + jobObject.ind_estimate_cost + ', ' +
         'ind_notes = "' + jobObject.ind_notes + '",' +
-        'ind_group_id = 0,' +
-        'ind_carrier = "' + jobObject.ind_carrier + '"' +
+        'ind_group_id = 0' +
         ' WHERE ind_id = ' + jobObject.ind_id;
 
 
@@ -1732,7 +1752,7 @@ DbClass.prototype.handleIndividualGroups = function (individualData, insertedID)
     var sql = 'SELECT * FROM individual_groups WHERE ' +
         'ind_group_ex = "' + individualData.ind_ex + '" AND ' +
         'ind_group_to = "' + individualData.ind_to + '" AND ' +
-        'ind_group_scheldure = "' + individualData.ind_timescheldure + '" AND ' +
+        'ind_group_deadline = "' + individualData.ind_deadline + '" AND ' +
         'ind_group_active = 1';
 
     var mysql = require('mysql');
@@ -1759,12 +1779,11 @@ DbClass.prototype.handleIndividualGroups = function (individualData, insertedID)
             if (groupResults.length == 0) {
 
                 var insert_sql = 'INSERT INTO individual_groups ' +
-                    '(ind_group_color, ind_group_ex, ind_group_to, ind_group_scheldure, ind_group_active) VALUES ' +
+                    '(ind_group_color, ind_group_ex, ind_group_to, ind_group_deadline, ind_group_active) VALUES ' +
                     '("empty","' +
                     individualData.ind_ex + '", "' +
                     individualData.ind_to + '", "' +
-                    individualData.ind_timescheldure + '", 1)';
-
+                    individualData.ind_deadline + '", 1)';
 
                 var insertConnection = mysql.createConnection({
                     host: self.serverIP,
@@ -1907,7 +1926,7 @@ DbClass.prototype.handleIndividualGroupsUpdate = function (individualData) {
         ' FROM individual_groups WHERE ' +
         'ind_group_ex = "' + individualData.ind_ex + '" AND ' +
         'ind_group_to = "' + individualData.ind_to + '" AND ' +
-        'ind_group_scheldure = "' + individualData.ind_timescheldure + '" AND ' +
+        'ind_group_deadline = "' + individualData.ind_deadline + '" AND ' +
         'ind_group_active = 1';
 
     var mysql = require('mysql');
@@ -1933,11 +1952,11 @@ DbClass.prototype.handleIndividualGroupsUpdate = function (individualData) {
             if (groupResults.length == 0) {
 
                 var insert_sql = 'INSERT INTO individual_groups ' +
-                    '(ind_group_color, ind_group_ex, ind_group_to, ind_group_scheldure, ind_group_active) VALUES ' +
+                    '(ind_group_color, ind_group_ex, ind_group_to, ind_group_deadline, ind_group_active) VALUES ' +
                     '("empty","' +
                     individualData.ind_ex + '", "' +
                     individualData.ind_to + '", "' +
-                    individualData.ind_timescheldure + '", 1)';
+                    individualData.ind_deadline + '", 1)';
 
 
                 var insertConnection = mysql.createConnection({
@@ -2175,7 +2194,7 @@ DbClass.prototype.updateGroupCost = function (groupCostData) {
     let self = this;
 
     var sql = 'UPDATE individual_groups SET ' +
-        'ind_group_cost = ' + groupCostData.ind_group_cost + ', ind_group_cut_off_date = "' + groupCostData.ind_group_cut_off_date + '"' + ', ind_group_forwarder = "' + groupCostData.ind_group_forwarder + '" ' +
+        'ind_group_cost = ' + groupCostData.ind_group_cost + ', ind_group_cut_off_date = "' + groupCostData.ind_group_cut_off_date + '"' + ', ind_group_forwarder = "' + groupCostData.ind_group_forwarder + '" ' + ', ind_group_active = 0 ' +
         ' WHERE ind_group_id = ' + groupCostData.ind_group_id;
 
 
@@ -2831,6 +2850,11 @@ DbClass.prototype.initializeManagerTable = function (indData, conData) {
     self.pieCreated = true;
 
 
+}
+
+DbClass.prototype.deleteIndividual = function(individualData) {
+    console.log("I am trying to delete this...")
+    console.log(individualData)
 }
 
 

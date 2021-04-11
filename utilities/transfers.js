@@ -41,32 +41,19 @@ TransfersClass.prototype.bindEventsOnButtons = function() {
 
     $('#add-job-btn').on('click', function() {
 
-
+        //empty all fields
         $('#modal-title-text').html('Add Individual')
         $('#job-modal-header').removeClass('noFloat floatMeLeft floatMeRight')
         $('#save-job-btn').attr('disabled', null)
         $('#product-select').val('').attr('disabled', true).trigger("chosen:updated")
         $('#mode-select').val('').trigger("chosen:updated")
         $('#scheldure_select').val('').trigger("chosen:updated")
-        $('#ex-select-airport-div').hide()
-        $('#to-select-airport-div').hide()
-        $('#ex-select-port-div').hide()
-        $('#to-select-port-div').hide()
         $('#forwarder').val('')
         $('#estimate_cost').val('')
-
-
-
-        $('#carrier').val('')
+        $('#reference').val('')
+        $('#kg').val('')
         $('#notes').val('')
-        $('#cutoff_date').val('')
         $('#deadline_date').val('')
-
-
-        $('#ex-select-port').val('').trigger("chosen:updated")
-        $('#ex-select-airport').val('').trigger("chosen:updated")
-        $('#to-select-port').val('').trigger("chosen:updated")
-        $('#to-select-airport').val('').trigger("chosen:updated")
         $('#ex-input').val('').trigger("chosen:updated")
         $('#to-input').val('').trigger("chosen:updated")
 
@@ -150,37 +137,52 @@ TransfersClass.prototype.bindSaveEventOnSaveJobButton = function() {
         var forwarder = $('#forwarder').val()
         var ind_ex = $('#ex-input').val();
         var ind_to = $('#to-input').val();
+        var reference = $('#reference').val();
+        var kg = $('#kg').val();
+        var deadline = $('#deadline_date').val()
 
-        console.log(productSelectValue)
-        exit();
-        if (modeSelectValue != '' && divisionSelectValue != '' && productSelectValue != '' && vesselSelectValue != '' && estimatecostSelectValue != '' && forwarder != '') {
+        if (deadline != '' & modeSelectValue != '' && divisionSelectValue != '' && productSelectValue != '' && vesselSelectValue != '' && estimatecostSelectValue != '' && forwarder != '') {
 
             $(this).attr('disabled', 'disabled')
+
+            //change productIds to product Names
+            var productsNames = [];
+            for (i = 0; i < self.DB.products.length; i++) {
+                if (productSelectValue.indexOf(self.DB.products[i].product_id.toString()) !== -1) {
+                    //this means i found the product
+                    productsNames.push(self.DB.products[i].product_description)
+                }
+            }
+
+            var vesselsNames = [];
+            for (i = 0; i < self.DB.vessels.length; i++) {
+                if (vesselSelectValue.indexOf(self.DB.vessels[i].vessel_id.toString()) !== -1) {
+                    //this means i found the vessel
+                    vesselsNames.push(self.DB.vessels[i].vessel_description)
+                }
+            }
             if (ind_ex != '' && ind_to != '') {
 
-                var individual_id = {
+                var individualData = {
 
                     ind_user_id: self.Helpers.user_id,
                     ind_division_id: divisionSelectValue,
-                    ind_product_id: productSelectValue.join(','),
-                    ind_mode: $('#mode-select').val(),
-                    ind_vessel_id: vesselSelectValue.join(','),
+                    ind_products: productsNames.join(';'),
+                    ind_mode: modeSelectValue,
+                    ind_vessels: vesselsNames.join(';'),
                     ind_ex: ind_ex,
                     ind_to: ind_to,
-                    ind_timescheldure: $('#scheldure_select').val(),
-                    ind_request_date: self.Helpers.getDateTimeNow(),
-                    ind_deadline: self.Helpers.changeDateToMysql($('#deadline_date').val()),
-                    ind_cut_off_date: self.Helpers.changeDateToMysql($('#cutoff_date').val()),
+                    ind_deadline: self.Helpers.changeDateToMysql(deadline),
                     ind_forwarder: forwarder,
                     ind_notes: $('#notes').val(),
                     ind_estimate_cost: estimatecostSelectValue,
-                    ind_carrier: $('#carrier').val(),
-                    ind_group_id: 0
-
+                    ind_group_id: 0,
+                    ind_reference: reference,
+                    ind_kg: kg
 
                 }
-
-                self.DB.addIndividual(individual_id);
+                console.log(individualData)
+                self.DB.addIndividual(individualData);
             } else {
                 $(this).attr('disabled', null)
                 self.Helpers.toastr('error', 'Some required fields are empty.')
@@ -193,10 +195,6 @@ TransfersClass.prototype.bindSaveEventOnSaveJobButton = function() {
             $(this).attr('disabled', null)
             self.Helpers.toastr('error', 'Some required fields are empty.')
         }
-
-
-
-
 
     })
 
@@ -280,8 +278,8 @@ TransfersClass.prototype.initialiazeCitiesSelect = function() {
     for (i=0; i < self.DB.cities.length; i++) {
 
 
-        $('#ex-input').append(new Option(self.DB.cities[i].city_name, self.DB.cities[i].city_name))
-        $('#to-input').append(new Option(self.DB.cities[i].city_name, self.DB.cities[i].city_name))
+        $('#ex-input').append(new Option(self.DB.cities[i].city_name, self.DB.cities[i].city_id))
+        $('#to-input').append(new Option(self.DB.cities[i].city_name, self.DB.cities[i].city_id))
 
     }
     $('#ex-input').trigger("chosen:updated")

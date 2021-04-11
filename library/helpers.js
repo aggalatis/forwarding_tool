@@ -110,7 +110,7 @@ HelpersClass.prototype.getDateTimeNow = function () {
     var datetime = require('datetime-js')
     var dateObj = new Date()
 
-    return DateTime(dateObj, '%Y-%m-%d %H:%i:%s');
+    return datetime(dateObj, '%Y-%m-%d %H:%i:%s');
 
 }
 
@@ -130,72 +130,27 @@ HelpersClass.prototype.changeDateToMysql = function (datetime) {
 
 }
 
-HelpersClass.prototype.initliazeModalToEditJob = function (divisions, ports, products, vessels, cities, jobData) {
+HelpersClass.prototype.initliazeModalToEditJob = function (divisions, products, vessels, cities, jobData) {
 
     let self = this;
-
     myTransfers.initializeDivisionsSelect();
     self.findChoosenValueForDivision(divisions, jobData[2]);
     myTransfers.initializeProductsSelect(divisions[i].division_id)
     self.findChoosenValueForProducts(products, jobData[3]);
     myTransfers.initialiazeVesselsSelect();
-    self.findChoosenValueForVessels(vessels, jobData[6]);
+    self.findChoosenValueForVessels(vessels, jobData[5]);
     myTransfers.initialiazeCitiesSelect();
-
+    self.findChoosenValueForCities(cities, jobData[6], jobData[7])
 
     $('#modal-title-text').html('Edit Job')
     $('#mode-select').val(jobData[4])
     $('#mode-select').trigger("chosen:updated")
-    $('#deadline_date').val(jobData[11])
-    $('#cutoff_date').val(jobData[12])
-    $('#scheldure_select').val(jobData[9])
-    $('#scheldure_select').trigger("chosen:updated")
-    $('#forwarder').val(jobData[14])
-    $('#carrier').val(jobData[5])
-    $('#estimate_cost').val(jobData[16])
-    $('#notes').val(jobData[17])
-
-    switch (jobData[4]) {
-        case "Air": {
-            $('#ex-select-port-div').hide()
-            $('#to-select-port-div').hide()
-
-            $('#ex-select-airport').val(jobData[7]).trigger("chosen:updated")
-            $('#to-select-airport').val(jobData[8]).trigger("chosen:updated")
-
-            $('#ex-select-airport-div').show();
-            $('#to-select-airport-div').show();
-
-            break;
-        }
-        case "Sea": {
-            $('#ex-select-airport-div').hide()
-            $('#to-select-airport-div').hide()
-
-            $('#ex-select-port').val(jobData[7]).trigger("chosen:updated")
-            $('#to-select-port').val(jobData[8]).trigger("chosen:updated")
-
-            $('#ex-select-port-div').show();
-            $('#to-select-port-div').show();
-
-            break;
-        }
-        default:
-            $('#ex-select-airport-div').hide()
-            $('#to-select-airport-div').hide()
-            $('#ex-select-port-div').hide()
-            $('#to-select-port-div').hide()
-
-            $('#ex-input').val(jobData[7]).trigger("chosen:updated")
-            $('#to-input').val(jobData[8]).trigger("chosen:updated")
-
-            $('#to-input-div').show();
-            $('#ex-input-div').show();
-            break;
-
-
-    }
-
+    $('#deadline_date').val(jobData[8])
+    $('#forwarder').val(jobData[10])
+    $('#reference').val(jobData[11])
+    $('#kg').val(jobData[12])
+    $('#estimate_cost').val(jobData[13])
+    $('#notes').val(jobData[14])
 
     $('#save-job-btn').attr('disabled', null)
     $('#add-job-modal').modal('show')
@@ -303,19 +258,20 @@ HelpersClass.prototype.findChoosenValueForDivision = function (divisions, divisi
 
 }
 
-HelpersClass.prototype.findChoosenValueForProducts = function (products, product_description) {
+HelpersClass.prototype.findChoosenValueForProducts = function (products, product_names) {
     let self = this;
+
+    var productNames = product_names.split(";")
+    var productIds = []
     for (i = 0; i < products.length; i++) {
-
-        if (products[i].product_description == product_description) {
-
-            $('#product-select').val(products[i].product_id)
-            $('#product-select').trigger("chosen:updated")
-            break;
+        if (productNames.indexOf(products[i].product_description.toString()) !== -1) {
+            productIds.push(products[i].product_id)
         }
 
 
     }
+    $('#product-select').val(productIds)
+    $('#product-select').trigger("chosen:updated")
 
 
 }
@@ -323,20 +279,38 @@ HelpersClass.prototype.findChoosenValueForProducts = function (products, product
 HelpersClass.prototype.findChoosenValueForVessels = function (vessels, vessels_description) {
     let self = this;
 
+    var vesselNames = vessels_description.split(";")
+    var vesselIds = []
     for (i = 0; i < vessels.length; i++) {
+        if (vesselNames.indexOf(vessels[i].vessel_description.toString()) !== -1) {
+            vesselIds.push(vessels[i].vessel_id)
+        }
 
-        if (vessels[i].vessel_description == vessels_description) {
 
-            $('#vessel-select').val(vessels[i].vessel_id)
-            $('#vessel-select').trigger("chosen:updated")
-            break;
+    }
+    $('#vessel-select').val(vesselIds)
+    $('#vessel-select').trigger("chosen:updated")
+
+
+}
+
+HelpersClass.prototype.findChoosenValueForCities = function (cities, ex_city, to_city) {
+    let self = this;
+    for (i = 0; i < cities.length; i++) {
+
+        if (cities[i].city_name == ex_city) {
+            $('#ex-input').val(cities[i].city_id)
+            $('#ex-input').trigger("chosen:updated")
+        }
+        if (cities[i].city_name == to_city) {
+            $('#to-input').val(cities[i].city_id)
+            $('#to-input').trigger("chosen:updated")
         }
 
 
     }
 
 }
-
 HelpersClass.prototype.formatFloatValue = function (num) {
 
 

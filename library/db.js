@@ -119,7 +119,7 @@ DbClass.prototype.getAllIndividuals = function () {
         ' individual_groups.ind_group_cost,' +
         ' DATE_FORMAT(individual_groups.ind_group_cut_off_date, "%d/%m/%Y") as ind_group_cut_off_date,' +
         ' individual_groups.ind_group_forwarder, ' +
-        ' (SELECT Round(sum(individuals.ind_estimate_cost),2) FROM individuals WHERE ind_group_id = ind_jobs.ind_group_id) as sum_estimated_cost' +
+        ' (SELECT Round(sum(individuals.ind_estimate_cost),2) FROM individuals WHERE ind_group_id = ind_jobs.ind_group_id AND ind_deleted = 0)  as sum_estimated_cost' +
         ' FROM individuals as ind_jobs' +
         ' LEFT JOIN divisions on divisions.division_id = ind_jobs.ind_division_id' +
         ' LEFT JOIN users on users.user_id = ind_jobs.ind_user_id' +
@@ -431,9 +431,9 @@ DbClass.prototype.getAllIndividuals = function () {
 
             }).then((result) => {
                 if (result.isConfirmed) {
-                self.deleteIndividual(data);
+                    self.deleteIndividual(data);
 
-            }
+                }
 
         })
         })
@@ -470,67 +470,54 @@ DbClass.prototype.getAllDoneIndividuals = function () {
     var sql = 'SELECT ' +
         ' ind_jobs.ind_id,' +
         ' users.user_username,' +
-        ' ind_jobs.ind_is_grouped,' +
         ' ind_jobs.ind_group_id,' +
         ' divisions.division_description,' +
-        ' products.product_description,' +
+        ' ind_jobs.ind_products,' +
         ' ind_jobs.ind_mode,' +
-        ' ind_jobs.ind_carrier,' +
-        ' vessels.vessel_description,' +
-        ' ind_jobs.ind_ex as ex_port, ' +
-        ' ind_jobs.ind_to as to_port,' +
-        ' ind_jobs.ind_scheldure,' +
-        ' ind_jobs.ind_request_date,' +
-        ' DATE_FORMAT(ind_jobs.ind_request_date, "%d/%m/%Y %H:%i:%s") as ind_request_date,' +
+        ' ind_jobs.ind_vessels,' +
+        ' ex_city.city_name as ex_city,' +
+        ' to_city.city_name as to_city,' +
         ' DATE_FORMAT(ind_jobs.ind_deadline, "%d/%m/%Y") as ind_deadline,' +
-        ' DATE_FORMAT(ind_jobs.ind_cut_off_date, "%d/%m/%Y") as ind_cut_off_date,' +
+        ' DATE_FORMAT(ind_jobs.ind_request_date, "%d/%m/%Y %H:%i:%s" ) as ind_request_date,' +
         ' DATE_FORMAT(individual_groups.ind_group_cut_off_date, "%d/%m/%Y") as ind_group_cut_off_date,' +
-        ' DATE_FORMAT(ind_jobs.ind_confirmation_date, "%d/%m/%Y") as ind_confirmation_date,' +
-        ' ind_jobs.ind_status,' +
+        ' DATE_FORMAT(ind_jobs.ind_confirmation_date, "%d/%m/%Y %H:%i:%s" ) as ind_confirmation_date,' +
         ' ind_jobs.ind_forwarder,' +
-        ' ind_jobs.ind_estimate_cost,' +
+        ' ind_jobs.ind_reference,' +
+        ' ind_jobs.ind_kg,' +
+        ' Round(ind_jobs.ind_estimate_cost,2) as ind_estimate_cost,' +
         ' ind_jobs.ind_notes,' +
+        ' individual_groups.ind_group_color,' +
         ' individual_groups.ind_group_cost,' +
-        ' (SELECT sum(individuals.ind_estimate_cost) FROM individuals WHERE ind_group_id = ind_jobs.ind_group_id) as sum_estimated_cost,' +
-        ' individual_groups.ind_group_forwarder' +
-        ' FROM individuals ind_jobs' +
-        ' LEFT JOIN divisions on division_id = ind_jobs.ind_division_id' +
-        ' LEFT JOIN users on user_id = ind_jobs.ind_user_id' +
-        ' LEFT JOIN products on product_id = ind_jobs.ind_product_id' +
-        ' LEFT JOIN vessels on vessel_id = ind_jobs.ind_vessel_id' +
+        ' individual_groups.ind_group_forwarder, ' +
+        ' (SELECT Round(sum(individuals.ind_estimate_cost),2) FROM individuals WHERE ind_group_id = ind_jobs.ind_group_id AND ind_deleted = 0) as sum_estimated_cost' +
+        ' FROM individuals as ind_jobs' +
+        ' LEFT JOIN divisions on divisions.division_id = ind_jobs.ind_division_id' +
+        ' LEFT JOIN users on users.user_id = ind_jobs.ind_user_id' +
         ' LEFT JOIN individual_groups on individual_groups.ind_group_id = ind_jobs.ind_group_id' +
-        ' WHERE ind_jobs.ind_status = "Done";'
+        ' LEFT JOIN cities as ex_city on ex_city.city_id = ind_jobs.ind_ex' +
+        ' LEFT JOIN cities as to_city on to_city.city_id = ind_jobs.ind_to' +
+        ' WHERE ind_jobs.ind_status = "Done" AND ind_deleted = 0' +
+        ' ORDER BY ind_jobs.ind_group_id DESC;'
 
     connection.query(sql, function (error, data) {
         if (error) throw error;
         var dataset = [];
-
         for (i = 0; i < data.length; i++) {
             let values = Object.values(data[i])
             dataset[i] = [];
+
             for (j = 0; j < values.length; j++) {
+                if (j == 2) {
 
-                if (j == 17) {
+                    if (values[j] == 0) {
 
-                    dataset[i].push("<p style='color: #056608'>" + values[j] + "</p>")
-                } else {
-                    if (j == 2) {
-
-                        if (values[j] == 0) {
-
-                            dataset[i].push('Individual')
-                        } else {
-
-                            dataset[i].push('Group')
-                        }
-
-                    } else if (j == 19) {
-
-                        dataset[i].push(self.Helpers.formatFloatValue(String(values[j])))
+                        dataset[i].push('Individual')
                     } else {
-                        dataset[i].push(values[j])
-                    }
 
+                        dataset[i].push('Group')
+                    }
+                } else {
+                    dataset[i].push(values[j])
                 }
 
 
@@ -550,28 +537,26 @@ DbClass.prototype.getAllDoneIndividuals = function () {
             "columns": [
                 {"title": "ID", "orderable": false},
                 {"title": "USER", "orderable": false},
-                {"title": "TYPE", "orderable": false},
                 {"title": "GROUP", "orderable": false},
                 {"title": "DEPARTMENT", "orderable": false},
                 {"title": "PRODUCT", "orderable": false},
                 {"title": "MODE", "orderable": false},
-                {"title": "CARRIER", "orderable": false},
                 {"title": "VESSEL", "orderable": false},
                 {"title": "EX", "orderable": false,className: "danger-header"},
                 {"title": "TO", "orderable": false,className: "danger-header"},
-                {"title": "SCHEDULE", "orderable": false,className: "danger-header"},
+                {"title": "DEADLINE", "orderable": false,className: "danger-header"},
                 {"title": "REQ. DATE", "orderable": false},
-                {"title": "DEADLINE", "orderable": false},
-                {"title": "CUT-OFF DATE", "orderable": false},
                 {"title": "GROUP CUT-OFF DATE", "orderable": false},
                 {"title": "CONFIRMATION DATE", "orderable": false},
-                {"title": "STATUS", "orderable": false},
                 {"title": "FORWARDER", "orderable": false},
+                {"title": "REFERENCE", "orderable": false},
+                {"title": "KG", "orderable": false},
                 {"title": "ESTIMATE COST", "orderable": false},
                 {"title": "NOTES", "orderable": false},
+                {"title": "Group Color", "visible": false},
                 {"title": "Group Cost", "visible": false},
-                {"title": "Sum estimate cost", "visible": false},
                 {"title": "Group Forwarder", "visible": false},
+                {"title": "Sum estimate cost", "visible": false},
                 {
                     "title": "ACTIONS", "orderable": false,
                     "defaultContent": "<i class='fa fa-search job-edit action-btn' style='cursor: pointer'></i><i class='fa fa-dollar done-job-cost action-btn' style='cursor: pointer' ></i>"
@@ -589,7 +574,7 @@ DbClass.prototype.getAllDoneIndividuals = function () {
             var data = jobs_table.row($(this).parents('tr')).data();
 
             $('#done_ind_id').val(data[0])
-            $('#notes').val(data[20])
+            $('#notes').val(data[17])
             $('#notes-modal').modal('show')
 
 
@@ -1617,7 +1602,7 @@ DbClass.prototype.confirmIndividualGroup = function (groupID) {
     var sql = 'UPDATE individuals SET ' +
         'ind_status = "Done", ' +
         'ind_confirmation_date = "' + self.Helpers.getDateTimeNow() + '"' +
-        ' WHERE ind_group_id = ' + groupID + '; UPDATE individual_groups SET ind_group_active = 0, ind_group_confirmation_date = "' + self.Helpers.getDateTimeNow() + '" WHERE ind_group_id = ' + groupID;
+        ' WHERE ind_group_id = ' + groupID + ' AND ind_deleted = 0; UPDATE individual_groups SET ind_group_active = 0, ind_group_confirmation_date = "' + self.Helpers.getDateTimeNow() + '" WHERE ind_group_id = ' + groupID;
 
 
     var mysql = require('mysql');
@@ -2127,7 +2112,7 @@ DbClass.prototype.checkIfThereIsOneJobAloneGrouped = function () {
     let self = this;
     var mysql = require('mysql');
     var check_sql = 'Select ind_group_id, count(*) as ind_count from individuals ' +
-        'WHERE ind_is_grouped = 1 AND ind_status = "Pending"' +
+        'WHERE ind_is_grouped = 1 AND ind_status = "Pending" AND ind_deleted = 0 ' +
         'group by ind_group_id;'
 
     var newConnection = mysql.createConnection({
@@ -2142,12 +2127,13 @@ DbClass.prototype.checkIfThereIsOneJobAloneGrouped = function () {
     newConnection.query(check_sql, function (error, individuals) {
         if (error)
             throw error;
+
         for (i = 0; i < individuals.length; i++) {
-
+            console.log(individuals[i])
             if (individuals[i].ind_count == 1) {
+                console.log(individuals[i].ind_group_id)
+                var ungroup_sql = 'UPDATE individual_groups SET ind_group_color = "empty" WHERE ind_group_id = ' + individuals[i].ind_group_id + ';' + 'UPDATE individuals set ind_is_grouped = 0 WHERE ind_group_id = ' + individuals[i].ind_group_id + '; '
 
-                var ungroup_sql = 'UPDATE individuals set ind_is_grouped = 0 WHERE ind_group_id = ' + individuals[i].ind_group_id + '; ' +
-                    'UPDATE individual_groups SET ind_group_color = "empty" WHERE ind_group_id = ' + individuals[i].ind_group_id + ';'
 
                 var ungrouConn = mysql.createConnection({
                     host: self.serverIP,
@@ -2448,85 +2434,6 @@ DbClass.prototype.confirmConsolidationGroup = function (groupID) {
 
 }
 
-DbClass.prototype.addAirport = function (airportName) {
-
-    let self = this;
-
-    var sql = 'INSERT INTO airports (airport_name) VALUES ("' + airportName + '");'
-
-    var mysql = require('mysql');
-
-    var connection = mysql.createConnection({
-        host: self.serverIP,
-        user: self.user,
-        password: self.dbpass,
-        database: self.database,
-        port: self.port,
-        dateStrings: true,
-        multipleStatements: true
-    });
-
-    connection.connect();
-
-    connection.query(sql, function (error) {
-        if (error) {
-
-            alert('Unable to add airport.')
-            throw error
-
-        } else {
-
-            self.Helpers.toastr('success', 'Airport added successfully.')
-            $('#data-type-select').val('').trigger("chosen:updated");
-            $('#data-value').val('')
-            $('#add-new-data').attr('disabled', null)
-        }
-
-    });
-
-    connection.end()
-
-}
-
-DbClass.prototype.addPort = function (portName) {
-
-    let self = this;
-
-    var sql = 'INSERT INTO ports (port_name) VALUES ("' + portName + '");'
-
-    var mysql = require('mysql');
-
-    var connection = mysql.createConnection({
-        host: self.serverIP,
-        user: self.user,
-        password: self.dbpass,
-        database: self.database,
-        port: self.port,
-        dateStrings: true,
-        multipleStatements: true
-    });
-
-    connection.connect();
-
-    connection.query(sql, function (error) {
-        if (error) {
-
-            alert('Unable to add port.')
-            throw error
-
-        } else {
-
-            self.Helpers.toastr('success', 'Port added successfully.')
-            $('#data-type-select').val('').trigger("chosen:updated");
-            $('#data-value').val('')
-            $('#add-new-data').attr('disabled', null)
-        }
-
-    });
-
-    connection.end()
-
-}
 
 DbClass.prototype.addCity = function (cityName) {
 
@@ -2853,9 +2760,45 @@ DbClass.prototype.initializeManagerTable = function (indData, conData) {
 }
 
 DbClass.prototype.deleteIndividual = function(individualData) {
-    console.log("I am trying to delete this...")
-    console.log(individualData)
+    let self = this;
+
+    var sql = 'UPDATE individuals set ind_deleted = 1, ind_date_deleted = now() WHERE ind_id = ' + individualData[0] + ';'
+
+    var mysql = require('mysql');
+
+    var connection = mysql.createConnection({
+        host: self.serverIP,
+        user: self.user,
+        password: self.dbpass,
+        database: self.database,
+        port: self.port,
+        dateStrings: true
+    });
+
+    connection.connect();
+
+    connection.query(sql, function (error) {
+        if (error) {
+            throw  error;
+        }
+        if (individualData[16] === 1) {
+            //the individual was grouped
+            console.log("Individual was grouped.....")
+            self.checkIfThereIsOneJobAloneGrouped();
+        } else {
+            $('#jobs_table').unbind('click')
+            $('#jobs_table').DataTable().clear();
+            $('#jobs_table').DataTable().destroy();
+            self.getAllIndividuals();
+        }
+    })
+    connection.end()
+
+
 }
+
+
+
 
 
 

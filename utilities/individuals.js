@@ -13,12 +13,6 @@ let IndividualsClass  = function () {
 
     }, 500)
 
-    setTimeout(function() {
-
-        $('#add-job-btn').attr('disabled', null)
-
-
-    },1000)
 
 
 }

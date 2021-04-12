@@ -97,6 +97,7 @@ HelpersClass.prototype.initializeUser = function () {
     if (userFileData[3] != 1) {
 
         $('#statistics_list').attr('hidden', null)
+        $('#deleted-ind').attr('hidden', null)
         $('#add_data_list').attr('hidden', null)
         $('#vessel-option').show()
 

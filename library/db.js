@@ -450,6 +450,127 @@ DbClass.prototype.getAllIndividuals = function () {
 
 }
 
+DbClass.prototype.getAllDeletedIndividuals = function () {
+
+    let self = this;
+
+    var mysql = require('mysql');
+
+    var connection = mysql.createConnection({
+        host: self.serverIP,
+        user: self.user,
+        password: self.dbpass,
+        database: self.database,
+        port: self.port,
+        dateStrings: true
+    });
+
+    connection.connect();
+
+    var sql = 'SELECT ' +
+        ' ind_jobs.ind_id,' +
+        ' users.user_username,' +
+        ' ind_jobs.ind_group_id,' +
+        ' divisions.division_description,' +
+        ' ind_jobs.ind_products,' +
+        ' ind_jobs.ind_mode,' +
+        ' ind_jobs.ind_vessels,' +
+        ' ex_city.city_name as ex_city,' +
+        ' to_city.city_name as to_city,' +
+        ' DATE_FORMAT(ind_jobs.ind_deadline, "%d/%m/%Y") as ind_deadline,' +
+        ' DATE_FORMAT(ind_jobs.ind_request_date, "%d/%m/%Y %H:%i:%s" ) as ind_request_date,' +
+        ' DATE_FORMAT(individual_groups.ind_group_cut_off_date, "%d/%m/%Y") as ind_group_cut_off_date,' +
+        ' DATE_FORMAT(ind_jobs.ind_confirmation_date, "%d/%m/%Y %H:%i:%s" ) as ind_confirmation_date,' +
+        ' ind_jobs.ind_forwarder,' +
+        ' ind_jobs.ind_reference,' +
+        ' ind_jobs.ind_kg,' +
+        ' Round(ind_jobs.ind_estimate_cost,2) as ind_estimate_cost,' +
+        ' ind_jobs.ind_notes,' +
+        ' individual_groups.ind_group_color,' +
+        ' individual_groups.ind_group_cost,' +
+        ' individual_groups.ind_group_forwarder, ' +
+        ' (SELECT Round(sum(individuals.ind_estimate_cost),2) FROM individuals WHERE ind_group_id = ind_jobs.ind_group_id AND ind_deleted = 0) as sum_estimated_cost,' +
+        ' DATE_FORMAT(ind_jobs.ind_date_deleted, "%d/%m/%Y %H:%i:%s" ) as ind_date_deleted' +
+        ' FROM individuals as ind_jobs' +
+        ' LEFT JOIN divisions on divisions.division_id = ind_jobs.ind_division_id' +
+        ' LEFT JOIN users on users.user_id = ind_jobs.ind_user_id' +
+        ' LEFT JOIN individual_groups on individual_groups.ind_group_id = ind_jobs.ind_group_id' +
+        ' LEFT JOIN cities as ex_city on ex_city.city_id = ind_jobs.ind_ex' +
+        ' LEFT JOIN cities as to_city on to_city.city_id = ind_jobs.ind_to' +
+        ' WHERE ind_deleted = 1' +
+        ' ORDER BY ind_jobs.ind_group_id DESC;'
+
+    connection.query(sql, function (error, data) {
+        if (error) throw error;
+        var dataset = [];
+        for (i = 0; i < data.length; i++) {
+            let values = Object.values(data[i])
+            dataset[i] = [];
+
+            for (j = 0; j < values.length; j++) {
+                dataset[i].push(values[j])
+
+
+            }
+
+        }
+
+
+        var jobs_table = $('#deleted_individuals_table').DataTable({
+            "data": dataset,
+            "fixedHeader": {
+                headerOffset: 100,
+                header: true,
+                footer: false
+            },
+            "bLengthChange": false,
+            "columns": [
+                {"title": "ID", "orderable": false},
+                {"title": "USER", "orderable": false},
+                {"title": "GROUP", "orderable": false},
+                {"title": "DEPARTMENT", "orderable": false},
+                {"title": "PRODUCT", "orderable": false},
+                {"title": "MODE", "orderable": false},
+                {"title": "VESSEL", "orderable": false},
+                {"title": "EX", "orderable": false,className: "danger-header"},
+                {"title": "TO", "orderable": false,className: "danger-header"},
+                {"title": "DEADLINE", "orderable": false,className: "danger-header"},
+                {"title": "REQ. DATE", "orderable": false},
+                {"title": "GROUP CUT-OFF DATE", "orderable": false},
+                {"title": "CONFIRMATION DATE", "orderable": false},
+                {"title": "FORWARDER", "orderable": false},
+                {"title": "REFERENCE", "orderable": false},
+                {"title": "KG", "orderable": false},
+                {"title": "ESTIMATE COST", "orderable": false},
+                {"title": "NOTES", "visible": false},
+                {"title": "Group Color", "visible": false},
+                {"title": "Group Cost", "visible": false},
+                {"title": "Group Forwarder", "visible": false},
+                {"title": "Sum estimate cost", "visible": false},
+                {"title": "DELETED DATE", "visible": true},
+                // {
+                //     "title": "ACTIONS", "orderable": false,
+                //     "defaultContent": "<i class='fa fa-search job-edit action-btn' style='cursor: pointer'></i><i class='fa fa-dollar done-job-cost action-btn' style='cursor: pointer' ></i>"
+                // }
+
+            ],
+            "order": [[3, 'desc']],
+            "pageLength": 25
+        });
+
+
+
+        $("#search_datatable").keyup(function () {
+            jobs_table.search($(this).val()).draw();
+        });
+
+
+    });
+
+    connection.end();
+
+}
+
 DbClass.prototype.getAllDoneIndividuals = function () {
 
     let self = this;
@@ -552,7 +673,7 @@ DbClass.prototype.getAllDoneIndividuals = function () {
                 {"title": "REFERENCE", "orderable": false},
                 {"title": "KG", "orderable": false},
                 {"title": "ESTIMATE COST", "orderable": false},
-                {"title": "NOTES", "orderable": false},
+                {"title": "NOTES", "visible": false},
                 {"title": "Group Color", "visible": false},
                 {"title": "Group Cost", "visible": false},
                 {"title": "Group Forwarder", "visible": false},

@@ -450,6 +450,244 @@ DbClass.prototype.getAllIndividuals = function () {
 
 }
 
+DbClass.prototype.getAllPersonnel = function () {
+
+    let self = this;
+
+    var mysql = require('mysql');
+
+    var connection = mysql.createConnection({
+        host: self.serverIP,
+        user: self.user,
+        password: self.dbpass,
+        database: self.database,
+        port: self.port,
+        dateStrings: true
+    });
+
+    connection.connect();
+
+    var sql = 'SELECT ' +
+        ' per_jobs.per_id,' +
+        ' users.user_username,' +
+        ' divisions.division_description,' +
+        ' per_jobs.per_products,' +
+        ' per_jobs.per_mode,' +
+        ' per_jobs.per_vessels,' +
+        ' per_jobs.per_name,' +
+        ' ex_city.city_name as ex_city,' +
+        ' to_city.city_name as to_city,' +
+        ' DATE_FORMAT(per_jobs.per_deadline, "%d/%m/%Y") as per_deadline,' +
+        ' DATE_FORMAT(per_jobs.per_request_date, "%d/%m/%Y %H:%i:%s" ) as per_request_date,' +
+        ' per_jobs.per_kg,' +
+        ' Round(per_jobs.per_estiamte_cost,2) as per_estiamte_cost,' +
+        ' per_jobs.per_notes' +
+        ' FROM personnel as per_jobs' +
+        ' LEFT JOIN divisions on divisions.division_id = per_jobs.per_division_id' +
+        ' LEFT JOIN users on users.user_id = per_jobs.per_user_id' +
+        ' LEFT JOIN cities as ex_city on ex_city.city_id = per_jobs.per_ex' +
+        ' LEFT JOIN cities as to_city on to_city.city_id = per_jobs.per_to' +
+        ' WHERE per_jobs.per_status = "Pending" AND per_deleted = 0' +
+        ' ORDER BY per_jobs.per_id DESC;'
+
+
+    connection.query(sql, function (error, data) {
+        if (error) throw error;
+        var dataset = [];
+        for (i = 0; i < data.length; i++) {
+            let values = Object.values(data[i])
+            dataset[i] = [];
+
+            for (j = 0; j < values.length; j++) {
+                dataset[i].push(values[j])
+
+            }
+
+        }
+        var jobs_table = $('#personnel_table').DataTable({
+            "data": dataset,
+            "processing": true,
+            "fixedHeader": {
+                headerOffset: 100,
+                header: true,
+                footer: false
+            },
+            "bLengthChange": false,
+            "columns": [
+                {"title": "ID", "orderable": false},
+                {"title": "USER", "orderable": false},
+                {"title": "DEPARTMENT", "orderable": false},
+                {"title": "PRODUCTS", "orderable": false},
+                {"title": "MODE", "orderable": false},
+                {"title": "VESSELS", "orderable": false},
+                {"title": "NAME", "orderable": false},
+                {"title": "EX", "orderable": false, className: "danger-header"},
+                {"title": "TO", "orderable": false, className: "danger-header"},
+                {"title": "DEADLINE", "orderable": false,  className: "danger-header"},
+                {"title": "REQ. DATE", "orderable": false},
+                {"title": "KG", "orderable": false},
+                {"title": "ESTIMATE COST (€)", "orderable": false},
+                {"title": "NOTES", "visible": false},
+                {
+                    "title": "ACTIONS",
+                    "orderable": false,
+                    "defaultContent": "<i class='fa fa-search job-edit action-btn' style='cursor: pointer'></i><i class='fa fa-check confirm-job action-btn' style='cursor: pointer' ></i><i class='fa fa-trash delete-job action-btn' style='cursor: pointer' ></i>"
+                }
+
+            ],
+            "order": [[0, 'desc']],
+            "pageLength": 25
+
+        });
+
+
+        $('#personnel_table').on('click', 'i.job-edit', function () {
+
+            var data = jobs_table.row($(this).closest('tr')).data();
+            self.Helpers.initliazeModalToEditJob(self.divisions, self.products, self.vessels, self.cities, data);
+
+            $('#job-modal-header').removeClass('noFloat floatMeLeft floatMeRight')
+            $('#save-job-btn').unbind('click')
+            $('#save-job-btn').on('click', function () {
+
+
+                $(this).attr('disabled', 'disabled')
+                var modeSelectValue = $('#mode-select').val()
+                var divisionSelectValue = $('#division-select').val()
+                var productSelectValue = $('#product-select').val()
+                var vesselSelectValue = $('#vessel-select').val()
+                var estimatecostSelectValue = self.Helpers.formatFloatValue($('#estimate_cost').val())
+                var forwarder = $('#forwarder').val()
+                var ind_ex = $('#ex-input').val();
+                var ind_to = $('#to-input').val();
+                var reference = $('#reference').val();
+                var kg = $('#kg').val();
+                var deadline = $('#deadline_date').val()
+
+                console.log(data)
+                if (deadline != '' & modeSelectValue != '' && divisionSelectValue != '' && productSelectValue != '' && vesselSelectValue != '' && estimatecostSelectValue != '' && forwarder != '') {
+
+                    $(this).attr('disabled', 'disabled')
+
+                    //change productIds to product Names
+                    var productsNames = [];
+                    for (i = 0; i < self.products.length; i++) {
+                        if (productSelectValue.indexOf(self.products[i].product_id.toString()) !== -1) {
+                            //this means i found the product
+                            productsNames.push(self.products[i].product_description)
+                        }
+                    }
+
+                    var vesselsNames = [];
+                    for (i = 0; i < self.vessels.length; i++) {
+                        if (vesselSelectValue.indexOf(self.vessels[i].vessel_id.toString()) !== -1) {
+                            //this means i found the vessel
+                            vesselsNames.push(self.vessels[i].vessel_description)
+                        }
+                    }
+
+                    if (ind_ex != '' && ind_to != '') {
+                        var jobObject = {
+                            ind_id: data[0],
+                            ind_user_id: self.Helpers.user_id,
+                            ind_division_id: divisionSelectValue,
+                            ind_products: productsNames.join(';'),
+                            ind_mode: modeSelectValue,
+                            ind_vessels: vesselsNames.join(';'),
+                            ind_ex: ind_ex,
+                            ind_to: ind_to,
+                            ind_deadline: self.Helpers.changeDateToMysql(deadline),
+                            ind_forwarder: forwarder,
+                            ind_notes: $('#notes').val(),
+                            ind_estimate_cost: estimatecostSelectValue,
+                            ind_reference: reference,
+                            ind_kg: kg,
+                            ind_group_id: 0,
+                            old_group_id: data[15]
+
+
+                        }
+
+                        self.updateJob(jobObject);
+
+                    } else {
+
+                        $(this).attr('disabled', null)
+                        self.Helpers.toastr('error', 'Some required fields are empty.')
+
+                    }
+                } else {
+
+                    $(this).attr('disabled', null)
+                    self.Helpers.toastr('error', 'Some required fields are empty.')
+
+                }
+
+
+            })
+
+
+        })
+
+        $('#personnel_table').on('click', 'i.confirm-job', function () {
+
+            var data = jobs_table.row($(this).closest('tr')).data();
+            //checking if the individual is grouped...
+
+                Swal.fire({
+                    title: "Are you sure?",
+                    text: "If you confirm the job you will be unable to edit it!",
+                    icon: "warning",
+                    showCancelButton: true,
+                    cancelButtonText: "Cancel",
+                    confirmButtonColor: "#dc3545",
+                    confirmButtonText: "Confirm",
+
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                    self.confirmIndividualGroup(data[15]);
+
+                }
+
+            })
+
+
+        })
+
+
+        $('#personnel_table').on('click', 'i.delete-job', function () {
+
+            var data = jobs_table.row($(this).closest('tr')).data();
+            Swal.fire({
+                title: "Delete Job?",
+                text: "Are you sure you want to delete this job? You won't be able to revert it!",
+                icon: "warning",
+                showCancelButton: true,
+                cancelButtonText: "Cancel",
+                confirmButtonColor: "#dc3545",
+                confirmButtonText: "Confirm",
+
+            }).then((result) => {
+                if (result.isConfirmed) {
+                self.deletePersonnel(data);
+
+            }
+
+        })
+        })
+
+
+        $("#search_datatable").keyup(function () {
+            jobs_table.search($(this).val()).draw();
+        });
+
+    });
+
+
+    connection.end();
+
+}
+
 DbClass.prototype.getAllDeletedIndividuals = function () {
 
     let self = this;
@@ -2912,6 +3150,40 @@ DbClass.prototype.deleteIndividual = function(individualData) {
             $('#jobs_table').DataTable().destroy();
             self.getAllIndividuals();
         }
+    })
+    connection.end()
+
+
+}
+
+DbClass.prototype.deletePersonnel = function(perData) {
+    let self = this;
+
+    var sql = 'UPDATE personnel set per_deleted = 1, per_date_deleted = now() WHERE per_id = ' + perData[0] + ';'
+
+    var mysql = require('mysql');
+
+    var connection = mysql.createConnection({
+        host: self.serverIP,
+        user: self.user,
+        password: self.dbpass,
+        database: self.database,
+        port: self.port,
+        dateStrings: true
+    });
+
+    connection.connect();
+
+    connection.query(sql, function (error) {
+        if (error) {
+            throw  error;
+        }
+
+            $('#personnel_table').unbind('click')
+            $('#personnel_table').DataTable().clear();
+            $('#personnel_table').DataTable().destroy();
+            self.getAllPersonnel();
+
     })
     connection.end()
 

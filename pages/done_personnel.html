@@ -49,17 +49,16 @@
 
     <style>
 
-        .action-btn {
-
-            padding: 5px;
-        }
-
         .table thead th {
             color: black;
             font-weight: bold;
 
         }
 
+        .action-btn {
+
+            padding: 5px;
+        }
         .dataTables_filter {
             display: none;
 
@@ -72,20 +71,19 @@
 
 <!-- Start Notes modal -->
 <div aria-hidden="true" class="modal fade bd-example-modal-sm" role="dialog" tabindex="-1" style="top: 15%"
-     id="consol-notes-modal">
-    <div id="edit-notes-consolidation-head" class="modal-dialog modal-sm">
+     id="notes-modal">
+    <div id="edit-notes-modal-header" class="modal-dialog modal-sm">
         <div class="modal-content">
             <div class="modal-header">
                 <button class="close move-left" type="button"><i class="icon-arrow-left"></i></button>
                 <h5 class="modal-title">Edit notes</h5>
-
                 <button class="close move-right" type="button"><i class="icon-arrow-right"></i></button>
 
             </div>
             <div class="modal-body">
                 <div class="form-group col-sm-12" style="display: none">
 
-                    <input class="form-control" id="done_consolidation_id">
+                    <input class="form-control" id="done_ind_id">
                 </div>
                 <div class="form-group col-sm-12">
                     <label>Notes</label>
@@ -94,62 +92,91 @@
             </div>
             <div class="modal-footer">
                 <button class="btn btn-secondary" data-dismiss="modal" type="button"> Close</button>
-                <button class="btn btn-primary" type="button" id="save-consol-notes"> Save changes</button>
+                <button class="btn btn-primary" type="button" id="save-notes"> Save changes</button>
             </div>
         </div>
     </div>
 </div>
 <!-- Start Notes modal -->
 
-<div aria-hidden="true" class="modal fade" role="dialog" tabindex="-1" style="top: 15%"
-     id="done-consolidation-cost-modal">
-    <div id="cost-done-cons-head" class="modal-dialog modal-sm">
+<!-- Start Costs modal -->
+<div aria-hidden="true" class="modal fade" role="dialog" tabindex="-1" style="top: 15%" id="done-costs-modal">
+    <div id="cost-data-modal-header" class="modal-dialog">
         <div class="modal-content">
             <div class="modal-header">
                 <button class="close move-left" type="button"><i class="icon-arrow-left"></i></button>
                 <h5 class="modal-title">Cost Data</h5>
-
                 <button class="close move-right" type="button"><i class="icon-arrow-right"></i></button>
 
             </div>
             <div class="modal-body">
-                <div class="col-sm-12">
-                    <div class="form-group">
-                        <label> Consolidation Cost (€)</label>
-                        <input class="form-control" placeholder="Consolidation group cost €"
-                               id="consolidation_group_cost" disabled>
+                <div class="row">
+                    <div class="col-sm-12">
+                        <div class="form-group">
+                            <label> Individual cost €</label>
+                            <input class="form-control" placeholder="Job estimate cost €" id="job_estimate_costs"
+                                   disabled>
+                        </div>
                     </div>
+
                 </div>
                 <div id="group-cost-div">
-                    <div class="col-sm-12">
-                        <div class="form-group">
-                            <label> Consolidation Group ID</label>
-                            <input class="form-control" placeholder="Consolidation ID" id="consolidation_id" disabled>
+                    <div class="row">
+
+                        <div class="col-sm-6">
+                            <div class="form-group">
+                                <label> Group ID</label>
+                                <input class="form-control" placeholder="Group ID" id="group_id" disabled>
+                            </div>
+                        </div>
+                        <div class="col-sm-6">
+                            <div class="form-group">
+                                <label> Group Cost €</label>
+                                <input class="form-control" placeholder="Group cost €" id="group_cost" disabled>
+                            </div>
                         </div>
                     </div>
-                    <div class="col-sm-12">
-                        <div class="form-group">
-                            <label> Shared Cost €</label>
-                            <input class="form-control" placeholder="Shared Cost €" id="shared_consolidation_cost"
-                                   disabled>
+                    <div class="row">
+                        <div class="col-sm-4">
+                            <div class="form-group">
+                                <label> Saving %</label>
+                                <input class="form-control" placeholder="Saving %" id="saving_percent" disabled>
+                            </div>
+                        </div>
+                        <div class="col-sm-4">
+                            <div class="form-group">
+                                <label> Saving €</label>
+                                <input class="form-control" placeholder="Saving €" id="saving_amount" disabled>
+                            </div>
+                        </div>
+                        <div class="col-sm-4">
+                            <div class="form-group">
+                                <label> Shared cost €</label>
+                                <input class="form-control" placeholder="Shared cost €" id="shared_cost" disabled>
+                            </div>
                         </div>
                     </div>
-                    <div class="col-sm-12">
-                        <div class="form-group">
-                            <label> Rate per KG</label>
-                            <input class="form-control" placeholder="Shared Cost" id="rate_per_kg"
-                                   disabled>
+                    <div class="row">
+                        <div class="col-sm-12">
+                            <div class="form-group">
+                                <label> Group Forwarder</label>
+                                <input class="form-control" placeholder="Group forwarder" id="group_forwarder" disabled>
+                            </div>
                         </div>
                     </div>
+
+
                 </div>
-                <div class="modal-footer">
-                    <button class="btn btn-secondary" data-dismiss="modal" type="button"> Close</button>
-                </div>
+
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" data-dismiss="modal" type="button"> Close</button>
+
             </div>
         </div>
     </div>
 </div>
-
+<!-- End Costs modal -->
 
 <nav class="fixed-header">
 
@@ -196,7 +223,7 @@
 
                 <li>
 
-                    <a href="javascript:void(0);" class="have-submenu">
+                    <a href="javascript:void(0);" class="have-submenu active">
                         <span class="icon-thumbnail"><i class="dripicons-align-center"></i></span>
                         <span class="title">Individuals</span>
                     </a>
@@ -223,7 +250,7 @@
                 </li>
                 <li>
 
-                    <a href="javascript:void(0);" class="have-submenu active">
+                    <a href="javascript:void(0);" class="have-submenu">
                         <span class="icon-thumbnail"><i class="dripicons-align-justify"></i></span>
                         <span class="title">Consolidations</span>
                     </a>
@@ -281,7 +308,6 @@
                 </li>
                 <li id="actions_list">
 
-
                     <button class="btn btn-danger mt-2" onclick="window.location.reload()">REFRESH</button>
 
 
@@ -301,7 +327,6 @@
         <div class="content sm-gutter">
 
             <div class="container-fluid">
-                &nbsp;&nbsp;&nbsp;
 
                 <div class="row">
 
@@ -309,7 +334,7 @@
                         <div class="block bg-trans table-block mb-4">
                             <div class="row">
                                 <div class="table-responsive">
-                                    <table id="done_consolidations_table" class="display table table-striped"
+                                    <table id="done_individuals_table" class="display table table-striped"
                                            style="width: 100%">
                                     </table>
                                 </div>
@@ -331,6 +356,7 @@
         <!-- Copyright -->
 
     </footer>
+
 </section>
 
 <script>if (typeof module === 'object') {
@@ -384,7 +410,7 @@
 <!--- Main JS -->
 <script src="../assets/js/main.js"></script>
 <script src="../library/helpers.js"></script>
-<script src="../utilities/doneConsolidations.js"></script>
+<script src="../utilities/donePersonnel.js"></script>
 <script src="../library/db.js"></script>
 <script>
 
@@ -394,7 +420,7 @@
     const {app, BrowserWindow} = require('electron').remote;
     const {ipcRenderer} = electron;
 
-    let myDoneConsolidations = new DoneConsolidationsClass();
+    let myDonePersonnel = new DonePersonnelClass();
 
 </script>
 

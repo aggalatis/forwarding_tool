@@ -98,6 +98,7 @@ HelpersClass.prototype.initializeUser = function () {
 
         $('#statistics_list').attr('hidden', null)
         $('#deleted-ind').attr('hidden', null)
+        $('#deleted-person').attr('hidden', null)
         $('#add_data_list').attr('hidden', null)
         $('#vessel-option').show()
 

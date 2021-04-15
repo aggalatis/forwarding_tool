@@ -30,10 +30,10 @@ DonePersonnelClass.prototype.bindEventsOnButtons = function() {
 
     $('#save-notes').on('click', function() {
 
-        var jobID = $('#done_ind_id').val();
+        var jobID = $('#done_per_id').val();
         var notesText = $('#notes').val();
 
-        self.DB.saveNotesChanges(jobID, notesText);
+        self.DB.savePerNotesChanges(jobID, notesText);
 
 
     })
@@ -46,7 +46,7 @@ DonePersonnelClass.prototype.initializetable = function() {
     let self= this;
 
 
-    self.DB.getAllDoneIndividuals(self.Helpers);
+    self.DB.getAllDonePersonnel(self.Helpers);
 
 
 

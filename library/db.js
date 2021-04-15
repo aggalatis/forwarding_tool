@@ -473,14 +473,16 @@ DbClass.prototype.getAllPersonnel = function () {
         ' divisions.division_description,' +
         ' per_jobs.per_products,' +
         ' per_jobs.per_mode,' +
-        ' per_jobs.per_vessels,' +
         ' per_jobs.per_name,' +
+        ' per_jobs.per_vessels,' +
         ' ex_city.city_name as ex_city,' +
         ' to_city.city_name as to_city,' +
         ' DATE_FORMAT(per_jobs.per_deadline, "%d/%m/%Y") as per_deadline,' +
         ' DATE_FORMAT(per_jobs.per_request_date, "%d/%m/%Y %H:%i:%s" ) as per_request_date,' +
         ' per_jobs.per_kg,' +
-        ' Round(per_jobs.per_estiamte_cost,2) as per_estiamte_cost,' +
+        ' Round(per_jobs.per_estimate_cost,2) as per_estiamte_cost,' +
+        ' Round(per_jobs.per_actual_cost,2) as per_actual_cost,' +
+        ' Round(per_jobs.per_saving,2) as per_saving,' +
         ' per_jobs.per_notes' +
         ' FROM personnel as per_jobs' +
         ' LEFT JOIN divisions on divisions.division_id = per_jobs.per_division_id' +
@@ -504,7 +506,7 @@ DbClass.prototype.getAllPersonnel = function () {
             }
 
         }
-        var jobs_table = $('#personnel_table').DataTable({
+        var personnel_table = $('#personnel_table').DataTable({
             "data": dataset,
             "processing": true,
             "fixedHeader": {
@@ -519,14 +521,16 @@ DbClass.prototype.getAllPersonnel = function () {
                 {"title": "DEPARTMENT", "orderable": false},
                 {"title": "PRODUCTS", "orderable": false},
                 {"title": "MODE", "orderable": false},
-                {"title": "VESSELS", "orderable": false},
                 {"title": "NAME", "orderable": false},
+                {"title": "VESSELS", "orderable": false},
                 {"title": "EX", "orderable": false, className: "danger-header"},
                 {"title": "TO", "orderable": false, className: "danger-header"},
                 {"title": "DEADLINE", "orderable": false,  className: "danger-header"},
                 {"title": "REQ. DATE", "orderable": false},
                 {"title": "KG", "orderable": false},
                 {"title": "ESTIMATE COST (€)", "orderable": false},
+                {"title": "ACTUAL COST (€)", "orderable": false},
+                {"title": "SAVINGS (€)", "orderable": false},
                 {"title": "NOTES", "visible": false},
                 {
                     "title": "ACTIONS",
@@ -543,12 +547,12 @@ DbClass.prototype.getAllPersonnel = function () {
 
         $('#personnel_table').on('click', 'i.job-edit', function () {
 
-            var data = jobs_table.row($(this).closest('tr')).data();
-            self.Helpers.initliazeModalToEditJob(self.divisions, self.products, self.vessels, self.cities, data);
+            var data = personnel_table.row($(this).closest('tr')).data();
+            self.Helpers.initliazeModalToEditPersonnel(self.divisions, self.products, self.vessels, self.cities, data);
 
             $('#job-modal-header').removeClass('noFloat floatMeLeft floatMeRight')
-            $('#save-job-btn').unbind('click')
-            $('#save-job-btn').on('click', function () {
+            $('#save-per-btn').unbind('click')
+            $('#save-per-btn').on('click', function () {
 
 
                 $(this).attr('disabled', 'disabled')
@@ -556,16 +560,16 @@ DbClass.prototype.getAllPersonnel = function () {
                 var divisionSelectValue = $('#division-select').val()
                 var productSelectValue = $('#product-select').val()
                 var vesselSelectValue = $('#vessel-select').val()
+                var per_ex = $('#ex-input').val();
+                var per_to = $('#to-input').val();
                 var estimatecostSelectValue = self.Helpers.formatFloatValue($('#estimate_cost').val())
-                var forwarder = $('#forwarder').val()
-                var ind_ex = $('#ex-input').val();
-                var ind_to = $('#to-input').val();
-                var reference = $('#reference').val();
+                var actualCostValue = self.Helpers.formatFloatValue($('#actual_cost').val())
+                var name = $('#name').val()
+                var savings = self.Helpers.formatFloatValue($('#saving').val())
                 var kg = $('#kg').val();
                 var deadline = $('#deadline_date').val()
 
-                console.log(data)
-                if (deadline != '' & modeSelectValue != '' && divisionSelectValue != '' && productSelectValue != '' && vesselSelectValue != '' && estimatecostSelectValue != '' && forwarder != '') {
+                if (deadline != '' & modeSelectValue != '' && divisionSelectValue != '' && productSelectValue != '' && vesselSelectValue != '' && estimatecostSelectValue != '' && actualCostValue != '' && name != '' && name != '') {
 
                     $(this).attr('disabled', 'disabled')
 
@@ -585,42 +589,39 @@ DbClass.prototype.getAllPersonnel = function () {
                             vesselsNames.push(self.vessels[i].vessel_description)
                         }
                     }
+                    if (per_ex != '' && per_to != '') {
 
-                    if (ind_ex != '' && ind_to != '') {
-                        var jobObject = {
-                            ind_id: data[0],
-                            ind_user_id: self.Helpers.user_id,
-                            ind_division_id: divisionSelectValue,
-                            ind_products: productsNames.join(';'),
-                            ind_mode: modeSelectValue,
-                            ind_vessels: vesselsNames.join(';'),
-                            ind_ex: ind_ex,
-                            ind_to: ind_to,
-                            ind_deadline: self.Helpers.changeDateToMysql(deadline),
-                            ind_forwarder: forwarder,
-                            ind_notes: $('#notes').val(),
-                            ind_estimate_cost: estimatecostSelectValue,
-                            ind_reference: reference,
-                            ind_kg: kg,
-                            ind_group_id: 0,
-                            old_group_id: data[15]
+                        var personnelData = {
+                            per_id: data[0],
+                            per_user_id: self.Helpers.user_id,
+                            per_division_id: divisionSelectValue,
+                            per_products: productsNames.join(';'),
+                            per_vessels: vesselsNames.join(';'),
+                            per_mode: modeSelectValue,
+                            per_ex: per_ex,
+                            per_to: per_to,
+                            per_name: name,
+                            per_kg: kg,
+                            per_deadline: self.Helpers.changeDateToMysql(deadline),
+                            per_estimate_cost: estimatecostSelectValue,
+                            per_actual_cost: actualCostValue,
+                            per_savings: savings,
+                            per_notes: $('#notes').val()
 
 
                         }
-
-                        self.updateJob(jobObject);
-
+                        self.updatePersonnel(personnelData);
                     } else {
-
                         $(this).attr('disabled', null)
                         self.Helpers.toastr('error', 'Some required fields are empty.')
-
                     }
+
+
+
                 } else {
 
                     $(this).attr('disabled', null)
                     self.Helpers.toastr('error', 'Some required fields are empty.')
-
                 }
 
 
@@ -631,7 +632,7 @@ DbClass.prototype.getAllPersonnel = function () {
 
         $('#personnel_table').on('click', 'i.confirm-job', function () {
 
-            var data = jobs_table.row($(this).closest('tr')).data();
+            var data = personnel_table.row($(this).closest('tr')).data();
             //checking if the individual is grouped...
 
                 Swal.fire({
@@ -645,7 +646,7 @@ DbClass.prototype.getAllPersonnel = function () {
 
                 }).then((result) => {
                     if (result.isConfirmed) {
-                    self.confirmIndividualGroup(data[15]);
+                    self.confirmPersonnel(data[0]);
 
                 }
 
@@ -657,7 +658,7 @@ DbClass.prototype.getAllPersonnel = function () {
 
         $('#personnel_table').on('click', 'i.delete-job', function () {
 
-            var data = jobs_table.row($(this).closest('tr')).data();
+            var data = personnel_table.row($(this).closest('tr')).data();
             Swal.fire({
                 title: "Delete Job?",
                 text: "Are you sure you want to delete this job? You won't be able to revert it!",
@@ -678,7 +679,7 @@ DbClass.prototype.getAllPersonnel = function () {
 
 
         $("#search_datatable").keyup(function () {
-            jobs_table.search($(this).val()).draw();
+            personnel_table.search($(this).val()).draw();
         });
 
     });
@@ -807,6 +808,110 @@ DbClass.prototype.getAllDeletedIndividuals = function () {
 
     connection.end();
 
+}
+
+DbClass.prototype.getAllDeletedPersonnel = function() {
+
+    let self = this;
+
+    var mysql = require('mysql');
+
+    var connection = mysql.createConnection({
+        host: self.serverIP,
+        user: self.user,
+        password: self.dbpass,
+        database: self.database,
+        port: self.port,
+        dateStrings: true
+    });
+
+    connection.connect();
+
+    var sql = 'SELECT ' +
+        ' per_jobs.per_id,' +
+        ' users.user_username,' +
+        ' divisions.division_description,' +
+        ' per_jobs.per_products,' +
+        ' per_jobs.per_mode,' +
+        ' per_jobs.per_name,' +
+        ' per_jobs.per_vessels,' +
+        ' ex_city.city_name as ex_city,' +
+        ' to_city.city_name as to_city,' +
+        ' DATE_FORMAT(per_jobs.per_deadline, "%d/%m/%Y") as per_deadline,' +
+        ' DATE_FORMAT(per_jobs.per_request_date, "%d/%m/%Y %H:%i:%s" ) as per_request_date,' +
+        ' per_jobs.per_kg,' +
+        ' Round(per_jobs.per_estimate_cost,2) as per_estiamte_cost,' +
+        ' Round(per_jobs.per_actual_cost,2) as per_actual_cost,' +
+        ' Round(per_jobs.per_saving,2) as per_saving,' +
+        ' DATE_FORMAT(per_jobs.per_date_deleted, "%d/%m/%Y %H:%i:%s" ) as per_date_deleted,' +
+        ' per_jobs.per_notes' +
+        ' FROM personnel as per_jobs' +
+        ' LEFT JOIN divisions on divisions.division_id = per_jobs.per_division_id' +
+        ' LEFT JOIN users on users.user_id = per_jobs.per_user_id' +
+        ' LEFT JOIN cities as ex_city on ex_city.city_id = per_jobs.per_ex' +
+        ' LEFT JOIN cities as to_city on to_city.city_id = per_jobs.per_to' +
+        ' WHERE per_deleted = 1' +
+        ' ORDER BY per_jobs.per_id DESC;'
+
+    connection.query(sql, function (error, data) {
+        if (error) throw error;
+        var dataset = [];
+        for (i = 0; i < data.length; i++) {
+            let values = Object.values(data[i])
+            dataset[i] = [];
+            for (j = 0; j < values.length; j++) {
+
+                dataset[i].push(values[j])
+
+
+
+            }
+
+        }
+
+        var deleted_personnel_table = $('#deleted_personnel_table').DataTable({
+            "data": dataset,
+            "fixedHeader": {
+                headerOffset: 100,
+                header: true,
+                footer: false
+            },
+            "bLengthChange": false,
+            "columns": [
+                {"title": "ID", "orderable": false},
+                {"title": "USER", "orderable": false},
+                {"title": "DEPARTMENT", "orderable": false},
+                {"title": "PRODUCT", "orderable": false},
+                {"title": "MODE", "orderable": false},
+                {"title": "NAME", "orderable": false},
+                {"title": "VESSEL", "orderable": false},
+                {"title": "EX", "orderable": false,className: "danger-header"},
+                {"title": "TO", "orderable": false,className: "danger-header"},
+                {"title": "DEADLINE", "orderable": false,className: "danger-header"},
+                {"title": "REQ. DATE", "orderable": false},
+                {"title": "KG", "orderable": false},
+                {"title": "ESTIMATE COST", "orderable": false},
+                {"title": "ACTUAL COST", "orderable": false},
+                {"title": "SAVINGS", "orderable": false},
+                {"title": "DELETED DATE", "orderable": false},
+                {"title": "NOTES", "visible": false},
+
+            ],
+            "order": [[1, 'desc']],
+            "pageLength": 25
+        });
+
+
+
+
+        $("#search_datatable").keyup(function () {
+            deleted_personnel_table.search($(this).val()).draw();
+        });
+
+
+    });
+
+    connection.end();
 }
 
 DbClass.prototype.getAllDoneIndividuals = function () {
@@ -975,6 +1080,126 @@ DbClass.prototype.getAllDoneIndividuals = function () {
 
         $("#search_datatable").keyup(function () {
             jobs_table.search($(this).val()).draw();
+        });
+
+
+    });
+
+    connection.end();
+
+}
+
+DbClass.prototype.getAllDonePersonnel = function () {
+
+    let self = this;
+
+    var mysql = require('mysql');
+
+    var connection = mysql.createConnection({
+        host: self.serverIP,
+        user: self.user,
+        password: self.dbpass,
+        database: self.database,
+        port: self.port,
+        dateStrings: true
+    });
+
+    connection.connect();
+
+    var sql = 'SELECT ' +
+        ' per_jobs.per_id,' +
+        ' users.user_username,' +
+        ' divisions.division_description,' +
+        ' per_jobs.per_products,' +
+        ' per_jobs.per_mode,' +
+        ' per_jobs.per_name,' +
+        ' per_jobs.per_vessels,' +
+        ' ex_city.city_name as ex_city,' +
+        ' to_city.city_name as to_city,' +
+        ' DATE_FORMAT(per_jobs.per_deadline, "%d/%m/%Y") as per_deadline,' +
+        ' DATE_FORMAT(per_jobs.per_request_date, "%d/%m/%Y %H:%i:%s" ) as per_request_date,' +
+        ' DATE_FORMAT(per_jobs.per_confirmation_date, "%d/%m/%Y %H:%i:%s" ) as per_confirmation_date,' +
+        ' per_jobs.per_kg,' +
+        ' Round(per_jobs.per_estimate_cost,2) as per_estiamte_cost,' +
+        ' Round(per_jobs.per_actual_cost,2) as per_actual_cost,' +
+        ' Round(per_jobs.per_saving,2) as per_saving,' +
+        ' per_jobs.per_notes' +
+        ' FROM personnel as per_jobs' +
+        ' LEFT JOIN divisions on divisions.division_id = per_jobs.per_division_id' +
+        ' LEFT JOIN users on users.user_id = per_jobs.per_user_id' +
+        ' LEFT JOIN cities as ex_city on ex_city.city_id = per_jobs.per_ex' +
+        ' LEFT JOIN cities as to_city on to_city.city_id = per_jobs.per_to' +
+        ' WHERE per_jobs.per_status = "Done" AND per_deleted = 0' +
+        ' ORDER BY per_jobs.per_id DESC;'
+
+    connection.query(sql, function (error, data) {
+        if (error) throw error;
+        var dataset = [];
+        for (i = 0; i < data.length; i++) {
+            let values = Object.values(data[i])
+            dataset[i] = [];
+            for (j = 0; j < values.length; j++) {
+
+                    dataset[i].push(values[j])
+
+
+
+            }
+
+        }
+
+        var done_personnel_table = $('#done_personnel_table').DataTable({
+            "data": dataset,
+            "fixedHeader": {
+                headerOffset: 100,
+                header: true,
+                footer: false
+            },
+            "bLengthChange": false,
+            "columns": [
+                {"title": "ID", "orderable": false},
+                {"title": "USER", "orderable": false},
+                {"title": "DEPARTMENT", "orderable": false},
+                {"title": "PRODUCT", "orderable": false},
+                {"title": "MODE", "orderable": false},
+                {"title": "NAME", "orderable": false},
+                {"title": "VESSEL", "orderable": false},
+                {"title": "EX", "orderable": false,className: "danger-header"},
+                {"title": "TO", "orderable": false,className: "danger-header"},
+                {"title": "DEADLINE", "orderable": false,className: "danger-header"},
+                {"title": "REQ. DATE", "orderable": false},
+                {"title": "CONFIRMATION DATE", "orderable": false},
+                {"title": "KG", "orderable": false},
+                {"title": "ESTIMATE COST", "orderable": false},
+                {"title": "ACTUAL COST", "orderable": false},
+                {"title": "SAVINGS", "orderable": false},
+                {"title": "NOTES", "visible": false},
+                {
+                    "title": "ACTIONS", "orderable": false,
+                    "defaultContent": "<i class='fa fa-search job-edit action-btn' style='cursor: pointer'></i>"
+                }
+
+            ],
+            "order": [[1, 'desc']],
+            "pageLength": 25
+        });
+
+
+        $('#done_personnel_table').on('click', 'i.job-edit', function () {
+
+            $('#job-modal-header').removeClass('noFloat floatMeLeft floatMeRight')
+            var data = done_personnel_table.row($(this).parents('tr')).data();
+
+            $('#done_per_id').val(data[0])
+            $('#notes').val(data[16])
+            $('#notes-modal').modal('show')
+
+
+        })
+
+
+        $("#search_datatable").keyup(function () {
+            done_personnel_table.search($(this).val()).draw();
         });
 
 
@@ -1741,6 +1966,81 @@ DbClass.prototype.addIndividual = function (indiavidualObject) {
 
 }
 
+DbClass.prototype.addPersonnel = function (personnelObject) {
+
+    let self = this;
+    var sql = 'INSERT INTO personnel (' +
+        'per_user_id, ' +
+        'per_division_id, ' +
+        'per_products, ' +
+        'per_mode, ' +
+        'per_name, ' +
+        'per_vessels, ' +
+        'per_ex, ' +
+        'per_to, ' +
+        'per_request_date, ' +
+        'per_deadline, ' +
+        'per_status, ' +
+        'per_estimate_cost, ' +
+        'per_actual_cost, ' +
+        'per_saving, ' +
+        'per_notes, ' +
+        'per_kg, ' +
+        'per_deleted' + ') VALUES (' +
+        personnelObject.per_user_id + ', ' +
+        personnelObject.per_division_id + ', "' +
+        personnelObject.per_products + '", "' +
+        personnelObject.per_mode + '", "' +
+        personnelObject.per_name + '", "' +
+        personnelObject.per_vessels + '", ' +
+        personnelObject.per_ex + ', ' +
+        personnelObject.per_to + ', "' +
+        self.Helpers.getDateTimeNow() + '", "' +
+        personnelObject.per_deadline + '", "' +
+        "Pending" + '", ' +
+        personnelObject.per_estimate_cost + ', ' +
+        personnelObject.per_actual_cost + ', ' +
+        personnelObject.per_savings + ',"' +
+        personnelObject.per_notes + '", ' +
+        personnelObject.per_kg + ', 0)'
+
+    var mysql = require('mysql');
+
+    var connection = mysql.createConnection({
+        host: self.serverIP,
+        user: self.user,
+        password: self.dbpass,
+        database: self.database,
+        port: self.port,
+        dateStrings: true
+    });
+
+    connection.connect();
+
+    connection.query(sql, function (error, result) {
+        if (error) {
+
+            $('#save-per-btn').attr('disabled', null)
+            self.Helpers.toastr('error', 'Unable to add this job.')
+            throw  error;
+
+        } else {
+
+            $('#personnel_table').unbind('click')
+            $('#personnel_table').DataTable().clear();
+            $('#personnel_table').DataTable().destroy();
+            $('#add-per-modal').modal('hide')
+            self.getAllPersonnel()
+
+        }
+
+    });
+
+    connection.end()
+
+
+}
+
 DbClass.prototype.addConsolidation = function (consolidationObj) {
 
     let self = this;
@@ -1876,6 +2176,63 @@ DbClass.prototype.updateJob = function (jobObject) {
             $('#jobs_table').DataTable().destroy();
             self.handleIndividualGroupsUpdate(jobObject)
 
+        }
+
+    });
+
+    connection.end()
+
+}
+
+DbClass.prototype.updatePersonnel = function (personnelData) {
+
+    let self = this;
+
+
+    var sql = 'UPDATE personnel SET ' +
+        'per_division_id = ' + personnelData.per_division_id + ', ' +
+        'per_products = "' + personnelData.per_products + '", ' +
+        'per_mode = "' + personnelData.per_mode + '", ' +
+        'per_name = "' + personnelData.per_name + '", ' +
+        'per_vessels = "' + personnelData.per_vessels + '", ' +
+        'per_ex = ' + personnelData.per_ex + ', ' +
+        'per_to = ' + personnelData.per_to + ', ' +
+        'per_deadline = "' + personnelData.per_deadline + '", ' +
+        'per_estimate_cost = ' + personnelData.per_estimate_cost + ', ' +
+        'per_actual_cost = ' + personnelData.per_actual_cost + ', ' +
+        'per_saving = ' + personnelData.per_savings + ', ' +
+        'per_notes = "' + personnelData.per_notes + '", ' +
+        'per_kg = ' + personnelData.per_kg +
+        ' WHERE per_id = ' + personnelData.per_id;
+
+
+    var mysql = require('mysql');
+
+    var connection = mysql.createConnection({
+        host: self.serverIP,
+        user: self.user,
+        password: self.dbpass,
+        database: self.database,
+        port: self.port,
+        dateStrings: true
+    });
+
+    connection.connect();
+
+    connection.query(sql, function (error, result) {
+        if (error) {
+
+            $('#save-per-btn').attr('disabled', null)
+            alert('Unable to modify job.')
+            throw error
+
+        } else {
+
+            $('#add-per-modal').modal('hide')
+            $('#personnel_table').unbind('click')
+            $('#personnel_table').DataTable().clear();
+            $('#personnel_table').DataTable().destroy();
+            self.getAllPersonnel()
         }
 
     });
@@ -2034,6 +2391,51 @@ DbClass.prototype.saveNotesChanges = function (jobID, noteText) {
             $('#done_individuals_table').DataTable().clear();
             $('#done_individuals_table').DataTable().destroy();
             self.getAllDoneIndividuals();
+
+        }
+
+    });
+
+    connection.end()
+
+
+}
+
+DbClass.prototype.savePerNotesChanges = function (jobID, noteText) {
+
+    let self = this;
+
+    var sql = 'UPDATE personnel SET ' +
+        'per_notes = "' + noteText + '" ' +
+        ' WHERE per_id = ' + jobID;
+
+
+    var mysql = require('mysql');
+
+    var connection = mysql.createConnection({
+        host: self.serverIP,
+        user: self.user,
+        password: self.dbpass,
+        database: self.database,
+        port: self.port,
+        dateStrings: true
+    });
+
+    connection.connect();
+
+    connection.query(sql, function (error, result) {
+        if (error) {
+
+            alert('Unable to modify notes.')
+            throw error
+
+        } else {
+
+            $('#notes-modal').modal('hide')
+            $('#done_personnel_table').unbind('click')
+            $('#done_personnel_table').DataTable().clear();
+            $('#done_personnel_table').DataTable().destroy();
+            self.getAllDonePersonnel();
 
         }
 
@@ -3189,6 +3591,41 @@ DbClass.prototype.deletePersonnel = function(perData) {
 
 
 }
+
+DbClass.prototype.confirmPersonnel = function(per_id) {
+    let self = this;
+
+    var sql = 'UPDATE personnel set per_status = "Done", per_confirmation_date = now() WHERE per_id = ' + per_id + ';'
+
+    var mysql = require('mysql');
+
+    var connection = mysql.createConnection({
+        host: self.serverIP,
+        user: self.user,
+        password: self.dbpass,
+        database: self.database,
+        port: self.port,
+        dateStrings: true
+    });
+
+    connection.connect();
+
+    connection.query(sql, function (error) {
+        if (error) {
+            throw  error;
+        }
+
+        $('#personnel_table').unbind('click')
+        $('#personnel_table').DataTable().clear();
+        $('#personnel_table').DataTable().destroy();
+        self.getAllPersonnel();
+
+    })
+    connection.end()
+
+
+}
+
 
 
 

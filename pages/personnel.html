@@ -87,6 +87,36 @@
 
                         <div class="col-sm-4">
                             <div class="form-group">
+                                <label> Department*</label>
+                                <select class="form-control select" id="division-select"
+                                        data-placeholder="Choose a department..." tabindex="1">
+
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-sm-4">
+                            <div class="form-group">
+                                <label> Product*</label>
+                                <select class="form-control select" id="product-select" multiple
+                                        data-placeholder="Choose a product..." tabindex="1">
+
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-sm-4">
+                            <div class="form-group">
+                                <label> Vessel*</label>
+                                <select class="form-control select" id="vessel-select" multiple
+                                        data-placeholder="Choose a vessel..." tabindex="1">
+                                </select>
+                            </div>
+                        </div>
+
+                    </div>
+                    <div class="row">
+
+                        <div class="col-sm-4">
+                            <div class="form-group">
                                 <label> Mode*</label>
                                 <select class="form-control select" id="mode-select" data-placeholder="Choose mode..."
                                         tabindex="1">
@@ -121,44 +151,32 @@
                         </div>
 
                     </div>
+
                     <div class="row">
-
                         <div class="col-sm-4">
                             <div class="form-group">
-                                <label> Department*</label>
-                                <select class="form-control select" id="division-select"
-                                        data-placeholder="Choose a department..." tabindex="1">
-
-                                </select>
+                                <label> Name*</label>
+                                <input class="form-control" placeholder="Type Name..." id="name">
                             </div>
                         </div>
                         <div class="col-sm-4">
                             <div class="form-group">
-                                <label> Product*</label>
-                                <select class="form-control select" id="product-select" multiple
-                                        data-placeholder="Choose a product..." tabindex="1">
-
-                                </select>
+                                <label> KG*</label>
+                                <input type="number" class="form-control" placeholder="Type Kilos..." id="kg">
                             </div>
                         </div>
-                        <div class="col-sm-4">
-                            <div class="form-group">
-                                <label> Vessel*</label>
-                                <select class="form-control select" id="vessel-select" multiple
-                                        data-placeholder="Choose a vessel..." tabindex="1">
-                                </select>
+                        <div class="form-group col-sm-4">
+                            <label>Deadline*</label>
+                            <div class="input-group">
+                                <span class="input-group-addon text-dark"><i
+                                        class="ion-ios-calendar-outline"></i></span>
+                                <input class="single-date-picker form-control" type="text" placeholder="Select deadline"
+                                       id="deadline_date">
                             </div>
                         </div>
 
                     </div>
-
                     <div class="row">
-                        <div class="col-sm-4">
-                            <div class="form-group">
-                                <label> Forwarder*</label>
-                                <input class="form-control" placeholder="Type forwarder data..." id="forwarder">
-                            </div>
-                        </div>
                         <div class="col-sm-4">
                             <div class="form-group">
                                 <label> Estimate cost (€)*</label>
@@ -168,32 +186,18 @@
                         </div>
                         <div class="col-sm-4">
                             <div class="form-group">
-                                <label> KG*</label>
-                                <input type="number" class="form-control" placeholder="Type Kilos..." id="kg">
-                            </div>
-                        </div>
-
-
-                    </div>
-                    <div class="row">
-
-
-                        <div class="col-sm-6">
-                            <div class="form-group">
-                                <label> Reference*</label>
-                                <input class="form-control" placeholder="Type reference number..." id="reference"
+                                <label> Actual Cost (€)*</label>
+                                <input class="form-control" placeholder="Type actual cost (€)..." id="actual_cost"
                                        type="text">
                             </div>
                         </div>
-                        <div class="form-group col-sm-6">
-                            <label>Deadline*</label>
-                            <div class="input-group">
-                                <span class="input-group-addon text-dark"><i
-                                        class="ion-ios-calendar-outline"></i></span>
-                                <input class="single-date-picker form-control" type="text" placeholder="Select deadline"
-                                       id="deadline_date">
+                        <div class="col-sm-4">
+                            <div class="form-group">
+                                <label> Saving (€)</label>
+                                <input type="number" class="form-control" placeholder="Savings are calculated automatically" id="saving" disabled>
                             </div>
                         </div>
+
 
                     </div>
                     <div class="row">
@@ -209,7 +213,7 @@
             </div>
             <div class="modal-footer">
                 <button class="btn btn-secondary" data-dismiss="modal" type="button"> Close</button>
-                <button class="btn btn-primary" type="button" id="save-job-btn"> Save Job</button>
+                <button class="btn btn-primary" type="button" id="save-per-btn"> Save Job</button>
             </div>
         </div>
     </div>
@@ -352,7 +356,7 @@
 
                 <li>
 
-                    <a href="javascript:void(0);" class="have-submenu active">
+                    <a href="javascript:void(0);" class="have-submenu">
                         <span class="icon-thumbnail"><i class="dripicons-align-center"></i></span>
                         <span class="title">Individuals</span>
                     </a>
@@ -400,7 +404,7 @@
                 </li>
                 <li>
 
-                    <a href="javascript:void(0);" class="have-submenu">
+                    <a href="javascript:void(0);" class="have-submenu active">
                         <span class="icon-thumbnail"><i class="dripicons-user-group"></i></span>
                         <span class="title">Personnel</span>
                     </a>
@@ -559,7 +563,7 @@
     const {app, BrowserWindow} = require('electron').remote;
     const {ipcRenderer} = electron;
 
-    let myPersonnekl = new PersonnelClass();
+    let myPersonnel = new PersonnelClass();
 
 
 </script>

@@ -43,10 +43,13 @@ PersonnelClass.prototype.bindEventsOnButtons = function() {
         //empty all fields
         $('#modal-title-text').html('Add Personnel')
         $('#job-modal-header').removeClass('noFloat floatMeLeft floatMeRight')
-        $('#save-job-btn').attr('disabled', null)
+        $('#save-per-btn').attr('disabled', null)
         $('#product-select').val('').attr('disabled', true).trigger("chosen:updated")
         $('#mode-select').val('').trigger("chosen:updated")
         $('#estimate_cost').val('')
+        $('#actual_cost').val('')
+        $('#saving').val('')
+        $('#name').val('')
         $('#kg').val('')
         $('#notes').val('')
         $('#deadline_date').val('')
@@ -113,31 +116,40 @@ PersonnelClass.prototype.bindEventsOnButtons = function() {
 
     })
 
+    $('#estimate_cost').on('change', function() {
+
+        $('#saving').val($(this).val() - $('#actual_cost').val())
+    })
+
+    $('#actual_cost').on('change', function() {
+        $('#saving').val($('#estimate_cost').val() - $(this).val())
+    })
+
 }
 
 PersonnelClass.prototype.bindSaveEventOnSaveJobButton = function() {
 
     let self = this;
 
-    $('#save-job-btn').unbind('click')
+    $('#save-per-btn').unbind('click')
 
 
-    $('#save-job-btn').on('click',function() {
-
+    $('#save-per-btn').on('click',function() {
 
         var modeSelectValue = $('#mode-select').val()
         var divisionSelectValue = $('#division-select').val()
         var productSelectValue = $('#product-select').val()
         var vesselSelectValue = $('#vessel-select').val()
+        var per_ex = $('#ex-input').val();
+        var per_to = $('#to-input').val();
         var estimatecostSelectValue = self.Helpers.formatFloatValue($('#estimate_cost').val())
-        var forwarder = $('#forwarder').val()
-        var ind_ex = $('#ex-input').val();
-        var ind_to = $('#to-input').val();
-        var reference = $('#reference').val();
+        var actualCostValue = self.Helpers.formatFloatValue($('#actual_cost').val())
+        var name = $('#name').val()
+        var savings = self.Helpers.formatFloatValue($('#saving').val())
         var kg = $('#kg').val();
         var deadline = $('#deadline_date').val()
 
-        if (deadline != '' & modeSelectValue != '' && divisionSelectValue != '' && productSelectValue != '' && vesselSelectValue != '' && estimatecostSelectValue != '' && forwarder != '') {
+        if (deadline != '' & modeSelectValue != '' && divisionSelectValue != '' && productSelectValue != '' && vesselSelectValue != '' && estimatecostSelectValue != '' && actualCostValue != '' && name != '' && name != '') {
 
             $(this).attr('disabled', 'disabled')
 
@@ -157,28 +169,29 @@ PersonnelClass.prototype.bindSaveEventOnSaveJobButton = function() {
                     vesselsNames.push(self.DB.vessels[i].vessel_description)
                 }
             }
-            if (ind_ex != '' && ind_to != '') {
+            if (per_ex != '' && per_to != '') {
 
-                var individualData = {
+                var personnelData = {
 
-                    ind_user_id: self.Helpers.user_id,
-                    ind_division_id: divisionSelectValue,
-                    ind_products: productsNames.join(';'),
-                    ind_mode: modeSelectValue,
-                    ind_vessels: vesselsNames.join(';'),
-                    ind_ex: ind_ex,
-                    ind_to: ind_to,
-                    ind_deadline: self.Helpers.changeDateToMysql(deadline),
-                    ind_forwarder: forwarder,
-                    ind_notes: $('#notes').val(),
-                    ind_estimate_cost: estimatecostSelectValue,
-                    ind_group_id: 0,
-                    ind_reference: reference,
-                    ind_kg: kg
+                    per_user_id: self.Helpers.user_id,
+                    per_division_id: divisionSelectValue,
+                    per_products: productsNames.join(';'),
+                    per_vessels: vesselsNames.join(';'),
+                    per_mode: modeSelectValue,
+                    per_ex: per_ex,
+                    per_to: per_to,
+                    per_name: name,
+                    per_kg: kg,
+                    per_deadline: self.Helpers.changeDateToMysql(deadline),
+                    per_estimate_cost: estimatecostSelectValue,
+                    per_actual_cost: actualCostValue,
+                    per_savings: savings,
+                    per_notes: $('#notes').val()
+
 
                 }
-                console.log(individualData)
-                self.DB.addIndividual(individualData);
+                console.log(personnelData)
+                self.DB.addPersonnel(personnelData);
             } else {
                 $(this).attr('disabled', null)
                 self.Helpers.toastr('error', 'Some required fields are empty.')

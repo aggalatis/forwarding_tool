@@ -36,7 +36,7 @@ DeletedPersonnelClass.prototype.initializetable = function() {
     let self= this;
 
 
-    self.DB.getAllDeletedIndividuals(self.Helpers);
+    self.DB.getAllDeletedPersonnel(self.Helpers);
 
 
 

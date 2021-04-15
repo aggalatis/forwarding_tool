@@ -83,7 +83,7 @@
             <div class="modal-body">
                 <div class="form-group col-sm-12" style="display: none">
 
-                    <input class="form-control" id="done_ind_id">
+                    <input class="form-control" id="done_per_id">
                 </div>
                 <div class="form-group col-sm-12">
                     <label>Notes</label>
@@ -98,85 +98,6 @@
     </div>
 </div>
 <!-- Start Notes modal -->
-
-<!-- Start Costs modal -->
-<div aria-hidden="true" class="modal fade" role="dialog" tabindex="-1" style="top: 15%" id="done-costs-modal">
-    <div id="cost-data-modal-header" class="modal-dialog">
-        <div class="modal-content">
-            <div class="modal-header">
-                <button class="close move-left" type="button"><i class="icon-arrow-left"></i></button>
-                <h5 class="modal-title">Cost Data</h5>
-                <button class="close move-right" type="button"><i class="icon-arrow-right"></i></button>
-
-            </div>
-            <div class="modal-body">
-                <div class="row">
-                    <div class="col-sm-12">
-                        <div class="form-group">
-                            <label> Individual cost €</label>
-                            <input class="form-control" placeholder="Job estimate cost €" id="job_estimate_costs"
-                                   disabled>
-                        </div>
-                    </div>
-
-                </div>
-                <div id="group-cost-div">
-                    <div class="row">
-
-                        <div class="col-sm-6">
-                            <div class="form-group">
-                                <label> Group ID</label>
-                                <input class="form-control" placeholder="Group ID" id="group_id" disabled>
-                            </div>
-                        </div>
-                        <div class="col-sm-6">
-                            <div class="form-group">
-                                <label> Group Cost €</label>
-                                <input class="form-control" placeholder="Group cost €" id="group_cost" disabled>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="row">
-                        <div class="col-sm-4">
-                            <div class="form-group">
-                                <label> Saving %</label>
-                                <input class="form-control" placeholder="Saving %" id="saving_percent" disabled>
-                            </div>
-                        </div>
-                        <div class="col-sm-4">
-                            <div class="form-group">
-                                <label> Saving €</label>
-                                <input class="form-control" placeholder="Saving €" id="saving_amount" disabled>
-                            </div>
-                        </div>
-                        <div class="col-sm-4">
-                            <div class="form-group">
-                                <label> Shared cost €</label>
-                                <input class="form-control" placeholder="Shared cost €" id="shared_cost" disabled>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="row">
-                        <div class="col-sm-12">
-                            <div class="form-group">
-                                <label> Group Forwarder</label>
-                                <input class="form-control" placeholder="Group forwarder" id="group_forwarder" disabled>
-                            </div>
-                        </div>
-                    </div>
-
-
-                </div>
-
-            </div>
-            <div class="modal-footer">
-                <button class="btn btn-secondary" data-dismiss="modal" type="button"> Close</button>
-
-            </div>
-        </div>
-    </div>
-</div>
-<!-- End Costs modal -->
 
 <nav class="fixed-header">
 
@@ -223,7 +144,7 @@
 
                 <li>
 
-                    <a href="javascript:void(0);" class="have-submenu active">
+                    <a href="javascript:void(0);" class="have-submenu">
                         <span class="icon-thumbnail"><i class="dripicons-align-center"></i></span>
                         <span class="title">Individuals</span>
                     </a>
@@ -271,7 +192,7 @@
                 </li>
                 <li>
 
-                    <a href="javascript:void(0);" class="have-submenu">
+                    <a href="javascript:void(0);" class="have-submenu active">
                         <span class="icon-thumbnail"><i class="dripicons-user-group"></i></span>
                         <span class="title">Personnel</span>
                     </a>
@@ -334,7 +255,7 @@
                         <div class="block bg-trans table-block mb-4">
                             <div class="row">
                                 <div class="table-responsive">
-                                    <table id="done_individuals_table" class="display table table-striped"
+                                    <table id="done_personnel_table" class="display table table-striped"
                                            style="width: 100%">
                                     </table>
                                 </div>

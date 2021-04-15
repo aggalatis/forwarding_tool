@@ -188,57 +188,42 @@ HelpersClass.prototype.initliazeModalToEditConsolidation = function (divisions, 
     $('#pieces').val(jobData[11])
     $('#volume_weight').val(jobData[12])
 
-
-    switch (jobData[4]) {
-        case "Air": {
-            $('#ex-select-port-div').hide()
-            $('#to-select-port-div').hide()
-            $('#to-input-div').hide()
-            $('#ex-input-div').hide()
-
-            $('#ex-select-airport').val(jobData[16]).trigger("chosen:updated")
-            $('#to-select-airport').val(jobData[17]).trigger("chosen:updated")
-
-            $('#ex-select-airport-div').show();
-            $('#to-select-airport-div').show();
-
-            break;
-        }
-        case "Sea": {
-            $('#ex-select-airport-div').hide()
-            $('#to-select-airport-div').hide()
-            $('#to-input-div').hide()
-            $('#ex-input-div').hide()
-
-            $('#ex-select-port').val(jobData[16]).trigger("chosen:updated")
-            $('#to-select-port').val(jobData[17]).trigger("chosen:updated")
-
-            $('#ex-select-port-div').show();
-            $('#to-select-port-div').show();
-
-            break;
-        }
-        default:
-            $('#ex-select-airport-div').hide()
-            $('#to-select-airport-div').hide()
-            $('#ex-select-port-div').hide()
-            $('#to-select-port-div').hide()
-
-            $('#ex-input').val(jobData[16]).trigger("chosen:updated")
-            $('#to-input').val(jobData[17]).trigger("chosen:updated")
-
-            $('#to-input-div').show();
-            $('#ex-input-div').show();
-            break;
-
-
-    }
+    $('#ex-input').val(jobData[16]).trigger("chosen:updated")
+    $('#to-input').val(jobData[17]).trigger("chosen:updated")
 
 
     $('#save-job-btn').attr('disabled', null)
 
 
     $('#add-consolidation-modal').modal('show')
+
+}
+
+HelpersClass.prototype.initliazeModalToEditPersonnel = function (divisions, products, vessels, cities, jobData) {
+
+    let self = this;
+    myPersonnel.initializeDivisionsSelect();
+    self.findChoosenValueForDivision(divisions, jobData[2]);
+    myPersonnel.initializeProductsSelect(divisions[i].division_id)
+    self.findChoosenValueForProducts(products, jobData[3]);
+    myPersonnel.initialiazeVesselsSelect();
+    self.findChoosenValueForVessels(vessels, jobData[6]);
+    myPersonnel.initialiazeCitiesSelect();
+    self.findChoosenValueForCities(cities, jobData[7], jobData[8])
+
+    $('#modal-title-text').html('Edit Personnel')
+    $('#mode-select').val(jobData[4])
+    $('#mode-select').trigger("chosen:updated")
+    $('#deadline_date').val(jobData[9])
+    $('#name').val(jobData[5])
+    $('#kg').val(jobData[11])
+    $('#estimate_cost').val(jobData[12])
+    $('#actual_cost').val(jobData[13])
+    $('#saving').val(jobData[14])
+    $('#notes').val(jobData[15])
+
+    $('#save-per-btn').attr('disabled', null)
+    $('#add-per-modal').modal('show')
 
 }
 
@@ -352,12 +337,15 @@ HelpersClass.prototype.addCityAlert = function (myDB) {
         showConfirmButton: true,
         inputValidator: (value) => {
         if (!value) {
-            return 'You need to write something!'
+            return 'Please type city name first..'
         }
         }
 
     }).then((cityObj) => {
-        myDB.addCity(cityObj.value)
+        if (cityObj.isConfirmed) {
+            myDB.addCity(cityObj.value)
+        }
+
 
     })
 }

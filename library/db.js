@@ -3230,9 +3230,9 @@ DbClass.prototype.addCity = function (cityName) {
         } else {
 
             self.Helpers.toastr('success', 'City added successfully.')
-            $('#data-type-select').val('').trigger("chosen:updated");
-            $('#data-value').val('')
-            $('#add-new-data').attr('disabled', null)
+            setTimeout(function() {
+                window.location.reload()
+            }, 2000)
 
         }
 
@@ -3271,9 +3271,9 @@ DbClass.prototype.addVessel = function (vesselName) {
         } else {
 
             self.Helpers.toastr('success', 'Vessel added successfully.')
-            $('#data-type-select').val('').trigger("chosen:updated");
-            $('#data-value').val('')
-            $('#add-new-data').attr('disabled', null)
+            setTimeout(function() {
+                window.location.reload()
+            }, 2000)
         }
 
     });
@@ -3560,6 +3560,74 @@ DbClass.prototype.deleteIndividual = function(individualData) {
     })
     connection.end()
 
+
+}
+
+DbClass.prototype.deleteCity = function(city_id) {
+
+    let self = this;
+
+    var sql = 'DELETE FROM cities WHERE city_id = ' + city_id + ' LIMIT 1;'
+
+    var mysql = require('mysql');
+
+    var connection = mysql.createConnection({
+        host: self.serverIP,
+        user: self.user,
+        password: self.dbpass,
+        database: self.database,
+        port: self.port,
+        dateStrings: true
+    });
+
+    connection.connect();
+
+    connection.query(sql, function (error) {
+        if (error) {
+            throw  error;
+        }
+
+        self.Helpers.toastr('success', 'City deleted')
+        setTimeout(function() {
+            window.location.reload()
+        }, 2000)
+
+    })
+    connection.end()
+
+}
+
+DbClass.prototype.deleteVessel = function(vessel_id) {
+
+    let self = this;
+
+    var sql = 'DELETE FROM vessels WHERE vessel_id = ' + vessel_id + ' LIMIT 1;'
+
+    var mysql = require('mysql');
+
+    var connection = mysql.createConnection({
+        host: self.serverIP,
+        user: self.user,
+        password: self.dbpass,
+        database: self.database,
+        port: self.port,
+        dateStrings: true
+    });
+
+    connection.connect();
+
+    connection.query(sql, function (error) {
+        if (error) {
+            throw  error;
+        }
+        self.Helpers.toastr('success', 'Vessel deleted')
+        setTimeout(function() {
+            window.location.reload()
+        }, 2000)
+
+
+    })
+    connection.end()
 
 }
 

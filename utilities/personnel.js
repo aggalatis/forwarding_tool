@@ -213,18 +213,12 @@ PersonnelClass.prototype.bindSaveEventOnSaveJobButton = function() {
 PersonnelClass.prototype.initializetable = function() {
     let self= this;
 
-
     self.DB.getAllPersonnel(self.Helpers);
     self.DB.getAllDivisions();
     self.DB.getAllCities();
     self.DB.getAllProducts();
     self.DB.getAllVessels();
     self.DB.getAllColors();
-
-
-
-
-
 
 }
 

@@ -25,6 +25,9 @@ addDataClass.prototype.addEventsOnButtons = function() {
 
 
     $('#data-type-select').chosen();
+    $('#del-data-type-select').chosen();
+    $('#del-city-select').chosen();
+    $('#del-vessel-select').chosen();
 
     $('#add-new-data').on('click', function() {
 
@@ -51,6 +54,23 @@ addDataClass.prototype.addEventsOnButtons = function() {
             $('#add-new-data').attr('disabled', null)
             self.Helpers.toastr('error', 'Some fields are empty. Please try again')
     }
+
+    })
+
+    $('#del-data-type-select').on('change', function() {
+        console.log($(this).val())
+        let chosen_value = $(this).val()
+
+        if (chosen_value == 'del-city') {
+            $('#del-vessel-div').hide()
+            $('#del-city-div').show(350)
+
+        }
+        if (chosen_value == 'del-vessel') {
+            $('#del-city-div').hide()
+            $('#del-vessel-div').show(350)
+
+        }
 
     })
 

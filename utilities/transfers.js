@@ -138,10 +138,10 @@ TransfersClass.prototype.bindSaveEventOnSaveJobButton = function() {
         var ind_ex = $('#ex-input').val();
         var ind_to = $('#to-input').val();
         var reference = $('#reference').val();
-        var kg = $('#kg').val();
+        var kg = self.Helpers.formatFloatValue($('#kg').val()) ;
         var deadline = $('#deadline_date').val()
 
-        if (deadline != '' & modeSelectValue != '' && divisionSelectValue != '' && productSelectValue != '' && vesselSelectValue != '' && estimatecostSelectValue != '' && forwarder != '') {
+        if (deadline != '' & modeSelectValue != '' && divisionSelectValue != '' && productSelectValue != '' && vesselSelectValue != '') {
 
             $(this).attr('disabled', 'disabled')
 

@@ -136,18 +136,18 @@ HelpersClass.prototype.initliazeModalToEditJob = function (divisions, products, 
 
     let self = this;
     myTransfers.initializeDivisionsSelect();
-    self.findChoosenValueForDivision(divisions, jobData[2]);
+    self.findChoosenValueForDivision(divisions, jobData[3]);
     myTransfers.initializeProductsSelect(divisions[i].division_id)
-    self.findChoosenValueForProducts(products, jobData[3]);
+    self.findChoosenValueForProducts(products, jobData[4]);
     myTransfers.initialiazeVesselsSelect();
-    self.findChoosenValueForVessels(vessels, jobData[5]);
+    self.findChoosenValueForVessels(vessels, jobData[6]);
     myTransfers.initialiazeCitiesSelect();
-    self.findChoosenValueForCities(cities, jobData[6], jobData[7])
+    self.findChoosenValueForCities(cities, jobData[7], jobData[8])
 
     $('#modal-title-text').html('Edit Job')
-    $('#mode-select').val(jobData[4])
+    $('#mode-select').val(jobData[5])
     $('#mode-select').trigger("chosen:updated")
-    $('#deadline_date').val(jobData[8])
+    $('#deadline_date').val(jobData[9])
     $('#forwarder').val(jobData[10])
     $('#reference').val(jobData[11])
     $('#kg').val(jobData[12])
@@ -203,19 +203,19 @@ HelpersClass.prototype.initliazeModalToEditPersonnel = function (divisions, prod
 
     let self = this;
     myPersonnel.initializeDivisionsSelect();
-    self.findChoosenValueForDivision(divisions, jobData[2]);
+    self.findChoosenValueForDivision(divisions, jobData[3]);
     myPersonnel.initializeProductsSelect(divisions[i].division_id)
-    self.findChoosenValueForProducts(products, jobData[3]);
+    self.findChoosenValueForProducts(products, jobData[4]);
     myPersonnel.initialiazeVesselsSelect();
-    self.findChoosenValueForVessels(vessels, jobData[6]);
+    self.findChoosenValueForVessels(vessels, jobData[7]);
     myPersonnel.initialiazeCitiesSelect();
-    self.findChoosenValueForCities(cities, jobData[7], jobData[8])
+    self.findChoosenValueForCities(cities, jobData[8], jobData[9])
 
     $('#modal-title-text').html('Edit Personnel')
-    $('#mode-select').val(jobData[4])
+    $('#mode-select').val(jobData[5])
     $('#mode-select').trigger("chosen:updated")
-    $('#deadline_date').val(jobData[9])
-    $('#name').val(jobData[5])
+    $('#deadline_date').val(jobData[10])
+    $('#name').val(jobData[6])
     $('#kg').val(jobData[11])
     $('#estimate_cost').val(jobData[12])
     $('#actual_cost').val(jobData[13])
@@ -316,10 +316,10 @@ HelpersClass.prototype.formatFloatValue = function (num) {
 
     } else if (num !== '' && num !== 'null') {
 
-
         return num + ".00"
+
     } else {
-        return null;
+        return 0;
     }
 
 

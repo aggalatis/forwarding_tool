@@ -99,6 +99,7 @@ DbClass.prototype.getAllIndividuals = function () {
 
     var sql = 'SELECT ' +
         ' ind_jobs.ind_id,' +
+        ' DATE_FORMAT(ind_jobs.ind_request_date, "%d/%m/%Y %H:%i:%s" ) as ind_request_date,' +
         ' users.user_username,' +
         ' divisions.division_description,' +
         ' ind_jobs.ind_products,' +
@@ -107,7 +108,6 @@ DbClass.prototype.getAllIndividuals = function () {
         ' ex_city.city_name as ex_city,' +
         ' to_city.city_name as to_city,' +
         ' DATE_FORMAT(ind_jobs.ind_deadline, "%d/%m/%Y") as ind_deadline,' +
-        ' DATE_FORMAT(ind_jobs.ind_request_date, "%d/%m/%Y %H:%i:%s" ) as ind_request_date,' +
         ' ind_jobs.ind_forwarder,' +
         ' ind_jobs.ind_reference,' +
         ' ind_jobs.ind_kg,' +
@@ -154,6 +154,7 @@ DbClass.prototype.getAllIndividuals = function () {
             "bLengthChange": false,
             "columns": [
                 {"title": "ID", "orderable": false},
+                {"title": "REQ. DATE", "orderable": false},
                 {"title": "USER", "orderable": false},
                 {"title": "DEPARTMENT", "orderable": false},
                 {"title": "PRODUCTS", "orderable": false},
@@ -162,7 +163,6 @@ DbClass.prototype.getAllIndividuals = function () {
                 {"title": "EX", "orderable": false, className: "danger-header"},
                 {"title": "TO", "orderable": false, className: "danger-header"},
                 {"title": "DEADLINE", "orderable": false,  className: "danger-header"},
-                {"title": "REQ. DATE", "orderable": false},
                 {"title": "FORWARDER", "orderable": false},
                 {"title": "REFERENCE", "orderable": false},
                 {"title": "KG", "orderable": false},
@@ -185,13 +185,13 @@ DbClass.prototype.getAllIndividuals = function () {
                     "visible": false
                 },
                 {
-                    "title": "GROUP COD",
-                    "visible": true
+                    "title": "GROUP DEADLINE",
+                    "orderable": false
                 },
 
                 {
-                    "title": "Group forwarder",
-                    "visible": false
+                    "title": "GROUP FORWARDER",
+                    "orderable": false
                 },
                 {
                     "title": "Sum estimate cost",
@@ -238,11 +238,11 @@ DbClass.prototype.getAllIndividuals = function () {
                 var ind_ex = $('#ex-input').val();
                 var ind_to = $('#to-input').val();
                 var reference = $('#reference').val();
-                var kg = $('#kg').val();
+                var kg = self.Helpers.formatFloatValue($('#kg').val());
                 var deadline = $('#deadline_date').val()
 
                 console.log(data)
-                if (deadline != '' & modeSelectValue != '' && divisionSelectValue != '' && productSelectValue != '' && vesselSelectValue != '' && estimatecostSelectValue != '' && forwarder != '') {
+                if (deadline != '' & modeSelectValue != '' && divisionSelectValue != '' && productSelectValue != '' && vesselSelectValue != '') {
 
                     $(this).attr('disabled', 'disabled')
 
@@ -376,6 +376,7 @@ DbClass.prototype.getAllIndividuals = function () {
             var data = jobs_table.row($(this).closest('tr')).data();
             $('#cost-modal-header').removeClass('noFloat floatMeLeft floatMeRight')
             $('#job_estimate_costs').val(data[13])
+            $('#department').val(data[3])
 
             if (data[16] == 0) {
 
@@ -469,6 +470,7 @@ DbClass.prototype.getAllPersonnel = function () {
 
     var sql = 'SELECT ' +
         ' per_jobs.per_id,' +
+        ' DATE_FORMAT(per_jobs.per_request_date, "%d/%m/%Y %H:%i:%s" ) as per_request_date,' +
         ' users.user_username,' +
         ' divisions.division_description,' +
         ' per_jobs.per_products,' +
@@ -478,7 +480,7 @@ DbClass.prototype.getAllPersonnel = function () {
         ' ex_city.city_name as ex_city,' +
         ' to_city.city_name as to_city,' +
         ' DATE_FORMAT(per_jobs.per_deadline, "%d/%m/%Y") as per_deadline,' +
-        ' DATE_FORMAT(per_jobs.per_request_date, "%d/%m/%Y %H:%i:%s" ) as per_request_date,' +
+
         ' per_jobs.per_kg,' +
         ' Round(per_jobs.per_estimate_cost,2) as per_estiamte_cost,' +
         ' Round(per_jobs.per_actual_cost,2) as per_actual_cost,' +
@@ -517,6 +519,7 @@ DbClass.prototype.getAllPersonnel = function () {
             "bLengthChange": false,
             "columns": [
                 {"title": "ID", "orderable": false},
+                {"title": "REQ. DATE", "orderable": false},
                 {"title": "USER", "orderable": false},
                 {"title": "DEPARTMENT", "orderable": false},
                 {"title": "PRODUCTS", "orderable": false},
@@ -526,7 +529,6 @@ DbClass.prototype.getAllPersonnel = function () {
                 {"title": "EX", "orderable": false, className: "danger-header"},
                 {"title": "TO", "orderable": false, className: "danger-header"},
                 {"title": "DEADLINE", "orderable": false,  className: "danger-header"},
-                {"title": "REQ. DATE", "orderable": false},
                 {"title": "KG", "orderable": false},
                 {"title": "ESTIMATE COST (€)", "orderable": false},
                 {"title": "ACTUAL COST (€)", "orderable": false},
@@ -708,6 +710,7 @@ DbClass.prototype.getAllDeletedIndividuals = function () {
 
     var sql = 'SELECT ' +
         ' ind_jobs.ind_id,' +
+        ' DATE_FORMAT(ind_jobs.ind_request_date, "%d/%m/%Y %H:%i:%s" ) as ind_request_date,' +
         ' users.user_username,' +
         ' ind_jobs.ind_group_id,' +
         ' divisions.division_description,' +
@@ -717,8 +720,6 @@ DbClass.prototype.getAllDeletedIndividuals = function () {
         ' ex_city.city_name as ex_city,' +
         ' to_city.city_name as to_city,' +
         ' DATE_FORMAT(ind_jobs.ind_deadline, "%d/%m/%Y") as ind_deadline,' +
-        ' DATE_FORMAT(ind_jobs.ind_request_date, "%d/%m/%Y %H:%i:%s" ) as ind_request_date,' +
-        ' DATE_FORMAT(individual_groups.ind_group_cut_off_date, "%d/%m/%Y") as ind_group_cut_off_date,' +
         ' DATE_FORMAT(ind_jobs.ind_confirmation_date, "%d/%m/%Y %H:%i:%s" ) as ind_confirmation_date,' +
         ' ind_jobs.ind_forwarder,' +
         ' ind_jobs.ind_reference,' +
@@ -727,6 +728,7 @@ DbClass.prototype.getAllDeletedIndividuals = function () {
         ' ind_jobs.ind_notes,' +
         ' individual_groups.ind_group_color,' +
         ' individual_groups.ind_group_cost,' +
+        ' DATE_FORMAT(individual_groups.ind_group_cut_off_date, "%d/%m/%Y") as ind_group_cut_off_date,' +
         ' individual_groups.ind_group_forwarder, ' +
         ' (SELECT Round(sum(individuals.ind_estimate_cost),2) FROM individuals WHERE ind_group_id = ind_jobs.ind_group_id AND ind_deleted = 0) as sum_estimated_cost,' +
         ' DATE_FORMAT(ind_jobs.ind_date_deleted, "%d/%m/%Y %H:%i:%s" ) as ind_date_deleted' +
@@ -765,6 +767,7 @@ DbClass.prototype.getAllDeletedIndividuals = function () {
             "bLengthChange": false,
             "columns": [
                 {"title": "ID", "orderable": false},
+                {"title": "REQ. DATE", "orderable": false},
                 {"title": "USER", "orderable": false},
                 {"title": "GROUP", "orderable": false},
                 {"title": "DEPARTMENT", "orderable": false},
@@ -774,8 +777,6 @@ DbClass.prototype.getAllDeletedIndividuals = function () {
                 {"title": "EX", "orderable": false,className: "danger-header"},
                 {"title": "TO", "orderable": false,className: "danger-header"},
                 {"title": "DEADLINE", "orderable": false,className: "danger-header"},
-                {"title": "REQ. DATE", "orderable": false},
-                {"title": "GROUP CUT-OFF DATE", "orderable": false},
                 {"title": "CONFIRMATION DATE", "orderable": false},
                 {"title": "FORWARDER", "orderable": false},
                 {"title": "REFERENCE", "orderable": false},
@@ -784,9 +785,10 @@ DbClass.prototype.getAllDeletedIndividuals = function () {
                 {"title": "NOTES", "visible": false},
                 {"title": "Group Color", "visible": false},
                 {"title": "Group Cost", "visible": false},
-                {"title": "Group Forwarder", "visible": false},
+                {"title": "GROUP DEADLINE", "orderable": false},
+                {"title": "GROUP FORWARDER", "orderable": false},
                 {"title": "Sum estimate cost", "visible": false},
-                {"title": "DELETED DATE", "visible": true},
+                {"title": "DEL.DATE", "visible": true},
                 // {
                 //     "title": "ACTIONS", "orderable": false,
                 //     "defaultContent": "<i class='fa fa-search job-edit action-btn' style='cursor: pointer'></i><i class='fa fa-dollar done-job-cost action-btn' style='cursor: pointer' ></i>"
@@ -829,6 +831,7 @@ DbClass.prototype.getAllDeletedPersonnel = function() {
 
     var sql = 'SELECT ' +
         ' per_jobs.per_id,' +
+        ' DATE_FORMAT(per_jobs.per_request_date, "%d/%m/%Y %H:%i:%s" ) as per_request_date,' +
         ' users.user_username,' +
         ' divisions.division_description,' +
         ' per_jobs.per_products,' +
@@ -838,7 +841,6 @@ DbClass.prototype.getAllDeletedPersonnel = function() {
         ' ex_city.city_name as ex_city,' +
         ' to_city.city_name as to_city,' +
         ' DATE_FORMAT(per_jobs.per_deadline, "%d/%m/%Y") as per_deadline,' +
-        ' DATE_FORMAT(per_jobs.per_request_date, "%d/%m/%Y %H:%i:%s" ) as per_request_date,' +
         ' per_jobs.per_kg,' +
         ' Round(per_jobs.per_estimate_cost,2) as per_estiamte_cost,' +
         ' Round(per_jobs.per_actual_cost,2) as per_actual_cost,' +
@@ -879,6 +881,7 @@ DbClass.prototype.getAllDeletedPersonnel = function() {
             "bLengthChange": false,
             "columns": [
                 {"title": "ID", "orderable": false},
+                {"title": "REQ. DATE", "orderable": false},
                 {"title": "USER", "orderable": false},
                 {"title": "DEPARTMENT", "orderable": false},
                 {"title": "PRODUCT", "orderable": false},
@@ -888,7 +891,6 @@ DbClass.prototype.getAllDeletedPersonnel = function() {
                 {"title": "EX", "orderable": false,className: "danger-header"},
                 {"title": "TO", "orderable": false,className: "danger-header"},
                 {"title": "DEADLINE", "orderable": false,className: "danger-header"},
-                {"title": "REQ. DATE", "orderable": false},
                 {"title": "KG", "orderable": false},
                 {"title": "ESTIMATE COST", "orderable": false},
                 {"title": "ACTUAL COST", "orderable": false},
@@ -933,8 +935,10 @@ DbClass.prototype.getAllDoneIndividuals = function () {
 
     var sql = 'SELECT ' +
         ' ind_jobs.ind_id,' +
+        ' DATE_FORMAT(ind_jobs.ind_request_date, "%d/%m/%Y %H:%i:%s" ) as ind_request_date,' +
         ' users.user_username,' +
         ' ind_jobs.ind_group_id,' +
+        ' ind_jobs.ind_is_grouped,' +
         ' divisions.division_description,' +
         ' ind_jobs.ind_products,' +
         ' ind_jobs.ind_mode,' +
@@ -942,8 +946,6 @@ DbClass.prototype.getAllDoneIndividuals = function () {
         ' ex_city.city_name as ex_city,' +
         ' to_city.city_name as to_city,' +
         ' DATE_FORMAT(ind_jobs.ind_deadline, "%d/%m/%Y") as ind_deadline,' +
-        ' DATE_FORMAT(ind_jobs.ind_request_date, "%d/%m/%Y %H:%i:%s" ) as ind_request_date,' +
-        ' DATE_FORMAT(individual_groups.ind_group_cut_off_date, "%d/%m/%Y") as ind_group_cut_off_date,' +
         ' DATE_FORMAT(ind_jobs.ind_confirmation_date, "%d/%m/%Y %H:%i:%s" ) as ind_confirmation_date,' +
         ' ind_jobs.ind_forwarder,' +
         ' ind_jobs.ind_reference,' +
@@ -952,6 +954,7 @@ DbClass.prototype.getAllDoneIndividuals = function () {
         ' ind_jobs.ind_notes,' +
         ' individual_groups.ind_group_color,' +
         ' individual_groups.ind_group_cost,' +
+        ' DATE_FORMAT(individual_groups.ind_group_cut_off_date, "%d/%m/%Y") as ind_group_cut_off_date,' +
         ' individual_groups.ind_group_forwarder, ' +
         ' (SELECT Round(sum(individuals.ind_estimate_cost),2) FROM individuals WHERE ind_group_id = ind_jobs.ind_group_id AND ind_deleted = 0) as sum_estimated_cost' +
         ' FROM individuals as ind_jobs' +
@@ -971,7 +974,7 @@ DbClass.prototype.getAllDoneIndividuals = function () {
             dataset[i] = [];
 
             for (j = 0; j < values.length; j++) {
-                if (j == 2) {
+                if (j == 4) {
 
                     if (values[j] == 0) {
 
@@ -1000,8 +1003,10 @@ DbClass.prototype.getAllDoneIndividuals = function () {
             "bLengthChange": false,
             "columns": [
                 {"title": "ID", "orderable": false},
+                {"title": "REQ. DATE", "orderable": false},
                 {"title": "USER", "orderable": false},
-                {"title": "GROUP", "orderable": false},
+                {"title": "GROUP ID", "orderable": false},
+                {"title": "TYPE", "orderable": false},
                 {"title": "DEPARTMENT", "orderable": false},
                 {"title": "PRODUCT", "orderable": false},
                 {"title": "MODE", "orderable": false},
@@ -1009,8 +1014,6 @@ DbClass.prototype.getAllDoneIndividuals = function () {
                 {"title": "EX", "orderable": false,className: "danger-header"},
                 {"title": "TO", "orderable": false,className: "danger-header"},
                 {"title": "DEADLINE", "orderable": false,className: "danger-header"},
-                {"title": "REQ. DATE", "orderable": false},
-                {"title": "GROUP CUT-OFF DATE", "orderable": false},
                 {"title": "CONFIRMATION DATE", "orderable": false},
                 {"title": "FORWARDER", "orderable": false},
                 {"title": "REFERENCE", "orderable": false},
@@ -1019,7 +1022,8 @@ DbClass.prototype.getAllDoneIndividuals = function () {
                 {"title": "NOTES", "visible": false},
                 {"title": "Group Color", "visible": false},
                 {"title": "Group Cost", "visible": false},
-                {"title": "Group Forwarder", "visible": false},
+                {"title": "GROUP DEADLINE", "orderable": false},
+                {"title": "GROUP FORWARDER", "orderable": false},
                 {"title": "Sum estimate cost", "visible": false},
                 {
                     "title": "ACTIONS", "orderable": false,
@@ -1027,7 +1031,7 @@ DbClass.prototype.getAllDoneIndividuals = function () {
                 }
 
             ],
-            "order": [[3, 'desc']],
+            "order": [[4, 'asc']],
             "pageLength": 25
         });
 
@@ -1049,28 +1053,29 @@ DbClass.prototype.getAllDoneIndividuals = function () {
             $('#cost-data-modal-header').removeClass('noFloat floatMeLeft floatMeRight')
             var data = jobs_table.row($(this).closest('tr')).data();
 
-            $('#job_estimate_costs').val(data[19])
+            $('#job_estimate_costs').val(data[16])
+            $('#department').val(data[5])
 
-            if (data[2] == 'Individual') {
+            if (data[4] == 'Individual') {
 
                 $('#group-cost-div').hide();
 
             } else {
 
                 var sum_estimate_cost = data[22]
-                var group_cost = data[21]
+                var group_cost = data[19]
 
                 var savings_percent = ((1 - (group_cost / sum_estimate_cost)) * 100).toFixed(2)
 
-                var savings_amount = (data[19] * savings_percent / 100).toFixed(2)
-                var shared_cost = ((group_cost / sum_estimate_cost) * data[19]).toFixed(2)
+                var savings_amount = (data[16] * savings_percent / 100).toFixed(2)
+                var shared_cost = ((group_cost / sum_estimate_cost) * data[16]).toFixed(2)
 
                 $('#group_cost').val(self.Helpers.formatFloatValue(String(group_cost)))
                 $('#group_id').val(data[3])
                 $('#saving_amount').val(savings_amount)
                 $('#saving_percent').val(savings_percent)
                 $('#shared_cost').val(shared_cost)
-                $('#group_forwarder').val(data[23])
+                $('#group_forwarder').val(data[21])
                 $('#group-cost-div').show();
                 $('#save-costs').show()
             }
@@ -1108,6 +1113,7 @@ DbClass.prototype.getAllDonePersonnel = function () {
 
     var sql = 'SELECT ' +
         ' per_jobs.per_id,' +
+        ' DATE_FORMAT(per_jobs.per_request_date, "%d/%m/%Y %H:%i:%s" ) as per_request_date,' +
         ' users.user_username,' +
         ' divisions.division_description,' +
         ' per_jobs.per_products,' +
@@ -1117,7 +1123,6 @@ DbClass.prototype.getAllDonePersonnel = function () {
         ' ex_city.city_name as ex_city,' +
         ' to_city.city_name as to_city,' +
         ' DATE_FORMAT(per_jobs.per_deadline, "%d/%m/%Y") as per_deadline,' +
-        ' DATE_FORMAT(per_jobs.per_request_date, "%d/%m/%Y %H:%i:%s" ) as per_request_date,' +
         ' DATE_FORMAT(per_jobs.per_confirmation_date, "%d/%m/%Y %H:%i:%s" ) as per_confirmation_date,' +
         ' per_jobs.per_kg,' +
         ' Round(per_jobs.per_estimate_cost,2) as per_estiamte_cost,' +
@@ -1158,6 +1163,7 @@ DbClass.prototype.getAllDonePersonnel = function () {
             "bLengthChange": false,
             "columns": [
                 {"title": "ID", "orderable": false},
+                {"title": "REQ. DATE", "orderable": false},
                 {"title": "USER", "orderable": false},
                 {"title": "DEPARTMENT", "orderable": false},
                 {"title": "PRODUCT", "orderable": false},
@@ -1167,7 +1173,6 @@ DbClass.prototype.getAllDonePersonnel = function () {
                 {"title": "EX", "orderable": false,className: "danger-header"},
                 {"title": "TO", "orderable": false,className: "danger-header"},
                 {"title": "DEADLINE", "orderable": false,className: "danger-header"},
-                {"title": "REQ. DATE", "orderable": false},
                 {"title": "CONFIRMATION DATE", "orderable": false},
                 {"title": "KG", "orderable": false},
                 {"title": "ESTIMATE COST", "orderable": false},
@@ -1924,11 +1929,11 @@ DbClass.prototype.addIndividual = function (indiavidualObject) {
         indiavidualObject.ind_forwarder + '", "' +
         "Pending" + '", "' +
         indiavidualObject.ind_reference + '", ' +
-        indiavidualObject.ind_kg + ',' +
+        indiavidualObject.ind_kg + ', ' +
         indiavidualObject.ind_estimate_cost + ', "' +
         indiavidualObject.ind_notes + '", 0)'
 
-
+    console.log(sql)
     var mysql = require('mysql');
 
     var connection = mysql.createConnection({

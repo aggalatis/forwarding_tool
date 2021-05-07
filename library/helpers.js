@@ -1,9 +1,11 @@
 let HelpersClass = function () {
 
     $.fn.modal.Constructor.prototype._enforceFocus = function() {};
-    this.username = '';
+    console.log("Constructing Helpers...")
+    this.user_username = '';
     this.user_fullname = '';
-    this.use_role_id = '';
+    this.user_id = '';
+    this.user_role_id = '';
 
 
 }
@@ -83,15 +85,14 @@ HelpersClass.prototype.initializeUser = function () {
     let self = this;
 
     let fs = require('fs')
-
+    console.log("Initialiazing User.....")
     var userFile = fs.readFileSync("C:\\ForwardTool\\usrdata.agcfg", 'utf8')
 
     var userFileData = userFile.split(';')
     self.user_username = userFileData[0];
     self.user_fullname = userFileData[1];
     self.user_id = userFileData[2];
-    self.use_role_id = userFileData[3];
-
+    self.user_role_id = userFileData[3];
     $('#span-username').html(userFileData[1])
 
     if (userFileData[3] != 1) {
@@ -348,4 +349,12 @@ HelpersClass.prototype.addCityAlert = function (myDB) {
 
 
     })
+}
+
+HelpersClass.prototype.checkIfUserHasPriviledges = function (jobUserName) {
+    let self = this;
+    if (jobUserName == self.user_username || self.user_role_id == 2) {
+        return true
+    }
+    return false
 }

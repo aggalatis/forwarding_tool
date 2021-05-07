@@ -1,6 +1,7 @@
 let DbClass = function () {
 
     this.Helpers = new HelpersClass();
+    this.Helpers.initializeUser();
     this.serverIP = '';
     this.user = '';
     this.port = '';
@@ -221,6 +222,17 @@ DbClass.prototype.getAllIndividuals = function () {
         $('#jobs_table').on('click', 'i.job-edit', function () {
 
             var data = jobs_table.row($(this).closest('tr')).data();
+            if (!self.Helpers.checkIfUserHasPriviledges(data[2])) {
+                Swal.fire({
+                    title: "Unable to edit this job.",
+                    text: "Unfortunately this is a job inserted by different user. You can't modify it.",
+                    icon: "error",
+                    showCancelButton: true,
+                    showConfirmButton: false
+                })
+                return
+            }
+
             self.Helpers.initliazeModalToEditJob(self.divisions, self.products, self.vessels, self.cities, data);
 
             $('#job-modal-header').removeClass('noFloat floatMeLeft floatMeRight')
@@ -309,6 +321,16 @@ DbClass.prototype.getAllIndividuals = function () {
         $('#jobs_table').on('click', 'i.confirm-job', function () {
 
             var data = jobs_table.row($(this).closest('tr')).data();
+            if (!self.Helpers.checkIfUserHasPriviledges(data[2], myHelpers)) {
+                Swal.fire({
+                    title: "Unable to confirm this job.",
+                    text: "Unfortunately this is a job inserted by different user. You can't modify it.",
+                    icon: "error",
+                    showCancelButton: true,
+                    showConfirmButton: false
+                })
+                return
+            }
             //checking if the individual is grouped...
             if (data[16] == 0) {
 
@@ -374,6 +396,16 @@ DbClass.prototype.getAllIndividuals = function () {
         $('#jobs_table').on('click', 'i.costs-job', function () {
 
             var data = jobs_table.row($(this).closest('tr')).data();
+            if (!self.Helpers.checkIfUserHasPriviledges(data[2], myHelpers)) {
+                Swal.fire({
+                    title: "Unable to manage costs in this job.",
+                    text: "Unfortunately this is a job inserted by different user. You can't modify it.",
+                    icon: "error",
+                    showCancelButton: true,
+                    showConfirmButton: false
+                })
+                return
+            }
             $('#cost-modal-header').removeClass('noFloat floatMeLeft floatMeRight')
             $('#job_estimate_costs').val(data[13])
             $('#department').val(data[3])
@@ -421,6 +453,16 @@ DbClass.prototype.getAllIndividuals = function () {
         $('#jobs_table').on('click', 'i.delete-job', function () {
 
             var data = jobs_table.row($(this).closest('tr')).data();
+            if (!self.Helpers.checkIfUserHasPriviledges(data[2], myHelpers)) {
+                Swal.fire({
+                    title: "Unable to delete this job.",
+                    text: "Unfortunately this is a job inserted by different user. You can't modify it.",
+                    icon: "error",
+                    showCancelButton: true,
+                    showConfirmButton: false
+                })
+                return
+            }
             Swal.fire({
                 title: "Delete Job?",
                 text: "Are you sure you want to delete this job? You won't be able to revert it!",
@@ -550,6 +592,16 @@ DbClass.prototype.getAllPersonnel = function () {
         $('#personnel_table').on('click', 'i.job-edit', function () {
 
             var data = personnel_table.row($(this).closest('tr')).data();
+            if (!self.Helpers.checkIfUserHasPriviledges(data[2])) {
+                Swal.fire({
+                    title: "Unable to edit this job.",
+                    text: "Unfortunately this is a job inserted by different user. You can't modify it.",
+                    icon: "error",
+                    showCancelButton: true,
+                    showConfirmButton: false
+                })
+                return
+            }
             self.Helpers.initliazeModalToEditPersonnel(self.divisions, self.products, self.vessels, self.cities, data);
 
             $('#job-modal-header').removeClass('noFloat floatMeLeft floatMeRight')
@@ -635,6 +687,16 @@ DbClass.prototype.getAllPersonnel = function () {
         $('#personnel_table').on('click', 'i.confirm-job', function () {
 
             var data = personnel_table.row($(this).closest('tr')).data();
+            if (!self.Helpers.checkIfUserHasPriviledges(data[2])) {
+                Swal.fire({
+                    title: "Unable to confirm this job.",
+                    text: "Unfortunately this is a job inserted by different user. You can't modify it.",
+                    icon: "error",
+                    showCancelButton: true,
+                    showConfirmButton: false
+                })
+                return
+            }
             //checking if the individual is grouped...
 
                 Swal.fire({
@@ -661,6 +723,16 @@ DbClass.prototype.getAllPersonnel = function () {
         $('#personnel_table').on('click', 'i.delete-job', function () {
 
             var data = personnel_table.row($(this).closest('tr')).data();
+            if (!self.Helpers.checkIfUserHasPriviledges(data[2])) {
+                Swal.fire({
+                    title: "Unable to delete this job.",
+                    text: "Unfortunately this is a job inserted by different user. You can't modify it.",
+                    icon: "error",
+                    showCancelButton: true,
+                    showConfirmButton: false
+                })
+                return
+            }
             Swal.fire({
                 title: "Delete Job?",
                 text: "Are you sure you want to delete this job? You won't be able to revert it!",
@@ -1041,6 +1113,16 @@ DbClass.prototype.getAllDoneIndividuals = function () {
             $('#job-modal-header').removeClass('noFloat floatMeLeft floatMeRight')
             var data = jobs_table.row($(this).parents('tr')).data();
 
+            if (!self.Helpers.checkIfUserHasPriviledges(data[2])) {
+                Swal.fire({
+                    title: "Unable to edit this job.",
+                    text: "Unfortunately this is a job inserted by different user. You can't modify it.",
+                    icon: "error",
+                    showCancelButton: true,
+                    showConfirmButton: false
+                })
+                return
+            }
             $('#done_ind_id').val(data[0])
             $('#notes').val(data[17])
             $('#notes-modal').modal('show')
@@ -1194,6 +1276,17 @@ DbClass.prototype.getAllDonePersonnel = function () {
 
             $('#job-modal-header').removeClass('noFloat floatMeLeft floatMeRight')
             var data = done_personnel_table.row($(this).parents('tr')).data();
+
+            if (!self.Helpers.checkIfUserHasPriviledges(data[2])) {
+                Swal.fire({
+                    title: "Unable to edit this job.",
+                    text: "Unfortunately this is a job inserted by different user. You can't modify it.",
+                    icon: "error",
+                    showCancelButton: true,
+                    showConfirmButton: false
+                })
+                return
+            }
 
             $('#done_per_id').val(data[0])
             $('#notes').val(data[16])

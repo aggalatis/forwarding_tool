@@ -5,7 +5,6 @@ let IndividualsClass  = function () {
     this.Helpers.initializeUser();
     this.Helpers.bindMovingEvents('edit-notes-modal-header');
     this.Helpers.bindMovingEvents('cost-data-modal-header');
-    this.Helpers.initializeUser();
     this.bindEventsOnButtons();
     let self = this;
     setTimeout(function() {

@@ -205,7 +205,7 @@ TransfersClass.prototype.initializetable = function() {
     let self= this;
 
 
-    self.DB.getAllIndividuals(self.Helpers);
+    self.DB.getAllIndividuals();
     self.DB.getAllDivisions();
     self.DB.getAllCities();
     self.DB.getAllProducts();

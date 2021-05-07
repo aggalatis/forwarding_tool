@@ -202,21 +202,30 @@ DbClass.prototype.getAllIndividuals = function () {
                 {
                     "title": "ACTIONS",
                     "orderable": false,
-                    "defaultContent": "<i class='fa fa-search job-edit action-btn' style='cursor: pointer'></i><i class='fa fa-check confirm-job action-btn' style='cursor: pointer' ></i><i class='fa fa-dollar costs-job action-btn' style='cursor: pointer' ></i><i class='fa fa-trash delete-job action-btn' style='cursor: pointer' ></i>"
+                    "defaultContent": "<i class='fa fa-search job-edit action-btn' id='delete-me' style='cursor: pointer'></i><i class='fa fa-check confirm-job action-btn' style='cursor: pointer' ></i><i class='fa fa-dollar costs-job action-btn' style='cursor: pointer' ></i><i class='fa fa-trash delete-job action-btn' style='cursor: pointer' ></i>"
                 }
 
             ],
-            "rowCallback": function (row, data, index) {
+            "rowCallback": function (row, data, index, cells) {
                 //Here I am changing background Color
                 if (data[17] != "empty") {
 
                     $('td', row).css('background-color', data[17]);
                 }
+
+
+            },
+            "createdRow": function(row, data, line, cells) {
+                if (data[19] != null) {
+                    $('#delete-me').hide()
+                }
+
             },
             "order": [[16, 'desc'], [15, 'asc']],
             "pageLength": 25
 
         });
+
 
 
         $('#jobs_table').on('click', 'i.job-edit', function () {
@@ -321,7 +330,7 @@ DbClass.prototype.getAllIndividuals = function () {
         $('#jobs_table').on('click', 'i.confirm-job', function () {
 
             var data = jobs_table.row($(this).closest('tr')).data();
-            if (!self.Helpers.checkIfUserHasPriviledges(data[2], myHelpers)) {
+            if (!self.Helpers.checkIfUserHasPriviledges(data[2])) {
                 Swal.fire({
                     title: "Unable to confirm this job.",
                     text: "Unfortunately this is a job inserted by different user. You can't modify it.",
@@ -396,7 +405,7 @@ DbClass.prototype.getAllIndividuals = function () {
         $('#jobs_table').on('click', 'i.costs-job', function () {
 
             var data = jobs_table.row($(this).closest('tr')).data();
-            if (!self.Helpers.checkIfUserHasPriviledges(data[2], myHelpers)) {
+            if (!self.Helpers.checkIfUserHasPriviledges(data[2])) {
                 Swal.fire({
                     title: "Unable to manage costs in this job.",
                     text: "Unfortunately this is a job inserted by different user. You can't modify it.",
@@ -453,7 +462,7 @@ DbClass.prototype.getAllIndividuals = function () {
         $('#jobs_table').on('click', 'i.delete-job', function () {
 
             var data = jobs_table.row($(this).closest('tr')).data();
-            if (!self.Helpers.checkIfUserHasPriviledges(data[2], myHelpers)) {
+            if (!self.Helpers.checkIfUserHasPriviledges(data[2])) {
                 Swal.fire({
                     title: "Unable to delete this job.",
                     text: "Unfortunately this is a job inserted by different user. You can't modify it.",
@@ -1285,7 +1294,7 @@ DbClass.prototype.getAllDonePersonnel = function () {
                     showCancelButton: true,
                     showConfirmButton: false
                 })
-                return
+                return;
             }
 
             $('#done_per_id').val(data[0])
@@ -2444,6 +2453,7 @@ DbClass.prototype.confirmIndividualGroup = function (groupID) {
             $('#jobs_table').unbind('click')
             $('#jobs_table').DataTable().clear();
             $('#jobs_table').DataTable().destroy();
+            self.Helpers.toastr('success', 'Job confirmed successfully.')
             self.getAllIndividuals();
         }
 
@@ -3009,6 +3019,7 @@ DbClass.prototype.checkIfThereIsOneJobAloneGrouped = function () {
                     $('#jobs_table').unbind('click')
                     $('#jobs_table').DataTable().clear();
                     $('#jobs_table').DataTable().destroy();
+                    self.Helpers.toastr('success', 'Job added successfully.')
                     self.getAllIndividuals();
 
 
@@ -3024,6 +3035,7 @@ DbClass.prototype.checkIfThereIsOneJobAloneGrouped = function () {
         $('#jobs_table').unbind('click')
         $('#jobs_table').DataTable().clear();
         $('#jobs_table').DataTable().destroy();
+        self.Helpers.toastr('success', 'Job added successfully.')
         self.getAllIndividuals();
 
 
@@ -3067,6 +3079,7 @@ DbClass.prototype.updateGroupCost = function (groupCostData) {
             $('#jobs_table').unbind('click')
             $('#jobs_table').DataTable().clear();
             $('#jobs_table').DataTable().destroy();
+            self.Helpers.toastr('success', 'Costs updated successfully.')
             self.getAllIndividuals();
         }
 
@@ -3648,6 +3661,7 @@ DbClass.prototype.deleteIndividual = function(individualData) {
             $('#jobs_table').unbind('click')
             $('#jobs_table').DataTable().clear();
             $('#jobs_table').DataTable().destroy();
+            self.Helpers.toastr('success', 'Job deleted successfully.')
             self.getAllIndividuals();
         }
     })

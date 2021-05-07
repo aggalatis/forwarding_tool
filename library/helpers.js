@@ -69,7 +69,6 @@ HelpersClass.prototype.saveUserData = function (userData) {
 
     let fs = require('fs')
     var userString = "";
-
     userString = userData.user_username + ';' + userData.user_fullname + ';' + userData.user_id + ';' + userData.user_role_id;
 
     fs.writeFile("C:\\ForwardTool\\usrdata.agcfg", userString, function (err) {

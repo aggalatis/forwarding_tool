@@ -202,6 +202,12 @@ DbClass.prototype.getAllIndividuals = function () {
                 {
                     "title": "ACTIONS",
                     "orderable": false,
+                    "createdCell": function(td, cellData, rowData, row, col) {
+                        if (rowData[19] != null) {
+                            $(td).children('.job-edit').hide();
+                            $(td).children('.delete-job').hide();
+                        }
+                    },
                     "defaultContent": "<i class='fa fa-search job-edit action-btn' id='delete-me' style='cursor: pointer'></i><i class='fa fa-check confirm-job action-btn' style='cursor: pointer' ></i><i class='fa fa-dollar costs-job action-btn' style='cursor: pointer' ></i><i class='fa fa-trash delete-job action-btn' style='cursor: pointer' ></i>"
                 }
 
@@ -213,12 +219,6 @@ DbClass.prototype.getAllIndividuals = function () {
                     $('td', row).css('background-color', data[17]);
                 }
 
-
-            },
-            "createdRow": function(row, data, line, cells) {
-                if (data[19] != null) {
-                    $('#delete-me').hide()
-                }
 
             },
             "order": [[16, 'desc'], [15, 'asc']],
@@ -415,6 +415,8 @@ DbClass.prototype.getAllIndividuals = function () {
                 })
                 return
             }
+
+
             $('#cost-modal-header').removeClass('noFloat floatMeLeft floatMeRight')
             $('#job_estimate_costs').val(data[13])
             $('#department').val(data[3])
@@ -428,6 +430,23 @@ DbClass.prototype.getAllIndividuals = function () {
 
                 if (data[18] == null || data[19] == null || data[20] == null)
                 {
+                    var allData = jobs_table.rows().data()
+                    for (var i=0; i < allData.length; i++) {
+
+                        if (allData[i][15] == data[15]) {
+                            if (allData[i][13] == 0) {
+                                Swal.fire({
+                                    title: "Unable to manage group costs.",
+                                    text: "There is a job with empty estimate cost inside this group. Please fill it up.",
+                                    icon: "error",
+                                    showCancelButton: true,
+                                    showConfirmButton: false
+                                })
+                                return;
+
+                            }
+                        }
+                    }
 
                     $('#saving-data').hide();
                 } else {
@@ -1062,7 +1081,7 @@ DbClass.prototype.getAllDoneIndividuals = function () {
                         dataset[i].push('Individual')
                     } else {
 
-                        dataset[i].push('Group')
+                        dataset[i].push('Grouped')
                     }
                 } else {
                     dataset[i].push(values[j])
@@ -2035,7 +2054,6 @@ DbClass.prototype.addIndividual = function (indiavidualObject) {
         indiavidualObject.ind_estimate_cost + ', "' +
         indiavidualObject.ind_notes + '", 0)'
 
-    console.log(sql)
     var mysql = require('mysql');
 
     var connection = mysql.createConnection({
@@ -2685,7 +2703,7 @@ DbClass.prototype.handleIndividualGroups = function (individualData, insertedID)
 
                 if (groupResults[0].ind_group_color == 'empty') {
 
-                    var randomNumber = Math.floor(Math.random() * 29) + 1;
+                    var randomNumber = Math.floor(Math.random() * (self.colors.length - 1));
 
                     var updateGroups = 'UPDATE individual_groups SET ind_group_color = "' + self.colors[randomNumber].color_code + '" WHERE ind_group_id = ' + groupResults[0].ind_group_id;
 
@@ -2998,7 +3016,6 @@ DbClass.prototype.checkIfThereIsOneJobAloneGrouped = function () {
             throw error;
 
         for (i = 0; i < individuals.length; i++) {
-            console.log(individuals[i])
             if (individuals[i].ind_count == 1) {
                 console.log(individuals[i].ind_group_id)
                 var ungroup_sql = 'UPDATE individual_groups SET ind_group_color = "empty" WHERE ind_group_id = ' + individuals[i].ind_group_id + ';' + 'UPDATE individuals set ind_is_grouped = 0 WHERE ind_group_id = ' + individuals[i].ind_group_id + '; '
@@ -3336,9 +3353,7 @@ DbClass.prototype.addCity = function (cityName) {
         } else {
 
             self.Helpers.toastr('success', 'City added successfully.')
-            setTimeout(function() {
-                window.location.reload()
-            }, 2000)
+
 
         }
 

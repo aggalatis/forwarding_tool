@@ -221,7 +221,7 @@ DbClass.prototype.getAllIndividuals = function () {
 
 
             },
-            "order": [[16, 'desc'], [15, 'asc']],
+            "order": [[16, 'desc'],  [7, 'asc'], [8, 'asc'], [9, 'asc']],
             "pageLength": 25
 
         });

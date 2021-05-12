@@ -221,7 +221,7 @@ DbClass.prototype.getAllIndividuals = function () {
 
 
             },
-            "order": [[16, 'desc'],  [7, 'asc'], [8, 'asc'], [9, 'asc']],
+            "order": [ [7, 'asc'], [8, 'asc'], [16, 'desc']],
             "pageLength": 25
 
         });
@@ -1937,7 +1937,7 @@ DbClass.prototype.getAllVessels = function () {
 
     connection.connect();
 
-    var sql = 'SELECT * FROM vessels'
+    var sql = 'SELECT * FROM vessels ORDER BY vessel_description'
 
     connection.query(sql, function (error, vessels) {
         if (error) throw error;

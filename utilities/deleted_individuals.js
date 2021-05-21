@@ -28,6 +28,10 @@ DeletedIndividualsClass.prototype.bindEventsOnButtons = function() {
 
     })
 
+    $('#empty-trashcan').on('click', function() {
+        self.DB.emptyDeletedIndividuals();
+    })
+
 
 }
 

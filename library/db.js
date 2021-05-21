@@ -187,7 +187,8 @@ DbClass.prototype.getAllIndividuals = function () {
                 },
                 {
                     "title": "GROUP DEADLINE",
-                    "orderable": false
+                    "orderable": false,
+                    "visible": false
                 },
 
                 {
@@ -221,7 +222,7 @@ DbClass.prototype.getAllIndividuals = function () {
 
 
             },
-            "order": [ [7, 'asc'], [8, 'asc'], [16, 'desc']],
+            "order": [ [7, 'asc'], [8, 'asc'], [16, 'desc'], [19, 'desc']],
             "pageLength": 25
 
         });
@@ -462,9 +463,13 @@ DbClass.prototype.getAllIndividuals = function () {
 
                 var savings_amount = (data[13] * savings_percent / 100).toFixed(2)
                 var shared_cost = ((group_cost / sum_estimate_cost) * data[13]).toFixed(2)
+                console.log(data[18])
+                if (data[18] == null) {
+                    $('#group_cost').val("")
+                } else {
+                    $('#group_cost').val(self.Helpers.formatFloatValue(String(group_cost)))
+                }
 
-
-                $('#group_cost').val(self.Helpers.formatFloatValue(String(group_cost)))
                 $('#group_id').val(data[15])
                 $('#saving_amount').val(savings_amount)
                 $('#saving_percent').val(savings_percent)
@@ -3819,6 +3824,36 @@ DbClass.prototype.confirmPersonnel = function(per_id) {
     connection.end()
 
 
+}
+
+DbClass.prototype.emptyDeletedIndividuals = function() {
+
+    let self = this;
+
+    var sql = 'DELETE FROM individuals WHERE ind_deleted = 1;'
+
+    var mysql = require('mysql');
+
+    var connection = mysql.createConnection({
+        host: self.serverIP,
+        user: self.user,
+        password: self.dbpass,
+        database: self.database,
+        port: self.port,
+        dateStrings: true
+    });
+
+    connection.connect();
+
+    connection.query(sql, function (error) {
+        if (error) {
+            throw  error;
+        }
+
+        window.location.reload();
+
+    })
+    connection.end()
 }
 
 

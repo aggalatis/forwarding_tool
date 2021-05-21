@@ -151,7 +151,17 @@ HelpersClass.prototype.initliazeModalToEditJob = function (divisions, products, 
     $('#forwarder').val(jobData[10])
     $('#reference').val(jobData[11])
     $('#kg').val(jobData[12])
-    $('#estimate_cost').val(jobData[13])
+    if (jobData[12] == "0") {
+        $('#kg').val("")
+    } else {
+        $('#kg').val(jobData[12])
+    }
+
+    if (jobData[13] == "0") {
+        $('#estimate_cost').val("")
+    } else {
+        $('#estimate_cost').val(jobData[13])
+    }
     $('#notes').val(jobData[14])
 
     $('#save-job-btn').attr('disabled', null)

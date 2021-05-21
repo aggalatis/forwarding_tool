@@ -108,7 +108,10 @@ DbClass.prototype.getAllIndividuals = function () {
         ' ind_jobs.ind_vessels,' +
         ' ex_city.city_name as ex_city,' +
         ' to_city.city_name as to_city,' +
-        ' DATE_FORMAT(ind_jobs.ind_deadline, "%d/%m/%Y") as ind_deadline,' +
+        ' CASE' +
+            ' WHEN ind_jobs.ind_deadline = "TBA" THEN "TBA"' +
+            ' ELSE DATE_FORMAT(ind_jobs.ind_deadline, "%d/%m/%Y")' +
+        ' END AS ind_deadline, ' +
         ' ind_jobs.ind_forwarder,' +
         ' ind_jobs.ind_reference,' +
         ' ind_jobs.ind_kg,' +
@@ -118,9 +121,10 @@ DbClass.prototype.getAllIndividuals = function () {
         ' ind_jobs.ind_is_grouped,' +
         ' individual_groups.ind_group_color,' +
         ' individual_groups.ind_group_cost,' +
-        ' DATE_FORMAT(individual_groups.ind_group_cut_off_date, "%d/%m/%Y") as ind_group_cut_off_date,' +
+        ' DATE_FORMAT(individual_groups.ind_group_deadline, "%d/%m/%Y") as ind_group_deadline,' +
         ' individual_groups.ind_group_forwarder, ' +
-        ' (SELECT Round(sum(individuals.ind_estimate_cost),2) FROM individuals WHERE ind_group_id = ind_jobs.ind_group_id AND ind_deleted = 0)  as sum_estimated_cost' +
+        ' (SELECT Round(sum(individuals.ind_estimate_cost),2) FROM individuals WHERE ind_group_id = ind_jobs.ind_group_id AND ind_deleted = 0)  as sum_estimated_cost,' +
+        ' individual_groups.ind_group_active' +
         ' FROM individuals as ind_jobs' +
         ' LEFT JOIN divisions on divisions.division_id = ind_jobs.ind_division_id' +
         ' LEFT JOIN users on users.user_id = ind_jobs.ind_user_id' +
@@ -130,7 +134,7 @@ DbClass.prototype.getAllIndividuals = function () {
         ' WHERE ind_jobs.ind_status = "Pending" AND ind_deleted = 0' +
         ' ORDER BY ind_jobs.ind_group_id DESC;'
 
-
+    console.log(sql)
     connection.query(sql, function (error, data) {
         if (error) throw error;
         var dataset = [];
@@ -199,12 +203,15 @@ DbClass.prototype.getAllIndividuals = function () {
                     "title": "Sum estimate cost",
                     "visible": false
                 },
-
+                {
+                    "title": "Group Active",
+                    "visible": false
+                },
                 {
                     "title": "ACTIONS",
                     "orderable": false,
                     "createdCell": function(td, cellData, rowData, row, col) {
-                        if (rowData[19] != null) {
+                        if (rowData[22] == 0) {
                             $(td).children('.job-edit').hide();
                             $(td).children('.delete-job').hide();
                         }
@@ -455,15 +462,15 @@ DbClass.prototype.getAllIndividuals = function () {
 
                 }
 
+                self.initializeGroupCitySelect(data[7], data[8]);
                 $('#group_cut_off_date').val(data[19])
                 var sum_estimate_cost = data[21]
                 var group_cost = data[18]
 
                 var savings_percent = ((1 - (group_cost / sum_estimate_cost)) * 100).toFixed(2)
-
                 var savings_amount = (data[13] * savings_percent / 100).toFixed(2)
                 var shared_cost = ((group_cost / sum_estimate_cost) * data[13]).toFixed(2)
-                console.log(data[18])
+
                 if (data[18] == null) {
                     $('#group_cost').val("")
                 } else {
@@ -475,7 +482,6 @@ DbClass.prototype.getAllIndividuals = function () {
                 $('#saving_percent').val(savings_percent)
                 $('#shared_cost').val(shared_cost)
                 $('#group_forwarder').val(data[20])
-
                 $('#group-cost-div').show();
                 $('#save-costs').show()
             }
@@ -833,7 +839,7 @@ DbClass.prototype.getAllDeletedIndividuals = function () {
         ' ind_jobs.ind_notes,' +
         ' individual_groups.ind_group_color,' +
         ' individual_groups.ind_group_cost,' +
-        ' DATE_FORMAT(individual_groups.ind_group_cut_off_date, "%d/%m/%Y") as ind_group_cut_off_date,' +
+        ' DATE_FORMAT(individual_groups.ind_group_deadline, "%d/%m/%Y") as ind_group_deadline,' +
         ' individual_groups.ind_group_forwarder, ' +
         ' (SELECT Round(sum(individuals.ind_estimate_cost),2) FROM individuals WHERE ind_group_id = ind_jobs.ind_group_id AND ind_deleted = 0) as sum_estimated_cost,' +
         ' DATE_FORMAT(ind_jobs.ind_date_deleted, "%d/%m/%Y %H:%i:%s" ) as ind_date_deleted' +
@@ -1059,7 +1065,7 @@ DbClass.prototype.getAllDoneIndividuals = function () {
         ' ind_jobs.ind_notes,' +
         ' individual_groups.ind_group_color,' +
         ' individual_groups.ind_group_cost,' +
-        ' DATE_FORMAT(individual_groups.ind_group_cut_off_date, "%d/%m/%Y") as ind_group_cut_off_date,' +
+        ' DATE_FORMAT(individual_groups.ind_group_deadline, "%d/%m/%Y") as ind_group_deadline,' +
         ' individual_groups.ind_group_forwarder, ' +
         ' (SELECT Round(sum(individuals.ind_estimate_cost),2) FROM individuals WHERE ind_group_id = ind_jobs.ind_group_id AND ind_deleted = 0) as sum_estimated_cost' +
         ' FROM individuals as ind_jobs' +
@@ -3072,9 +3078,9 @@ DbClass.prototype.updateGroupCost = function (groupCostData) {
 
     let self = this;
 
-    var sql = 'UPDATE individual_groups SET ' +
-        'ind_group_cost = ' + groupCostData.ind_group_cost + ', ind_group_cut_off_date = "' + groupCostData.ind_group_cut_off_date + '"' + ', ind_group_forwarder = "' + groupCostData.ind_group_forwarder + '" ' + ', ind_group_active = 0 ' +
-        ' WHERE ind_group_id = ' + groupCostData.ind_group_id;
+    var sql = 'UPDATE individual_groups SET ind_group_cost = ' + groupCostData.ind_group_cost + ', ind_group_deadline = "' + groupCostData.ind_group_deadline + '"' + ', ind_group_forwarder = "' + groupCostData.ind_group_forwarder + '" ' +  ', ind_group_to = ' + groupCostData.ind_group_to + ', ind_group_active = 0 ' +
+        ' WHERE ind_group_id = ' + groupCostData.ind_group_id  + ';' +
+        ' UPDATE individuals SET ind_ex = ' + groupCostData.ind_group_ex + ', ind_to = ' + groupCostData.ind_group_to +  ', ind_deadline = "' + groupCostData.ind_group_deadline + '" WHERE ind_group_id = ' + groupCostData.ind_group_id  + ';'
 
 
     var mysql = require('mysql');
@@ -3085,7 +3091,8 @@ DbClass.prototype.updateGroupCost = function (groupCostData) {
         password: self.dbpass,
         database: self.database,
         port: self.port,
-        dateStrings: true
+        dateStrings: true,
+        multipleStatements: true
     });
 
     connection.connect();
@@ -3097,12 +3104,67 @@ DbClass.prototype.updateGroupCost = function (groupCostData) {
             throw error
 
         } else {
-            $('#costs-modal').modal('hide')
-            $('#jobs_table').unbind('click')
-            $('#jobs_table').DataTable().clear();
-            $('#jobs_table').DataTable().destroy();
-            self.Helpers.toastr('success', 'Costs updated successfully.')
-            self.getAllIndividuals();
+
+            var searchIndSql = 'Select * from individuals WHERE ind_ex = ' + groupCostData.ind_group_ex + ' AND ind_to = ' + groupCostData.ind_group_to + ' AND ind_deadline = "' + groupCostData.ind_group_deadline + '" AND ind_group_id != ' +  groupCostData.ind_group_id + ' AND ind_deleted = 0 AND ind_status = "Pending"';
+
+            var mysql = require('mysql');
+
+            var indConnection = mysql.createConnection({
+                host: self.serverIP,
+                user: self.user,
+                password: self.dbpass,
+                database: self.database,
+                port: self.port,
+                dateStrings: true,
+            });
+
+            indConnection.connect();
+            indConnection.query(searchIndSql, function (error, indToChangeGroup) {
+                if (error) {
+
+                    alert('Unable to update job cost')
+                    throw error
+
+                } else {
+                    console.log(indToChangeGroup)
+                    for (let i=0; i < indToChangeGroup.length; i++) {
+
+                        var changeIndividualSql = 'UPDATE individuals SET ind_is_grouped = 1, ind_group_id = ' + groupCostData.ind_group_id + ' WHERE ind_id = ' + indToChangeGroup[i].ind_id + ';' +
+                            ' DELETE FROM individual_groups WHERE ind_group_id = ' + indToChangeGroup[i].ind_group_id;
+
+                        var mysql = require('mysql');
+
+                        var indGrpConn = mysql.createConnection({
+                            host: self.serverIP,
+                            user: self.user,
+                            password: self.dbpass,
+                            database: self.database,
+                            port: self.port,
+                            dateStrings: true,
+                            multipleStatements: true
+                        });
+                        indGrpConn.connect()
+                        indGrpConn.query(changeIndividualSql, function (error) {
+                            if (error) {
+                                alert('Unable to update job cost')
+                                throw error
+                            }
+                        })
+
+
+                    }
+                    $('#costs-modal').modal('hide')
+                    $('#jobs_table').unbind('click')
+                    $('#jobs_table').DataTable().clear();
+                    $('#jobs_table').DataTable().destroy();
+                    self.Helpers.toastr('success', 'Costs updated successfully.')
+                    self.getAllIndividuals();
+
+
+                }
+            });
+            indConnection.end()
+
         }
 
     });
@@ -3856,6 +3918,32 @@ DbClass.prototype.emptyDeletedIndividuals = function() {
     connection.end()
 }
 
+DbClass.prototype.initializeGroupCitySelect = function(exCityName, toCityName) {
+
+    let self = this;
+
+    let exSelectedId = 0;
+    let toSelectedId = 0;
+    $('#group-to-select').empty();
+    $('#group-ex-select').empty();
+    $('#group-to-select').append("<option></option>")
+    $('#group-ex-select').append("<option></option>")
+    for (i=0; i < self.cities.length; i++) {
+
+        if (self.cities[i].city_name == exCityName) {
+            exSelectedId = self.cities[i].city_id
+        }
+        if (self.cities[i].city_name == toCityName) {
+            toSelectedId = self.cities[i].city_id
+        }
+        $('#group-ex-select').append(new Option(self.cities[i].city_name, self.cities[i].city_id))
+        $('#group-to-select').append(new Option(self.cities[i].city_name, self.cities[i].city_id))
+    }
+    $('#group-ex-select').val(exSelectedId)
+    $('#group-to-select').val(toSelectedId)
+    $('#group-ex-select').trigger("chosen:updated")
+    $('#group-to-select').trigger("chosen:updated")
+}
 
 
 

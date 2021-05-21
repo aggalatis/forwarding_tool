@@ -74,34 +74,6 @@ PersonnelClass.prototype.bindEventsOnButtons = function() {
 
     })
 
-    $('#save-costs').on('click', function() {
-
-        var groupCost = $('#group_cost').val();
-        var groupCutoffDatte = $('#group_cut_off_date').val();
-        var groupForwarder = $('#group_forwarder').val();
-
-        if (groupCost != '' && groupCutoffDatte != '' && groupForwarder != '') {
-
-            var jobCostData = {
-                ind_group_id: $('#group_id').val(),
-                ind_group_cost: $('#group_cost').val(),
-                ind_group_cut_off_date: self.Helpers.changeDateToMysql($('#group_cut_off_date').val()),
-                ind_group_forwarder: $('#group_forwarder').val()
-
-
-            }
-
-            self.DB.updateGroupCost(jobCostData);
-
-        } else {
-
-            self.Helpers.toastr('error', 'Some data are empty. Please try again.')
-        }
-
-
-
-    })
-
     $('#add-city-btn').on('click',function() {
 
         self.Helpers.addCityAlert(self.DB, self)

@@ -32,6 +32,8 @@ TransfersClass.prototype.bindEventsOnButtons = function() {
     $('#ex-input').chosen()
     $('#to-input').chosen()
     $('#type_select').chosen()
+    $('#group-to-select').chosen()
+    $('#group-ex-select').chosen()
 
     $('#logout-ref').on('click', function() {
 
@@ -80,14 +82,18 @@ TransfersClass.prototype.bindEventsOnButtons = function() {
         var groupCost = $('#group_cost').val();
         var groupCutoffDatte = $('#group_cut_off_date').val();
         var groupForwarder = $('#group_forwarder').val();
+        var groupTo = $('#group-to-select').val();
+        var groupEx = $('#group-ex-select').val();
 
-        if (groupCost != '' && groupCutoffDatte != '' && groupForwarder != '') {
+        if (groupCost != '' && groupCutoffDatte != '' && groupForwarder != '' && groupTo != '' && groupEx != '') {
 
             var jobCostData = {
                 ind_group_id: $('#group_id').val(),
                 ind_group_cost: $('#group_cost').val(),
-                ind_group_cut_off_date: self.Helpers.changeDateToMysql($('#group_cut_off_date').val()),
-                ind_group_forwarder: $('#group_forwarder').val()
+                ind_group_deadline: self.Helpers.changeDateToMysql($('#group_cut_off_date').val()),
+                ind_group_forwarder: $('#group_forwarder').val(),
+                ind_group_to: groupTo,
+                ind_group_ex: groupEx
 
 
             }
@@ -115,6 +121,10 @@ TransfersClass.prototype.bindEventsOnButtons = function() {
             self.initialiazeCitiesSelect()
         }, 1000)
 
+    })
+
+    $('#remove-date').on('click', function() {
+        $('#deadline_date').val('TBA')
     })
 
 }
@@ -212,11 +222,6 @@ TransfersClass.prototype.initializetable = function() {
     self.DB.getAllVessels();
     self.DB.getAllColors();
 
-
-
-
-
-
 }
 
 TransfersClass.prototype.initializeDivisionsSelect = function() {
@@ -280,10 +285,10 @@ TransfersClass.prototype.initialiazeCitiesSelect = function() {
 
         $('#ex-input').append(new Option(self.DB.cities[i].city_name, self.DB.cities[i].city_id))
         $('#to-input').append(new Option(self.DB.cities[i].city_name, self.DB.cities[i].city_id))
-
     }
     $('#ex-input').trigger("chosen:updated")
     $('#to-input').trigger("chosen:updated")
 
 }
+
 

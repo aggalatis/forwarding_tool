@@ -229,7 +229,7 @@ DbClass.prototype.getAllIndividuals = function () {
 
 
             },
-            "order": [ [7, 'asc'], [8, 'asc'], [16, 'desc'], [19, 'desc']],
+            "order": [ [7, 'asc'], [8, 'asc'], [16, 'desc'], [22, 'asc']],
             "pageLength": 25
 
         });
@@ -351,22 +351,37 @@ DbClass.prototype.getAllIndividuals = function () {
             //checking if the individual is grouped...
             if (data[16] == 0) {
 
-                Swal.fire({
-                    title: "Are you sure?",
-                    text: "If you confirm the job you will be unable to edit it!",
-                    icon: "warning",
-                    showCancelButton: true,
-                    cancelButtonText: "Cancel",
-                    confirmButtonColor: "#dc3545",
-                    confirmButtonText: "Confirm",
+                if (data[9] != "TBA" && data[13] != "0") {
 
-                }).then((result) => {
-                    if (result.isConfirmed) {
-                    self.confirmIndividualGroup(data[15]);
+                    Swal.fire({
+                        title: "Are you sure?",
+                        text: "If you confirm the job you will be unable to edit it!",
+                        icon: "warning",
+                        showCancelButton: true,
+                        cancelButtonText: "Cancel",
+                        confirmButtonColor: "#dc3545",
+                        confirmButtonText: "Confirm",
+
+                    }).then((result) => {
+                        if (result.isConfirmed) {
+                        self.confirmIndividualGroup(data[15]);
 
                     }
 
                 })
+
+                } else {
+
+                    Swal.fire({
+                        title: "Unable to confirm this job.",
+                        text: "Some data are empty. You cannot confirm this job.",
+                        icon: "error",
+                        showCancelButton: true,
+                        showConfirmButton: false
+                    })
+                    return
+                }
+
 
 
 
@@ -3105,7 +3120,7 @@ DbClass.prototype.updateGroupCost = function (groupCostData) {
 
         } else {
 
-            var searchIndSql = 'Select * from individuals WHERE ind_ex = ' + groupCostData.ind_group_ex + ' AND ind_to = ' + groupCostData.ind_group_to + ' AND ind_deadline = "' + groupCostData.ind_group_deadline + '" AND ind_group_id != ' +  groupCostData.ind_group_id + ' AND ind_deleted = 0 AND ind_status = "Pending"';
+            var searchIndSql = 'Select * from individuals WHERE ind_ex = ' + groupCostData.ind_group_ex + ' AND ind_to = ' + groupCostData.ind_group_to + ' AND ind_deadline = "' + groupCostData.ind_group_deadline + '" AND ind_group_id != ' +  groupCostData.ind_group_id + ' AND ind_deleted = 0 AND ind_status = "Pending" AND ind_estimate_cost != 0';
 
             var mysql = require('mysql');
 

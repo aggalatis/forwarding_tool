@@ -134,7 +134,6 @@ DbClass.prototype.getAllIndividuals = function () {
         ' WHERE ind_jobs.ind_status = "Pending" AND ind_deleted = 0' +
         ' ORDER BY ind_jobs.ind_group_id DESC;'
 
-    console.log(sql)
     connection.query(sql, function (error, data) {
         if (error) throw error;
         var dataset = [];
@@ -163,7 +162,15 @@ DbClass.prototype.getAllIndividuals = function () {
                 {"title": "USER", "orderable": false},
                 {"title": "DEPARTMENT", "orderable": false},
                 {"title": "PRODUCTS", "orderable": false},
-                {"title": "MODE", "orderable": false},
+                {
+                    "title": "MODE",
+                    "orderable": false,
+                    "createdCell": function(td, cellData, rowData, row, col) {
+                        if (rowData[5] == "Personnel") {
+                            $(td).css('color', 'blue')
+                        }
+                    }
+                },
                 {"title": "VESSELS", "orderable": false},
                 {"title": "EX", "orderable": false, className: "danger-header"},
                 {"title": "TO", "orderable": false, className: "danger-header"},
@@ -211,6 +218,8 @@ DbClass.prototype.getAllIndividuals = function () {
                     "title": "ACTIONS",
                     "orderable": false,
                     "createdCell": function(td, cellData, rowData, row, col) {
+
+
                         if (rowData[22] == 0) {
                             $(td).children('.job-edit').hide();
                             $(td).children('.delete-job').hide();
@@ -2102,10 +2111,16 @@ DbClass.prototype.addIndividual = function (indiavidualObject) {
 
         } else {
 
-            $('#jobs_table').DataTable().clear();
-            $('#jobs_table').DataTable().destroy();
             $('#add-job-modal').modal('hide')
-            self.handleIndividualGroups(indiavidualObject, result.insertId)
+            if (indiavidualObject.ind_mode == "Personnel") {
+
+                self.handleGroupForPersonnel(result.insertId);
+            } else {
+
+                self.handleIndividualGroups(indiavidualObject, result.insertId)
+
+            }
+
 
 
         }
@@ -2115,6 +2130,38 @@ DbClass.prototype.addIndividual = function (indiavidualObject) {
     connection.end()
 
 
+}
+
+DbClass.prototype.handleGroupForPersonnel = function (individualId) {
+    let self = this;
+
+    var updateInd = 'UPDATE individuals SET ind_group_id = 0, ind_is_grouped = 0 WHERE ind_id = ' + individualId + ';'
+
+    var mysql = require('mysql');
+
+    var connection = mysql.createConnection({
+        host: self.serverIP,
+        user: self.user,
+        password: self.dbpass,
+        database: self.database,
+        port: self.port,
+        dateStrings: true
+    });
+
+    connection.connect();
+
+    connection.query(updateInd, function (error, result) {
+        if (error) {
+            self.Helpers.toastr('error', 'Unable to manage personnel Group.')
+            throw  error;
+
+        } else {
+            $('#add-job-modal').modal('hide')
+            self.checkIfThereIsOneJobAloneGrouped()
+
+        }
+
+    });
 }
 
 DbClass.prototype.addPersonnel = function (personnelObject) {
@@ -2323,9 +2370,13 @@ DbClass.prototype.updateJob = function (jobObject) {
         } else {
 
             $('#add-job-modal').modal('hide')
-            $('#jobs_table').DataTable().clear();
-            $('#jobs_table').DataTable().destroy();
-            self.handleIndividualGroupsUpdate(jobObject)
+            if (jobObject.ind_mode == "Personnel") {
+
+                self.handleGroupForPersonnel(jobObject.ind_id)
+            } else {
+                self.handleIndividualGroupsUpdate(jobObject)
+            }
+
 
         }
 
@@ -3025,7 +3076,7 @@ DbClass.prototype.checkIfThereIsOneJobAloneGrouped = function () {
     let self = this;
     var mysql = require('mysql');
     var check_sql = 'Select ind_group_id, count(*) as ind_count from individuals ' +
-        'WHERE ind_is_grouped = 1 AND ind_status = "Pending" AND ind_deleted = 0 ' +
+        'WHERE ind_is_grouped = 1 AND ind_status = "Pending" AND ind_mode != "Personnel"  AND ind_deleted = 0 ' +
         'group by ind_group_id;'
 
     var newConnection = mysql.createConnection({

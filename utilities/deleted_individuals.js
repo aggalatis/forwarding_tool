@@ -29,7 +29,21 @@ DeletedIndividualsClass.prototype.bindEventsOnButtons = function() {
     })
 
     $('#empty-trashcan').on('click', function() {
-        self.DB.emptyDeletedIndividuals();
+        Swal.fire({
+            title: "Are you sure?",
+            text: "If you empty your trash can you won't be able to find these jobs!",
+            icon: "warning",
+            showCancelButton: true,
+            cancelButtonText: "Cancel",
+            confirmButtonColor: "#dc3545",
+            confirmButtonText: "Confirm",
+
+        }).then((result) => {
+            if (result.isConfirmed) {
+            self.DB.emptyDeletedIndividuals();
+
+        }})
+
     })
 
 

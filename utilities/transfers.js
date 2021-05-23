@@ -5,6 +5,7 @@ let TransfersClass = function () {
     this.Helpers.initializeUser();
     this.Helpers.bindMovingEvents('job-modal-header');
     this.Helpers.bindMovingEvents('cost-modal-header');
+    this.Helpers.bindMovingEvents('personnel-modal-header');
     this.bindEventsOnButtons();
     let self = this;
     setTimeout(function() {
@@ -127,6 +128,28 @@ TransfersClass.prototype.bindEventsOnButtons = function() {
         $('#deadline_date').val('TBA')
     })
 
+    $('#personnel-actual-cost').on('keyup', function() {
+        var personnelSavings = $('#personnel-estimate-cost').val() - $('#personnel-actual-cost').val()
+        var personnelSavingsPercent =  (personnelSavings / $('#personnel-estimate-cost').val()) * 100
+        $('#personnel-savings').val(personnelSavings)
+        $('#personnel-savings-percent').val(personnelSavingsPercent)
+    })
+
+
+    $('#save-personnel-costs').on('click', function() {
+
+        var personnelId = $('#personnel-id').val()
+        var personnelActualCost = $('#personnel-actual-cost').val()
+
+        if (personnelActualCost != "") {
+            personnelActualCost = self.Helpers.formatFloatValue(personnelActualCost)
+            self.DB.updatePersonnelCosts(personnelId, personnelActualCost)
+        } else {
+            self.Helpers.toastr('error', 'Some data are empty. Please try again.')
+        }
+
+    })
+
 }
 
 TransfersClass.prototype.bindSaveEventOnSaveJobButton = function() {
@@ -207,6 +230,8 @@ TransfersClass.prototype.bindSaveEventOnSaveJobButton = function() {
         }
 
     })
+
+
 
 
 }

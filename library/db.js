@@ -196,7 +196,7 @@ DbClass.prototype.getAllColors = function () {
 
     connection.connect();
 
-    var sql = 'SELECT * FROM colors'
+    var sql = 'Select * FROM colors WHERE color_code NOT IN (Select ind_group_color FROM individual_groups WHERE ind_group_confirmation_date is null);'
 
     connection.query(sql, function (error, colors) {
         if (error) throw error;
@@ -630,11 +630,11 @@ DbClass.prototype.getAllIndividuals = function () {
 
                 } else {
 
-                    if (data[18] == "" || data[18] == 0 || data[19] == "" || data[19] === null || data[20] == '' || data[20] === null) {
+                    if (data[22] == 1) {
 
                         Swal.fire({
                             title: "Unable to confirm this group.",
-                            text: "Some group data are empty. Please fill the missing data and try again. ",
+                            text: "Group cost is empty! You cannot confirm this group.",
                             icon: "error",
                             showCancelButton: true,
                             showConfirmButton: false
@@ -726,18 +726,20 @@ DbClass.prototype.getAllIndividuals = function () {
                     if (data[18] == null || data[19] == null || data[20] == null)
                     {
                         var allData = jobs_table.rows().data()
+                        $('#group_cost').attr('disabled', null)
                         for (var i=0; i < allData.length; i++) {
 
                             if (allData[i][15] == data[15]) {
                                 if (allData[i][13] == 0) {
-                                    Swal.fire({
-                                        title: "Unable to manage group costs.",
-                                        text: "There is a job with empty estimate cost inside this group. Please fill it up.",
-                                        icon: "error",
-                                        showCancelButton: true,
-                                        showConfirmButton: false
-                                    })
-                                    return;
+                                    // Swal.fire({
+                                    //     title: "Unable to manage group costs.",
+                                    //     text: "There is a job with empty estimate cost inside this group. Please fill it up.",
+                                    //     icon: "error",
+                                    //     showCancelButton: true,
+                                    //     showConfirmButton: false
+                                    // })
+                                    $('#group_cost').attr('disabled', 'disabled')
+                                    break;
 
                                 }
                             }
@@ -883,22 +885,37 @@ DbClass.prototype.getAllDoneIndividuals = function () {
             dataset[i] = [];
 
             for (j = 0; j < values.length; j++) {
-                if (j == 4) {
-                    if (values[7] == "Personnel") {
 
-                        dataset[i].push('Personnel')
 
-                    } else {
+                if (j == 4 || j == 3) {
+                    if (j == 4) {
 
-                        if (values[j] == 0) {
+                        if (values[7] == "Personnel") {
 
-                            dataset[i].push('Individual')
+                            dataset[i].push('Personnel')
+
                         } else {
 
-                            dataset[i].push('Grouped')
+                            if (values[j] == 0) {
+
+                                dataset[i].push('Individual')
+                            } else {
+
+                                dataset[i].push('Grouped')
+                            }
+
                         }
 
                     }
+
+                    if (j==3) {
+                        if (values[4] == 0) {
+                            dataset[i].push(0)
+                        } else {
+                            dataset[i].push(values[j])
+                        }
+                    }
+
 
                 } else {
                     dataset[i].push(values[j])
@@ -1938,7 +1955,7 @@ DbClass.prototype.updateGroupCost = function (groupCostData) {
 
     let self = this;
 
-    var sql = 'UPDATE individual_groups SET ind_group_cost = ' + groupCostData.ind_group_cost + ', ind_group_deadline = "' + groupCostData.ind_group_deadline + '"' + ', ind_group_forwarder = "' + groupCostData.ind_group_forwarder + '" ' +  ', ind_group_to = ' + groupCostData.ind_group_to + ', ind_group_active = 0 ' +
+    var sql = 'UPDATE individual_groups SET ind_group_cost = ' + groupCostData.ind_group_cost + ', ind_group_deadline = "' + groupCostData.ind_group_deadline + '"' + ', ind_group_forwarder = "' + groupCostData.ind_group_forwarder + '" ' +  ', ind_group_to = ' + groupCostData.ind_group_to + ', ind_group_active = ' + groupCostData.ind_group_active +
         ' WHERE ind_group_id = ' + groupCostData.ind_group_id  + ';' +
         ' UPDATE individuals SET ind_ex = ' + groupCostData.ind_group_ex + ', ind_to = ' + groupCostData.ind_group_to +  ', ind_deadline = "' + groupCostData.ind_group_deadline + '" WHERE ind_group_id = ' + groupCostData.ind_group_id  + ';'
 

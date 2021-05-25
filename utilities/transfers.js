@@ -81,20 +81,27 @@ TransfersClass.prototype.bindEventsOnButtons = function() {
     $('#save-costs').on('click', function() {
 
         var groupCost = $('#group_cost').val();
-        var groupCutoffDatte = $('#group_cut_off_date').val();
+        var groupActive = 0;
+        var groupDeadline = $('#group_cut_off_date').val();
         var groupForwarder = $('#group_forwarder').val();
         var groupTo = $('#group-to-select').val();
         var groupEx = $('#group-ex-select').val();
 
-        if (groupCost != '' && groupCutoffDatte != '' && groupForwarder != '' && groupTo != '' && groupEx != '') {
-
+        if (groupDeadline != '' && groupTo != '' && groupEx != '') {
+            console.log(groupCost)
+            if (groupCost == '') {
+                console.log("I am here....")
+                groupCost = null
+                groupActive = 1
+            }
             var jobCostData = {
                 ind_group_id: $('#group_id').val(),
-                ind_group_cost: $('#group_cost').val(),
-                ind_group_deadline: self.Helpers.changeDateToMysql($('#group_cut_off_date').val()),
-                ind_group_forwarder: $('#group_forwarder').val(),
+                ind_group_cost: groupCost,
+                ind_group_deadline: self.Helpers.changeDateToMysql(groupDeadline),
+                ind_group_forwarder: groupForwarder,
                 ind_group_to: groupTo,
-                ind_group_ex: groupEx
+                ind_group_ex: groupEx,
+                ind_group_active: groupActive,
 
 
             }

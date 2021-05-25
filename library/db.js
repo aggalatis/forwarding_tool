@@ -584,7 +584,7 @@ DbClass.prototype.getAllIndividuals = function () {
 
                     }).then((result) => {
                         if (result.isConfirmed) {
-                        self.confirmIndividualGroup(data[15]);
+                        self.confirmPersonnel(data[0]);
 
                         }
 
@@ -697,7 +697,7 @@ DbClass.prototype.getAllIndividuals = function () {
                 $('#personnel-estimate-cost').val(data[13])
                 $('#personnel-id').val(data[0])
 
-                if (data[23] != null && data[23] != 0) {
+                if (data[23] != null) {
                     $('#personnel-actual-cost').val(data[23])
                     var savings = data[13] - data[23];
                     $('#personnel-savings').val(savings)
@@ -1397,6 +1397,50 @@ DbClass.prototype.confirmIndividualGroup = function (groupID) {
     connection.end()
 
 
+}
+
+DbClass.prototype.confirmPersonnel = function (personnelID) {
+
+    let self = this;
+
+    var sql = 'UPDATE individuals SET ' +
+        'ind_status = "Done", ' +
+        'ind_confirmation_date = "' + self.Helpers.getDateTimeNow() + '"' +
+        ' WHERE ind_id = ' + personnelID + ' AND ind_deleted = 0;'
+
+
+    var mysql = require('mysql');
+
+    var connection = mysql.createConnection({
+        host: self.serverIP,
+        user: self.user,
+        password: self.dbpass,
+        database: self.database,
+        port: self.port,
+        dateStrings: true,
+        multipleStatements: true
+    });
+
+    connection.connect();
+
+    connection.query(sql, function (error, result) {
+        if (error) {
+
+            alert('Unable to confirm job.')
+            throw error
+
+        } else {
+
+            $('#jobs_table').unbind('click')
+            $('#jobs_table').DataTable().clear();
+            $('#jobs_table').DataTable().destroy();
+            self.Helpers.toastr('success', 'Job confirmed successfully.')
+            self.getAllIndividuals();
+        }
+
+    });
+
+    connection.end()
 }
 
 DbClass.prototype.handleIndividualGroups = function (individualData, insertedID) {

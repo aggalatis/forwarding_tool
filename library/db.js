@@ -9,6 +9,7 @@ let DbClass = function () {
     this.divisions = []
     this.vessels = []
     this.colors = []
+    this.selectedDoneInd = []
     this.pieCreated = false
     this.getServerDataFromRegistry()
 }
@@ -750,7 +751,8 @@ DbClass.prototype.getAllDoneIndividuals = function () {
         ' DATE_FORMAT(individual_groups.ind_group_deadline, "%d/%m/%Y") as ind_group_deadline,' +
         " individual_groups.ind_group_forwarder, " +
         " (SELECT Round(sum(individuals.ind_estimate_cost),2) FROM individuals WHERE ind_group_id = ind_jobs.ind_group_id AND ind_deleted = 0) as sum_estimated_cost," +
-        " ind_jobs.ind_actual_cost" +
+        " ind_jobs.ind_actual_cost," +
+        " ind_jobs.ind_consolidated" +
         " FROM individuals as ind_jobs" +
         " LEFT JOIN divisions on divisions.division_id = ind_jobs.ind_division_id" +
         " LEFT JOIN users on users.user_id = ind_jobs.ind_user_id" +
@@ -793,7 +795,6 @@ DbClass.prototype.getAllDoneIndividuals = function () {
                 }
             }
         }
-
         var jobs_table = $("#done_individuals_table").DataTable({
             data: dataset,
             fixedHeader: {
@@ -842,13 +843,49 @@ DbClass.prototype.getAllDoneIndividuals = function () {
                 { title: "Sum estimate cost", visible: false },
                 { title: "Actual cost", visible: false },
                 {
+                    title: "CONSOLIDATED",
+                    orderable: false,
+                    createdCell: function (td, cellData, rowData, row, col) {
+                        if (rowData[24] == 0) {
+                            $(td).html("NO").css("color", "red").css("font-weight", "bold")
+                        }
+                        if (rowData[24] == 1) {
+                            $(td).html("YES").css("color", "green").css("font-weight", "bold")
+                        }
+                    },
+                },
+                {
                     title: "ACTIONS",
                     orderable: false,
-                    defaultContent: "<i class='fa fa-search job-edit action-btn' style='cursor: pointer'></i><i class='fa fa-dollar done-job-cost action-btn' style='cursor: pointer' ></i>",
+                    defaultContent:
+                        "<i class='fa fa-search job-edit action-btn' style='cursor: pointer' title='modify'></i> \
+                        <i class='fa fa-dollar done-job-cost action-btn' style='cursor: pointer' title='costs'></i> \
+                        <i class='fa fa-crosshairs select-done-jobs action-btn' style='cursor: pointer' title='select'></i>",
                 },
             ],
             order: [[4, "asc"]],
             pageLength: 25,
+        })
+
+        $("#done_individuals_table").on("click", "i.select-done-jobs", function () {
+            var data = jobs_table.row($(this).parents("tr")).data()
+            if (data[24] == 1) {
+                Swal.fire({
+                    title: "Job Consolidated",
+                    text: "Unfortunately the job you selected already exists inside a consolidation group.",
+                    icon: "error",
+                    showCancelButton: true,
+                    showConfirmButton: false,
+                })
+                return
+            }
+            if (self.selectedDoneInd.indexOf(data[0]) == -1) {
+                $(this).parents("tr").addClass("datatableBack")
+                self.selectedDoneInd.push(data[0])
+            } else {
+                $(this).parents("tr").removeClass("datatableBack")
+                self.selectedDoneInd.splice(self.selectedDoneInd.indexOf(data[0], 1))
+            }
         })
 
         $("#done_individuals_table").on("click", "i.job-edit", function () {
@@ -1312,7 +1349,18 @@ DbClass.prototype.confirmPersonnel = function (personnelID) {
 DbClass.prototype.handleIndividualGroups = function (individualData, insertedID) {
     let self = this
 
-    var sql = "SELECT * FROM individual_groups WHERE " + 'ind_group_ex = "' + individualData.ind_ex + '" AND ' + 'ind_group_to = "' + individualData.ind_to + '" AND ' + 'ind_group_deadline = "' + individualData.ind_deadline + '" AND ' + "ind_group_active = 1"
+    var sql =
+        "SELECT * FROM individual_groups WHERE " +
+        'ind_group_ex = "' +
+        individualData.ind_ex +
+        '" AND ' +
+        'ind_group_to = "' +
+        individualData.ind_to +
+        '" AND ' +
+        'ind_group_deadline = "' +
+        individualData.ind_deadline +
+        '" AND ' +
+        "ind_group_active = 1"
 
     var mysql = require("mysql")
 
@@ -1333,7 +1381,16 @@ DbClass.prototype.handleIndividualGroups = function (individualData, insertedID)
             throw error
         } else {
             if (groupResults.length == 0) {
-                var insert_sql = "INSERT INTO individual_groups " + "(ind_group_color, ind_group_ex, ind_group_to, ind_group_deadline, ind_group_active) VALUES " + '("empty","' + individualData.ind_ex + '", "' + individualData.ind_to + '", "' + individualData.ind_deadline + '", 1)'
+                var insert_sql =
+                    "INSERT INTO individual_groups " +
+                    "(ind_group_color, ind_group_ex, ind_group_to, ind_group_deadline, ind_group_active) VALUES " +
+                    '("empty","' +
+                    individualData.ind_ex +
+                    '", "' +
+                    individualData.ind_to +
+                    '", "' +
+                    individualData.ind_deadline +
+                    '", 1)'
 
                 var insertConnection = mysql.createConnection({
                     host: self.serverIP,
@@ -1385,7 +1442,14 @@ DbClass.prototype.handleIndividualGroups = function (individualData, insertedID)
                         if (error) {
                             throw error
                         } else {
-                            var new_sql = "UPDATE individuals set ind_group_id = " + groupResults[0].ind_group_id + " WHERE ind_id = " + insertedID + ";" + "UPDATE individuals set ind_is_grouped = 1 WHERE ind_group_id = " + groupResults[0].ind_group_id
+                            var new_sql =
+                                "UPDATE individuals set ind_group_id = " +
+                                groupResults[0].ind_group_id +
+                                " WHERE ind_id = " +
+                                insertedID +
+                                ";" +
+                                "UPDATE individuals set ind_is_grouped = 1 WHERE ind_group_id = " +
+                                groupResults[0].ind_group_id
 
                             var newConnection = mysql.createConnection({
                                 host: self.serverIP,
@@ -1501,7 +1565,16 @@ DbClass.prototype.handleIndividualGroupsUpdate = function (individualData) {
             throw error
         } else {
             if (groupResults.length == 0) {
-                var insert_sql = "INSERT INTO individual_groups " + "(ind_group_color, ind_group_ex, ind_group_to, ind_group_deadline, ind_group_active) VALUES " + '("empty","' + individualData.ind_ex + '", "' + individualData.ind_to + '", "' + individualData.ind_deadline + '", 1)'
+                var insert_sql =
+                    "INSERT INTO individual_groups " +
+                    "(ind_group_color, ind_group_ex, ind_group_to, ind_group_deadline, ind_group_active) VALUES " +
+                    '("empty","' +
+                    individualData.ind_ex +
+                    '", "' +
+                    individualData.ind_to +
+                    '", "' +
+                    individualData.ind_deadline +
+                    '", 1)'
 
                 var insertConnection = mysql.createConnection({
                     host: self.serverIP,
@@ -1555,7 +1628,14 @@ DbClass.prototype.handleIndividualGroupsUpdate = function (individualData) {
                             if (error) {
                                 throw error
                             } else {
-                                var new_sql = "UPDATE individuals set ind_group_id = " + groupResults[0].ind_group_id + ", ind_is_grouped = 1 WHERE ind_id = " + individualData.ind_id + ";" + "UPDATE individuals set ind_is_grouped = 1 WHERE ind_group_id = " + groupResults[0].ind_group_id
+                                var new_sql =
+                                    "UPDATE individuals set ind_group_id = " +
+                                    groupResults[0].ind_group_id +
+                                    ", ind_is_grouped = 1 WHERE ind_id = " +
+                                    individualData.ind_id +
+                                    ";" +
+                                    "UPDATE individuals set ind_is_grouped = 1 WHERE ind_group_id = " +
+                                    groupResults[0].ind_group_id
 
                                 var newConnection = mysql.createConnection({
                                     host: self.serverIP,
@@ -1624,7 +1704,10 @@ DbClass.prototype.handleIndividualGroupsUpdate = function (individualData) {
 DbClass.prototype.checkIfThereIsOneJobAloneGrouped = function () {
     let self = this
     var mysql = require("mysql")
-    var check_sql = "Select ind_group_id, count(*) as ind_count from individuals " + 'WHERE ind_is_grouped = 1 AND ind_status = "Pending" AND ind_mode != "Personnel"  AND ind_deleted = 0 ' + "group by ind_group_id;"
+    var check_sql =
+        "Select ind_group_id, count(*) as ind_count from individuals " +
+        'WHERE ind_is_grouped = 1 AND ind_status = "Pending" AND ind_mode != "Personnel"  AND ind_deleted = 0 ' +
+        "group by ind_group_id;"
 
     var newConnection = mysql.createConnection({
         host: self.serverIP,
@@ -1641,7 +1724,13 @@ DbClass.prototype.checkIfThereIsOneJobAloneGrouped = function () {
         for (i = 0; i < individuals.length; i++) {
             if (individuals[i].ind_count == 1) {
                 console.log(individuals[i].ind_group_id)
-                var ungroup_sql = 'UPDATE individual_groups SET ind_group_color = "empty" WHERE ind_group_id = ' + individuals[i].ind_group_id + ";" + "UPDATE individuals set ind_is_grouped = 0 WHERE ind_group_id = " + individuals[i].ind_group_id + "; "
+                var ungroup_sql =
+                    'UPDATE individual_groups SET ind_group_color = "empty" WHERE ind_group_id = ' +
+                    individuals[i].ind_group_id +
+                    ";" +
+                    "UPDATE individuals set ind_is_grouped = 0 WHERE ind_group_id = " +
+                    individuals[i].ind_group_id +
+                    "; "
 
                 var ungrouConn = mysql.createConnection({
                     host: self.serverIP,
@@ -1752,7 +1841,14 @@ DbClass.prototype.updateGroupCost = function (groupCostData) {
                 } else {
                     console.log(indToChangeGroup)
                     for (let i = 0; i < indToChangeGroup.length; i++) {
-                        var changeIndividualSql = "UPDATE individuals SET ind_is_grouped = 1, ind_group_id = " + groupCostData.ind_group_id + " WHERE ind_id = " + indToChangeGroup[i].ind_id + ";" + " DELETE FROM individual_groups WHERE ind_group_id = " + indToChangeGroup[i].ind_group_id
+                        var changeIndividualSql =
+                            "UPDATE individuals SET ind_is_grouped = 1, ind_group_id = " +
+                            groupCostData.ind_group_id +
+                            " WHERE ind_id = " +
+                            indToChangeGroup[i].ind_id +
+                            ";" +
+                            " DELETE FROM individual_groups WHERE ind_group_id = " +
+                            indToChangeGroup[i].ind_group_id
 
                         var mysql = require("mysql")
 
@@ -1876,6 +1972,32 @@ DbClass.prototype.updatePersonnelCosts = function (personnelId, personnelActualC
         self.getAllIndividuals()
     })
     connection.end()
+}
+
+DbClass.prototype.getConGroups = function () {
+    var mysql = require("mysql")
+    let self = this
+    var connection = mysql.createConnection({
+        host: self.serverIP,
+        user: self.user,
+        password: self.dbpass,
+        database: self.database,
+        port: self.port,
+        dateStrings: true,
+    })
+
+    var sql = "SELECT * FROM consolidation_groups WHERE con_group_active = 1;"
+    connection.connect()
+    return new Promise((resolve, reject) => {
+        connection.query(sql, function (error, data) {
+            connection.end()
+            if (error) {
+                alert("Unable to get consolidation groups.")
+                reject(error)
+            }
+            resolve(data)
+        })
+    })
 }
 
 /**************** END OF INDIVIDUALS ***********************/

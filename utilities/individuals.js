@@ -11,6 +11,7 @@ let IndividualsClass = function () {
     let self = this
     setTimeout(function () {
         self.initializetable()
+        self.appendConsolidationGroups()
     }, 500)
 }
 
@@ -41,12 +42,29 @@ IndividualsClass.prototype.bindEventsOnButtons = function () {
         }
         $("#assignment-group-modal").modal("show")
     })
+
+    $("#assign-jobs").on("click", () => {
+        let selGroup = $("input.con-group:checked").val()
+        if (typeof selGroup === "undefined") {
+            self.Helpers.toastr("warning", "Please select a group first.")
+            return
+        }
+        if (selGroup == 0) {
+            self.DB.assignJobsToNewGroup()
+        } else {
+            self.DB.assignJobsToGroup()
+        }
+    })
 }
 
 IndividualsClass.prototype.initializetable = async function () {
     let self = this
 
     self.DB.getAllDoneIndividuals(self.Helpers)
+    self.DB.getAllColors()
+}
+
+IndividualsClass.prototype.appendConsolidationGroups = async function () {
+    let self = this
     let conGroups = await self.DB.getConGroups()
-    console.log(conGroups)
 }

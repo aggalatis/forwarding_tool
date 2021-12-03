@@ -52,7 +52,7 @@ IndividualsClass.prototype.bindEventsOnButtons = function () {
         if (selGroup == 0) {
             self.DB.assignJobsToNewGroup()
         } else {
-            self.DB.assignJobsToGroup()
+            self.DB.assignJobsToConGroup(selGroup)
         }
     })
 }
@@ -66,5 +66,18 @@ IndividualsClass.prototype.initializetable = async function () {
 
 IndividualsClass.prototype.appendConsolidationGroups = async function () {
     let self = this
+
+    $("#con-group-radios").append(`<label class="custom-control custom-radio dark">
+        <input name="radio-stacked" class="custom-control-input con-group" type="radio" value="0" />
+        <span class="custom-control-indicator"></span>
+        <span class="custom-control-description">New Group</span>
+    </label>`)
     let conGroups = await self.DB.getConGroups()
+    for (let conGroup of conGroups) {
+        $("#con-group-radios").append(`<label class="custom-control custom-radio dark">
+            <input name="radio-stacked" class="custom-control-input con-group" type="radio" value="${conGroup.con_group_id}" />
+            <span class="custom-control-indicator"></span>
+            <span class="custom-control-description" style="background-color: ${conGroup.con_group_color}">Consolidation Group ID: ${conGroup.con_group_id}</span>
+            </label>`)
+    }
 }

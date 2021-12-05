@@ -32,6 +32,7 @@
         <link rel="stylesheet" href="../assets/icons/typicons/typicons.min.css" />
         <link rel="stylesheet" href="../assets/icons/weathericons/css/weather-icons.min.css" />
         <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/fixedheader/3.1.7/css/fixedHeader.dataTables.min.css" />
+        <link rel="stylesheet" href="../assets/css/toastr.min.css" />
         <!--Date-range-->
         <link rel="stylesheet" href="../assets/plugins/date-range/daterangepicker.css" />
         <!--Drop-Zone-->
@@ -59,6 +60,9 @@
 
             .dataTables_filter {
                 display: none;
+            }
+            .datatableBack {
+                background-color: rgb(178, 235, 178) !important;
             }
         </style>
     </head>
@@ -90,6 +94,30 @@
             </div>
         </div>
         <!-- Start Notes modal -->
+        <!-- Start Consolidation group modal -->
+        <div aria-hidden="true" class="modal fade" role="dialog" tabindex="-1" style="top: 15%" id="assignment-group-modal">
+            <div id="assignment-modal-header" class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <button class="close move-left" type="button"><i class="icon-arrow-left"></i></button>
+                        <h5 class="modal-title">Consolidation Groups</h5>
+                        <button class="close move-right" type="button"><i class="icon-arrow-right"></i></button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="form-row">
+                            <div class="col-md-12">
+                                <div class="custom-controls-stacked" id="con-group-radios"></div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button class="btn btn-secondary" data-dismiss="modal" type="button">Close</button>
+                        <button class="btn btn-primary" type="button" id="assign-jobs">Make assignment</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- End Consolidation group modal -->
 
         <div aria-hidden="true" class="modal fade" role="dialog" tabindex="-1" style="top: 15%" id="done-consolidation-cost-modal">
             <div id="cost-done-cons-head" class="modal-dialog modal-sm">
@@ -227,6 +255,7 @@
                         </li>
                         <li id="actions_list">
                             <button class="btn btn-danger mt-2" onclick="window.location.reload()">REFRESH</button>
+                            <button class="btn btn-warning mt-2" id="assign-btn">ASSIGN</button>
                         </li>
                         <input placeholder="Search Table..." id="search_datatable" style="float: right; height: 35px; margin: 5px" />
                     </ul>
@@ -310,6 +339,7 @@
         <!--Chosen-->
         <script type="text/javascript" src="../assets/js/chosen/chosen.jquery.js"></script>
         <!--- Main JS -->
+        <script type="text/javascript" src="../assets/js/toastr.js"></script>
         <script src="../assets/js/main.js"></script>
         <script src="../library/helpers.js"></script>
         <script src="../utilities/doneConsolidations.js"></script>

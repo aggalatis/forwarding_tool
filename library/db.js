@@ -2043,7 +2043,7 @@ DbClass.prototype.assignJobsToNewGroup = async function () {
     let conAdded = await new Promise(function (resolve, reject) {
         let sql = ""
         for (let ind of inds) {
-            sql = `INSERT INTO consolidations (con_id, con_user_id, con_division_id, con_products, con_vessels, con_reference, con_kg, con_status, con_request_date, con_group_id)
+            sql = `INSERT INTO consolidations (con_ind_id, con_user_id, con_division_id, con_products, con_vessels, con_reference, con_kg, con_status, con_request_date, con_group_id)
                     VALUES (${ind.ind_id}, ${self.Helpers.user_id}, ${ind.ind_division_id}, '${ind.ind_products}', '${ind.ind_vessels}', '${ind.ind_reference}', ${ind.ind_kg}, 'Pending', now(), ${newConGroup.insertId});`
             connection.query(sql, (err, data) => {
                 if (err) {
@@ -2088,7 +2088,7 @@ DbClass.prototype.assignJobsToConGroup = async function (selGroup) {
     })
 
     const inds = await new Promise((resolve, reject) => {
-        let sql = `SELECT * FROM individuals WHERE ind_id IN (${self.selectedDoneInd.join(",")})`
+        let sql = `SELECT * FROM consolidations_done WHERE cond_id IN (${self.selectedDoneInd.join(",")})`
         connection.query(sql, (err, data) => {
             if (err) {
                 alert("Unable to get individuals done")
@@ -2100,7 +2100,7 @@ DbClass.prototype.assignJobsToConGroup = async function (selGroup) {
     let conAdded = await new Promise(function (resolve, reject) {
         let sql = ""
         for (let ind of inds) {
-            sql = `INSERT INTO consolidations (con_id, con_user_id, con_division_id, con_products, con_vessels, con_reference, con_kg, con_status, con_request_date, con_group_id)
+            sql = `INSERT INTO consolidations (con_ind_id, con_user_id, con_division_id, con_products, con_vessels, con_reference, con_kg, con_status, con_request_date, con_group_id)
                     VALUES (${ind.ind_id}, ${self.Helpers.user_id}, ${ind.ind_division_id}, '${ind.ind_products}', '${ind.ind_vessels}', '${ind.ind_reference}', ${ind.ind_kg}, 'Pending', now(), ${selGroup});`
             connection.query(sql, (err, data) => {
                 if (err) {
@@ -2117,10 +2117,151 @@ DbClass.prototype.assignJobsToConGroup = async function (selGroup) {
         return
     }
     await new Promise(function (resolve, reject) {
-        let sql = `UPDATE individuals set ind_consolidated = 1 WHERE ind_id IN (${self.selectedDoneInd.join(",")})`
+        let sql = `UPDATE consolidations_done set cond_consolidated = 1 WHERE cond_id IN (${jobs.join(",")})`
         connection.query(sql, (err, data) => {
             if (err) {
-                alert("Unable to get individuals done")
+                alert("Unable to update consolidations done")
+                console.log(err)
+                reject(err)
+            }
+            resolve(data)
+        })
+    })
+    connection.end()
+    window.location.replace("consolidations.html")
+}
+
+DbClass.prototype.assignConJobsToNewGroup = async function (jobs) {
+    var mysql = require("mysql")
+    let self = this
+    var connection = mysql.createConnection({
+        host: self.serverIP,
+        user: self.user,
+        password: self.dbpass,
+        database: self.database,
+        port: self.port,
+        dateStrings: true,
+        multipleStatements: true,
+    })
+
+    const cons = await new Promise((resolve, reject) => {
+        let sql = `SELECT 
+        cd.* ,
+        cg.con_group_ex as group_ex
+        FROM consolidations_done cd
+        JOIN consolidation_groups cg on cg.con_group_id = cd.cond_group_id 
+        WHERE cd.cond_id IN (${jobs.join(",")})`
+        connection.query(sql, (err, data) => {
+            if (err) {
+                alert("Unable to get consolidations")
+                reject(err)
+            }
+            resolve(data)
+        })
+    })
+    let randomNumber = Math.floor(Math.random() * (self.colors.length - 1))
+    const newConGroup = await new Promise(function (resolve, reject) {
+        let sql = `INSERT INTO consolidation_groups (con_group_color, con_group_ex, con_group_active) 
+                    VALUES ('${self.colors[randomNumber].color_code}', ${cons[0].group_ex}, 1)`
+        connection.query(sql, (err, data) => {
+            if (err) {
+                alert("Unable to add consolidations done")
+                console.log(err)
+                reject(err)
+            }
+            resolve(data)
+        })
+    })
+    if (typeof newConGroup.insertId === "undefined") {
+        alert("Cannot add consolidation group")
+        return
+    }
+    let conAdded = await new Promise(function (resolve, reject) {
+        let sql = ""
+        for (let con of cons) {
+            sql = `INSERT INTO consolidations (con_ind_id, con_user_id, con_division_id, con_products, con_vessels, con_reference, con_kg, con_status, con_request_date, con_group_id)
+                    VALUES (${con.cond_ind_id}, ${self.Helpers.user_id}, ${con.cond_division_id}, '${con.cond_products}', '${con.cond_vessels}', '${con.cond_reference}', ${con.cond_kg}, 'Pending', now(), ${newConGroup.insertId});`
+            connection.query(sql, (err, data) => {
+                if (err) {
+                    alert("Unable to add consolidations")
+                    console.log(err)
+                    reject(err)
+                }
+            })
+        }
+        resolve(true)
+    })
+    if (!conAdded) {
+        alert("Cannot add consolidations")
+        return
+    }
+    await new Promise(function (resolve, reject) {
+        let sql = `UPDATE consolidations_done set cond_consolidated = 1 WHERE cond_id IN (${jobs.join(",")})`
+        connection.query(sql, (err, data) => {
+            if (err) {
+                alert("Unable to update consolidations done")
+                console.log(err)
+                reject(err)
+            }
+            resolve(data)
+        })
+    })
+    connection.end()
+    window.location.replace("consolidations.html")
+}
+
+DbClass.prototype.assignConJobsToConGroup = async function (selGroup, jobs) {
+    var mysql = require("mysql")
+    let self = this
+    var connection = mysql.createConnection({
+        host: self.serverIP,
+        user: self.user,
+        password: self.dbpass,
+        database: self.database,
+        port: self.port,
+        dateStrings: true,
+        multipleStatements: true,
+    })
+
+    const cons = await new Promise((resolve, reject) => {
+        let sql = `SELECT 
+        cd.* ,
+        cg.con_group_ex as group_ex
+        FROM consolidations_done cd
+        JOIN consolidation_groups cg on cg.con_group_id = cd.cond_group_id 
+        WHERE cd.cond_id IN (${jobs.join(",")})`
+        connection.query(sql, (err, data) => {
+            if (err) {
+                alert("Unable to get consolidations")
+                reject(err)
+            }
+            resolve(data)
+        })
+    })
+    let conAdded = await new Promise(function (resolve, reject) {
+        let sql = ""
+        for (let con of cons) {
+            sql = `INSERT INTO consolidations (con_ind_id, con_user_id, con_division_id, con_products, con_vessels, con_reference, con_kg, con_status, con_request_date, con_group_id)
+                    VALUES (${con.cond_ind_id}, ${self.Helpers.user_id}, ${con.cond_division_id}, '${con.cond_products}', '${con.cond_vessels}', '${con.cond_reference}', ${con.cond_kg}, 'Pending', now(), ${selGroup});`
+            connection.query(sql, (err, data) => {
+                if (err) {
+                    alert("Unable to add consolidations")
+                    console.log(err)
+                    reject(err)
+                }
+            })
+        }
+        resolve(true)
+    })
+    if (!conAdded) {
+        alert("Cannot add consolidations")
+        return
+    }
+    await new Promise(function (resolve, reject) {
+        let sql = `UPDATE consolidations_done set cond_consolidated = 1 WHERE cond_id IN (${jobs.join(",")})`
+        connection.query(sql, (err, data) => {
+            if (err) {
+                alert("Unable to update consolidations done")
                 console.log(err)
                 reject(err)
             }
@@ -2632,8 +2773,8 @@ DbClass.prototype.confirmConsGroup = async function (data) {
     let conAdded = await new Promise(function (resolve, reject) {
         let sql = ""
         for (let con of cons) {
-            sql = `INSERT INTO consolidations_done (cond_id, cond_user_id, cond_division_id, cond_products, cond_vessels, cond_reference, cond_kg, cond_status, cond_request_date, cond_group_id)
-                    VALUES (${con.con_id}, ${self.Helpers.user_id}, ${con.con_division_id}, '${con.con_products}', '${con.con_vessels}', '${con.con_reference}', ${con.con_kg}, 'Done', '${con.con_request_date}', ${con.con_group_id});`
+            sql = `INSERT INTO consolidations_done (cond_ind_id, cond_con_done_id, cond_user_id, cond_division_id, cond_products, cond_vessels, cond_reference, cond_kg, cond_status, cond_request_date, cond_group_id)
+                    VALUES (${con.con_ind_id}, ${con.con_done_id}, ${self.Helpers.user_id}, ${con.con_division_id}, '${con.con_products}', '${con.con_vessels}', '${con.con_reference}', ${con.con_kg}, 'Done', '${con.con_request_date}', ${con.con_group_id});`
             connection.query(sql, (err, data) => {
                 if (err) {
                     alert("Unable to add consolidations done")
@@ -2672,6 +2813,51 @@ DbClass.prototype.confirmConsGroup = async function (data) {
     })
     connection.end()
     return true
+}
+
+DbClass.prototype.getAllDoneConsolidations = function () {
+    let self = this
+    var mysql = require("mysql")
+
+    var connection = mysql.createConnection({
+        host: self.serverIP,
+        user: self.user,
+        password: self.dbpass,
+        database: self.database,
+        port: self.port,
+        dateStrings: true,
+    })
+
+    connection.connect()
+    let sql = `SELECT 
+    c.*,
+    cg.con_group_id as group_id,
+    cg.con_group_cost,
+    cg.con_group_deadline,
+    cg.con_group_forwarder,
+    cg.con_group_color,
+    cg.con_group_mode,
+    d.division_description,
+    u.user_username,
+    c2.city_name as ex_name,
+    c3.city_name as to_name
+    FROM consolidations_done c 
+    LEFT JOIN consolidation_groups cg on c.cond_group_id = cg.con_group_id
+    LEFT JOIN divisions d on c.cond_division_id = d.division_id 
+    LEFT JOIN users u on c.cond_user_id = u.user_id 
+    LEFT JOIN cities c2 on c2.city_id = cg.con_group_ex 
+    LEFT JOIN cities c3 on c3.city_id = cg.con_group_to
+    `
+    return new Promise((resolve, reject) => {
+        connection.query(sql, function (error, data) {
+            connection.end()
+            if (error) {
+                alert("Unable to get done consolidations.")
+                reject(error)
+            }
+            resolve(data)
+        })
+    })
 }
 
 /**************** END OF CONSOLIDATIONS ***********************/

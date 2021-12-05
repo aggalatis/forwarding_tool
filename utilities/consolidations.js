@@ -78,6 +78,7 @@ ConsolidationsClass.prototype.initializetable = async function () {
     })
     $("#consolidations_table").on("click", "i.delete-job", function () {
         var data = consolidationsTable.row($(this).closest("tr")).data()
+        console.log(data)
         if (!self.Helpers.checkIfUserHasPriviledges(data.user_username)) {
             Swal.fire({
                 title: "Unable to delete this job.",
@@ -99,9 +100,11 @@ ConsolidationsClass.prototype.initializetable = async function () {
         }).then(result => {
             if (result.isConfirmed) {
                 self.DB.deleteConsolidation(data)
-                setTimeout(function () {
-                    window.location.reload()
-                }, 1000)
+                $("#consolidations_table").unbind("click")
+                $("#consolidations_table").DataTable().clear()
+                $("#consolidations_table").DataTable().destroy()
+                self.Helpers.toastr("success", "Group is deleted successfully!")
+                self.initializetable()
             }
         })
     })
@@ -129,6 +132,11 @@ ConsolidationsClass.prototype.initializetable = async function () {
         }).then(result => {
             if (result.isConfirmed) {
                 self.DB.confirmConsGroup(data)
+                $("#consolidations_table").unbind("click")
+                $("#consolidations_table").DataTable().clear()
+                $("#consolidations_table").DataTable().destroy()
+                self.Helpers.toastr("success", "Group is confirmed successfully!")
+                self.initializetable()
             }
         })
     })

@@ -90,6 +90,12 @@ HelpersClass.prototype.changeDateToMysql = function (datetime) {
     }
 }
 
+HelpersClass.prototype.changeMysqlDateToNormal = function (datetime) {
+    var dateTimeArray = datetime.split(" ")
+    let dateSplitted = dateTimeArray[0].split("-")
+    return `${dateSplitted[2]}/${dateSplitted[1]}/${dateSplitted[0]} ${dateTimeArray[1]}`
+}
+
 HelpersClass.prototype.initliazeModalToEditJob = function (divisions, products, vessels, cities, jobData) {
     let self = this
     myTransfers.initializeDivisionsSelect()

@@ -53,7 +53,6 @@ ConsolidationsClass.prototype.initializetable = async function () {
                 title: "ACTIONS",
                 orderable: false,
                 createdCell: function (td, cellData, rowData, row, col) {
-                    console.log(rowData)
                     if (
                         rowData.to_name == null ||
                         rowData.ex_name == null ||
@@ -63,6 +62,8 @@ ConsolidationsClass.prototype.initializetable = async function () {
                         rowData.con_group_mode == null
                     ) {
                         $(td).children(".confirm-job").hide()
+                    } else {
+                        $(td).children(".delete-job").hide()
                     }
                 },
                 defaultContent:
@@ -100,11 +101,8 @@ ConsolidationsClass.prototype.initializetable = async function () {
         }).then(result => {
             if (result.isConfirmed) {
                 self.DB.deleteConsolidation(data)
-                $("#consolidations_table").unbind("click")
-                $("#consolidations_table").DataTable().clear()
-                $("#consolidations_table").DataTable().destroy()
                 self.Helpers.toastr("success", "Group is deleted successfully!")
-                self.initializetable()
+                self.refreshTable()
             }
         })
     })
@@ -132,11 +130,8 @@ ConsolidationsClass.prototype.initializetable = async function () {
         }).then(result => {
             if (result.isConfirmed) {
                 self.DB.confirmConsGroup(data)
-                $("#consolidations_table").unbind("click")
-                $("#consolidations_table").DataTable().clear()
-                $("#consolidations_table").DataTable().destroy()
-                self.Helpers.toastr("success", "Group is confirmed successfully!")
-                self.initializetable()
+                self.Helpers.toastr("success", "Job is confirmed successfully!")
+                self.refreshTable()
             }
         })
     })
@@ -201,12 +196,9 @@ ConsolidationsClass.prototype.bindEventsOnButtons = function () {
         }
         let updateData = await self.DB.updateConGroupData(groupData)
         if (updateData && updateData.affectedRows == 1) {
-            $("#consolidations_table").unbind("click")
-            $("#consolidations_table").DataTable().clear()
-            $("#consolidations_table").DataTable().destroy()
             self.Helpers.toastr("success", "Consolidation group updated!")
             $("#group-modal").modal("hide")
-            self.initializetable()
+            self.refreshTable()
         }
     })
 }
@@ -370,4 +362,14 @@ ConsolidationsClass.prototype.findChoosenValueForCities = function (ex_city, to_
             $("#group-to-select").trigger("chosen:updated")
         }
     }
+}
+
+ConsolidationsClass.prototype.refreshTable = function () {
+    let self = this
+    $("#consolidations_table").unbind("click")
+    $("#consolidations_table").DataTable().clear()
+    $("#consolidations_table").DataTable().destroy()
+    setTimeout(function () {
+        self.initializetable()
+    }, 2000)
 }

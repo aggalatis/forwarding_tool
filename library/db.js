@@ -2088,7 +2088,7 @@ DbClass.prototype.assignJobsToConGroup = async function (selGroup) {
     })
 
     const inds = await new Promise((resolve, reject) => {
-        let sql = `SELECT * FROM consolidations_done WHERE cond_id IN (${self.selectedDoneInd.join(",")})`
+        let sql = `SELECT * FROM individuals WHERE ind_id IN (${self.selectedDoneInd.join(",")})`
         connection.query(sql, (err, data) => {
             if (err) {
                 alert("Unable to get individuals done")
@@ -2117,7 +2117,7 @@ DbClass.prototype.assignJobsToConGroup = async function (selGroup) {
         return
     }
     await new Promise(function (resolve, reject) {
-        let sql = `UPDATE consolidations_done set cond_consolidated = 1 WHERE cond_id IN (${jobs.join(",")})`
+        let sql = `UPDATE individuals set ind_consolidated = 1 WHERE ind_id IN (${self.selectedDoneInd.join(",")})`
         connection.query(sql, (err, data) => {
             if (err) {
                 alert("Unable to update consolidations done")
@@ -2179,8 +2179,8 @@ DbClass.prototype.assignConJobsToNewGroup = async function (jobs) {
     let conAdded = await new Promise(function (resolve, reject) {
         let sql = ""
         for (let con of cons) {
-            sql = `INSERT INTO consolidations (con_ind_id, con_user_id, con_division_id, con_products, con_vessels, con_reference, con_kg, con_status, con_request_date, con_group_id)
-                    VALUES (${con.cond_ind_id}, ${self.Helpers.user_id}, ${con.cond_division_id}, '${con.cond_products}', '${con.cond_vessels}', '${con.cond_reference}', ${con.cond_kg}, 'Pending', now(), ${newConGroup.insertId});`
+            sql = `INSERT INTO consolidations (con_ind_id, con_done_id, con_user_id, con_division_id, con_products, con_vessels, con_reference, con_kg, con_status, con_request_date, con_group_id)
+                    VALUES (${con.cond_ind_id}, ${con.cond_id}, ${self.Helpers.user_id}, ${con.cond_division_id}, '${con.cond_products}', '${con.cond_vessels}', '${con.cond_reference}', ${con.cond_kg}, 'Pending', now(), ${newConGroup.insertId});`
             connection.query(sql, (err, data) => {
                 if (err) {
                     alert("Unable to add consolidations")
@@ -2241,8 +2241,8 @@ DbClass.prototype.assignConJobsToConGroup = async function (selGroup, jobs) {
     let conAdded = await new Promise(function (resolve, reject) {
         let sql = ""
         for (let con of cons) {
-            sql = `INSERT INTO consolidations (con_ind_id, con_user_id, con_division_id, con_products, con_vessels, con_reference, con_kg, con_status, con_request_date, con_group_id)
-                    VALUES (${con.cond_ind_id}, ${self.Helpers.user_id}, ${con.cond_division_id}, '${con.cond_products}', '${con.cond_vessels}', '${con.cond_reference}', ${con.cond_kg}, 'Pending', now(), ${selGroup});`
+            sql = `INSERT INTO consolidations (con_ind_id, con_done_id, con_user_id, con_division_id, con_products, con_vessels, con_reference, con_kg, con_status, con_request_date, con_group_id)
+                    VALUES (${con.cond_ind_id}, ${con.cond_id}, ${self.Helpers.user_id}, ${con.cond_division_id}, '${con.cond_products}', '${con.cond_vessels}', '${con.cond_reference}', ${con.cond_kg}, 'Pending', now(), ${selGroup});`
             connection.query(sql, (err, data) => {
                 if (err) {
                     alert("Unable to add consolidations")
@@ -2698,16 +2698,27 @@ DbClass.prototype.deleteConsolidation = function (conData) {
         }
         console.log(data)
     })
-    let updateSql = `UPDATE individuals SET ind_consolidated = 0 WHERE ind_id = ${conData.con_id} LIMIT 1`
-    connection.query(updateSql, function (error, data) {
-        if (error) {
-            alert("Unable to update individual.")
-            console.log(err)
-        }
-        console.log(data)
-    })
+    if (conData.con_done_id == null) {
+        let updateSql = `UPDATE individuals SET ind_consolidated = 0 WHERE ind_id = ${conData.con_ind_id} LIMIT 1`
+        connection.query(updateSql, function (error, data) {
+            if (error) {
+                alert("Unable to update individual.")
+                console.log(err)
+            }
+            console.log(data)
+        })
+    } else {
+        let updateSql = `UPDATE consolidations_done SET cond_consolidated = 0 WHERE cond_id = ${conData.con_done_id} LIMIT 1`
+        connection.query(updateSql, function (error, data) {
+            if (error) {
+                alert("Unable to update consolidations done.")
+                console.log(err)
+            }
+            console.log(data)
+        })
+    }
 
-    let delConGroups = `DELETE FROM consolidation_groups WHERE con_group_id NOT IN (SELECT  DISTINCT(con_group_id) from consolidations WHERE con_status = 'Pending')`
+    let delConGroups = `DELETE FROM consolidation_groups WHERE con_group_id NOT IN (SELECT  DISTINCT(con_group_id) from consolidations) AND con_group_active = 1`
     connection.query(delConGroups, function (error, data) {
         if (error) {
             alert("Unable to delete consolidation Groups.")

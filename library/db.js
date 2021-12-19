@@ -137,12 +137,39 @@ DbClass.prototype.getAllVessels = function () {
 
     connection.connect()
 
-    var sql = 'SELECT * FROM vessels ORDER BY vessel_description'
+    var sql = 'SELECT * FROM vessels WHERE vessel_deleted = 0 ORDER BY vessel_description'
 
     connection.query(sql, function (error, vessels) {
         if (error) throw error
 
         self.vessels = vessels
+    })
+
+    connection.end()
+}
+
+DbClass.prototype.getAllServiceTypes = function () {
+    let self = this
+
+    var mysql = require('mysql')
+
+    var connection = mysql.createConnection({
+        host: self.serverIP,
+        user: self.user,
+        password: self.dbpass,
+        database: self.database,
+        port: self.port,
+        dateStrings: true,
+    })
+
+    connection.connect()
+
+    var sql = 'SELECT * FROM service_types WHERE service_type_deleted = 0 ORDER BY service_type_description'
+
+    connection.query(sql, function (error, serviceTypes) {
+        if (error) throw error
+
+        self.serviceTypes = serviceTypes
     })
 
     connection.end()
@@ -191,7 +218,7 @@ DbClass.prototype.getAllCities = function () {
 
     connection.connect()
 
-    var sql = 'SELECT * FROM cities order by city_name'
+    var sql = 'SELECT * FROM cities WHERE city_deleted = 0 order by city_name'
 
     connection.query(sql, function (error, cities) {
         if (error) throw error
@@ -275,29 +302,23 @@ DbClass.prototype.getAllIndividuals = function () {
         ' individual_groups.ind_group_forwarder, ' +
         ' (SELECT Round(sum(individuals.ind_estimate_cost),2) FROM individuals WHERE ind_group_id = ind_jobs.ind_group_id AND ind_deleted = 0)  as sum_estimated_cost,' +
         ' individual_groups.ind_group_active,' +
-        ' ind_jobs.ind_actual_cost' +
+        ' ind_jobs.ind_actual_cost,' +
+        ' service_types.service_type_description' +
         ' FROM individuals as ind_jobs' +
         ' LEFT JOIN divisions on divisions.division_id = ind_jobs.ind_division_id' +
         ' LEFT JOIN users on users.user_id = ind_jobs.ind_user_id' +
         ' LEFT JOIN individual_groups on individual_groups.ind_group_id = ind_jobs.ind_group_id' +
         ' LEFT JOIN cities as ex_city on ex_city.city_id = ind_jobs.ind_ex' +
         ' LEFT JOIN cities as to_city on to_city.city_id = ind_jobs.ind_to' +
+        ' LEFT JOIN service_types as service_types on service_types.service_type_id = ind_jobs.ind_service_type' +
         ' WHERE ind_jobs.ind_status = "Pending" AND ind_deleted = 0' +
         ' ORDER BY ind_jobs.ind_group_id DESC;'
 
     connection.query(sql, function (error, data) {
         if (error) throw error
-        var dataset = []
-        for (i = 0; i < data.length; i++) {
-            let values = Object.values(data[i])
-            dataset[i] = []
 
-            for (j = 0; j < values.length; j++) {
-                dataset[i].push(values[j])
-            }
-        }
         var jobs_table = $('#jobs_table').DataTable({
-            data: dataset,
+            data: data,
             processing: true,
             fixedHeader: {
                 headerOffset: 100,
@@ -306,72 +327,53 @@ DbClass.prototype.getAllIndividuals = function () {
             },
             bLengthChange: false,
             columns: [
-                { title: 'ID', orderable: false },
-                { title: 'REQ. DATE', orderable: false },
-                { title: 'USER', orderable: false },
-                { title: 'DEPARTMENT', orderable: false },
-                { title: 'PRODUCTS', orderable: false },
+                { title: 'ID', orderable: false, data: 'ind_id' },
+                { title: 'REQ. DATE', orderable: false, data: 'ind_request_date' },
+                { title: 'USER', orderable: false, data: 'user_username' },
+                { title: 'DEPARTMENT', orderable: false, data: 'division_description' },
+                { title: 'PRODUCTS', orderable: false, data: 'ind_products' },
                 {
                     title: 'MODE',
                     orderable: false,
                     createdCell: function (td, cellData, rowData, row, col) {
-                        if (rowData[5] == 'Personnel') {
+                        if (rowData.ind_mode == 'Personnel') {
                             $(td).css('color', 'blue').css('font-weight', 'bold')
                         }
                     },
+                    data: 'ind_mode',
                 },
-                { title: 'VESSELS', orderable: false },
-                { title: 'EX', orderable: false, className: 'danger-header' },
-                { title: 'TO', orderable: false, className: 'danger-header' },
-                { title: 'DEADLINE', orderable: false, className: 'danger-header' },
-                { title: 'FORWARDER', orderable: false },
-                { title: 'REFERENCE', orderable: false },
-                { title: 'KG', orderable: false },
-                { title: 'ESTIMATE COST (€)', orderable: false },
-                { title: 'NOTES', visible: false },
-                {
-                    title: 'Group',
-                    visible: false,
-                },
-                {
-                    title: 'Is grouped',
-                    visible: false,
-                },
-                {
-                    title: 'Group Color',
-                    visible: false,
-                },
-                {
-                    title: 'Group Cost',
-                    visible: false,
-                },
-                {
-                    title: 'GROUP DEADLINE',
-                    orderable: false,
-                    visible: false,
-                },
-
-                {
-                    title: 'GROUP FORWARDER',
-                    orderable: false,
-                },
-                {
-                    title: 'Sum estimate cost',
-                    visible: false,
-                },
+                { title: 'VESSELS', orderable: false, data: 'ind_vessels' },
+                { title: 'SERVICE TYPE', orderable: false, data: 'service_type_description' },
+                { title: 'EX', orderable: false, className: 'danger-header', data: 'ex_city' },
+                { title: 'TO', orderable: false, className: 'danger-header', data: 'to_city' },
+                { title: 'DEADLINE', orderable: false, className: 'danger-header', data: 'ind_deadline' },
+                { title: 'FORWARDER', orderable: false, data: 'ind_forwarder' },
+                { title: 'REFERENCE', orderable: false, data: 'ind_reference' },
+                { title: 'WEIGHT (KG)', orderable: false, data: 'ind_kg' },
+                { title: 'ESTIMATE COST (€)', orderable: false, data: 'ind_estimate_cost' },
+                { title: 'NOTES', visible: false, data: 'ind_notes' },
+                { title: 'Group', visible: false, data: 'ind_group_id' },
+                { title: 'Is grouped', visible: false, data: 'ind_is_grouped' },
+                { title: 'Group Color', visible: false, data: 'ind_group_color' },
+                { title: 'Group Cost', visible: false, data: 'ind_group_cost' },
+                { title: 'GROUP DEADLINE', orderable: false, visible: false, data: 'ind_group_deadline' },
+                { title: 'GROUP FORWARDER', orderable: false, data: 'ind_group_forwarder' },
+                { title: 'Sum estimate cost', visible: false, data: 'sum_estimated_cost' },
                 {
                     title: 'Group Active',
                     visible: false,
+                    data: 'ind_group_active',
                 },
                 {
                     title: 'Actual Cost',
                     visible: false,
+                    data: 'ind_actual_cost',
                 },
                 {
                     title: 'ACTIONS',
                     orderable: false,
                     createdCell: function (td, cellData, rowData, row, col) {
-                        if (rowData[22] == 0) {
+                        if (rowData.ind_group_active == 0) {
                             $(td).children('.job-edit').hide()
                             $(td).children('.delete-job').hide()
                         }
@@ -382,22 +384,22 @@ DbClass.prototype.getAllIndividuals = function () {
             ],
             rowCallback: function (row, data, index, cells) {
                 //Here I am changing background Color
-                if (data[17] != 'empty') {
-                    $('td', row).css('background-color', data[17])
+                if (data.ind_group_color != 'empty') {
+                    $('td', row).css('background-color', data.ind_group_color)
                 }
             },
             order: [
-                [7, 'asc'],
                 [8, 'asc'],
-                [16, 'desc'],
-                [22, 'asc'],
+                [9, 'asc'],
+                [17, 'desc'],
+                [23, 'asc'],
             ],
             pageLength: 25,
         })
 
         $('#jobs_table').on('click', 'i.job-edit', function () {
             var data = jobs_table.row($(this).closest('tr')).data()
-            if (!self.Helpers.checkIfUserHasPriviledges(data[2])) {
+            if (!self.Helpers.checkIfUserHasPriviledges(data.user_username)) {
                 Swal.fire({
                     title: 'Unable to edit this job.',
                     text: "Unfortunately this is a job inserted by different user. You can't modify it.",
@@ -426,7 +428,6 @@ DbClass.prototype.getAllIndividuals = function () {
                 var kg = self.Helpers.formatFloatValue($('#kg').val())
                 var deadline = $('#deadline_date').val()
 
-                console.log(data)
                 if ((deadline != '') & (modeSelectValue != '') && divisionSelectValue != '' && productSelectValue != '' && vesselSelectValue != '') {
                     $(this).attr('disabled', 'disabled')
 
@@ -449,7 +450,7 @@ DbClass.prototype.getAllIndividuals = function () {
 
                     if (ind_ex != '' && ind_to != '') {
                         var jobObject = {
-                            ind_id: data[0],
+                            ind_id: data.ind_id,
                             ind_user_id: self.Helpers.user_id,
                             ind_division_id: divisionSelectValue,
                             ind_products: productsNames.join(';'),
@@ -464,7 +465,7 @@ DbClass.prototype.getAllIndividuals = function () {
                             ind_reference: reference,
                             ind_kg: kg,
                             ind_group_id: 0,
-                            old_group_id: data[15],
+                            old_group_id: data.ind_group_id,
                         }
 
                         self.updateJob(jobObject)
@@ -481,7 +482,7 @@ DbClass.prototype.getAllIndividuals = function () {
 
         $('#jobs_table').on('click', 'i.confirm-job', function () {
             var data = jobs_table.row($(this).closest('tr')).data()
-            if (!self.Helpers.checkIfUserHasPriviledges(data[2])) {
+            if (!self.Helpers.checkIfUserHasPriviledges(data.user_username)) {
                 Swal.fire({
                     title: 'Unable to confirm this job.',
                     text: "Unfortunately this is a job inserted by different user. You can't modify it.",
@@ -492,8 +493,8 @@ DbClass.prototype.getAllIndividuals = function () {
                 return
             }
 
-            if (data[5] == 'Personnel') {
-                if (data[23] == null) {
+            if (data.ind_mode == 'Personnel') {
+                if (data.ind_actual_cost == null) {
                     Swal.fire({
                         title: 'Unable to confirm this job.',
                         text: 'Some data are empty. You cannot confirm this job.',
@@ -513,15 +514,15 @@ DbClass.prototype.getAllIndividuals = function () {
                         confirmButtonText: 'Confirm',
                     }).then(result => {
                         if (result.isConfirmed) {
-                            self.confirmPersonnel(data[0])
+                            self.confirmPersonnel(data.ind_id)
                         }
                     })
                 }
             } else {
                 //checking if the individual is grouped...
 
-                if (data[16] == 0) {
-                    if (data[9] != 'TBA' && data[13] != '0') {
+                if (data.ind_is_grouped == 0) {
+                    if (data.ind_deadline != 'TBA' && data.ind_kg != '0') {
                         Swal.fire({
                             title: 'Are you sure?',
                             text: 'If you confirm the job you will be unable to edit it!',
@@ -532,7 +533,7 @@ DbClass.prototype.getAllIndividuals = function () {
                             confirmButtonText: 'Confirm',
                         }).then(result => {
                             if (result.isConfirmed) {
-                                self.confirmIndividualGroup(data[15])
+                                self.confirmIndividualGroup(data.ind_group_id)
                             }
                         })
                     } else {
@@ -546,7 +547,7 @@ DbClass.prototype.getAllIndividuals = function () {
                         return
                     }
                 } else {
-                    if (data[22] == 1) {
+                    if (data.ind_group_active == 1) {
                         Swal.fire({
                             title: 'Unable to confirm this group.',
                             text: 'Group cost is empty! You cannot confirm this group.',
@@ -565,7 +566,7 @@ DbClass.prototype.getAllIndividuals = function () {
                             confirmButtonText: 'Confirm',
                         }).then(result => {
                             if (result.isConfirmed) {
-                                self.confirmIndividualGroup(data[15])
+                                self.confirmIndividualGroup(data.ind_group_id)
                             }
                         })
                     }
@@ -575,7 +576,8 @@ DbClass.prototype.getAllIndividuals = function () {
 
         $('#jobs_table').on('click', 'i.costs-job', function () {
             var data = jobs_table.row($(this).closest('tr')).data()
-            if (!self.Helpers.checkIfUserHasPriviledges(data[2])) {
+            console.log(data)
+            if (!self.Helpers.checkIfUserHasPriviledges(data.user_username)) {
                 Swal.fire({
                     title: 'Unable to manage costs in this job.',
                     text: "Unfortunately this is a job inserted by different user. You can't modify it.",
@@ -586,8 +588,8 @@ DbClass.prototype.getAllIndividuals = function () {
                 return
             }
 
-            if (data[5] == 'Personnel') {
-                if (data[13] == 0) {
+            if (data.ind_mode == 'Personnel') {
+                if (data.ind_estimate_cost == 0) {
                     Swal.fire({
                         title: 'Unable to manage group costs.',
                         text: 'There is a job with empty estimate cost inside this group. Please fill it up.',
@@ -598,14 +600,14 @@ DbClass.prototype.getAllIndividuals = function () {
                     return
                 }
                 $('#personnel-modal-header').removeClass('noFloat floatMeLeft floatMeRight')
-                $('#personnel-estimate-cost').val(data[13])
-                $('#personnel-id').val(data[0])
+                $('#personnel-estimate-cost').val(data.ind_estimate_cost)
+                $('#personnel-id').val(data.ind_id)
 
-                if (data[23] != null) {
-                    $('#personnel-actual-cost').val(data[23])
-                    var savings = data[13] - data[23]
+                if (data.ind_actual_cost != null) {
+                    $('#personnel-actual-cost').val(data.ind_actual_cost)
+                    var savings = data.ind_estimate_cost - data.ind_actual_cost
                     $('#personnel-savings').val(savings)
-                    $('#personnel-savings-percent').val((savings / data[13]) * 100)
+                    $('#personnel-savings-percent').val((savings / data.ind_estimate_cost) * 100)
                 } else {
                     $('#personnel-actual-cost').val('')
                     $('#personnel-savings').val('')
@@ -615,19 +617,19 @@ DbClass.prototype.getAllIndividuals = function () {
                 $('#personnel-costs-modal').modal('show')
             } else {
                 $('#cost-modal-header').removeClass('noFloat floatMeLeft floatMeRight')
-                $('#job_estimate_costs').val(data[13])
-                $('#department').val(data[3])
+                $('#job_estimate_costs').val(data.ind_estimate_cost)
+                $('#department').val(data.division_description)
 
-                if (data[16] == 0) {
+                if (data.ind_is_grouped == 0) {
                     $('#group-cost-div').hide()
                     $('#save-costs').hide()
                 } else {
-                    if (data[18] == null || data[19] == null || data[20] == null) {
+                    if (data.ind_group_cost == null || data.ind_group_deadline == null || data.ind_group_forwarder == null) {
                         var allData = jobs_table.rows().data()
                         $('#group_cost').attr('disabled', null)
                         for (var i = 0; i < allData.length; i++) {
-                            if (allData[i][15] == data[15]) {
-                                if (allData[i][13] == 0) {
+                            if (allData[i].ind_group_id == data.ind_group_id) {
+                                if (allData[i].ind_estimate_cost == 0) {
                                     // Swal.fire({
                                     //     title: "Unable to manage group costs.",
                                     //     text: "There is a job with empty estimate cost inside this group. Please fill it up.",
@@ -646,26 +648,26 @@ DbClass.prototype.getAllIndividuals = function () {
                         $('#saving-data').show()
                     }
 
-                    self.initializeGroupCitySelect(data[7], data[8])
-                    $('#group_cut_off_date').val(data[19])
-                    var sum_estimate_cost = data[21]
-                    var group_cost = data[18]
+                    self.initializeGroupCitySelect(data.ex_city, data.to_city)
+                    $('#group_cut_off_date').val(data.ind_group_deadline)
+                    var sum_estimate_cost = data.sum_estimated_cost
+                    var group_cost = data.ind_group_cost
 
                     var savings_percent = ((1 - group_cost / sum_estimate_cost) * 100).toFixed(2)
-                    var savings_amount = ((data[13] * savings_percent) / 100).toFixed(2)
-                    var shared_cost = ((group_cost / sum_estimate_cost) * data[13]).toFixed(2)
+                    var savings_amount = ((data.ind_estimate_cost * savings_percent) / 100).toFixed(2)
+                    var shared_cost = ((group_cost / sum_estimate_cost) * data.ind_estimate_cost).toFixed(2)
 
-                    if (data[18] == null) {
+                    if (data.ind_group_cost == null) {
                         $('#group_cost').val('')
                     } else {
                         $('#group_cost').val(self.Helpers.formatFloatValue(String(group_cost)))
                     }
 
-                    $('#group_id').val(data[15])
+                    $('#group_id').val(data.ind_group_id)
                     $('#saving_amount').val(savings_amount)
                     $('#saving_percent').val(savings_percent)
                     $('#shared_cost').val(shared_cost)
-                    $('#group_forwarder').val(data[20])
+                    $('#group_forwarder').val(data.ind_group_forwarder)
                     $('#group-cost-div').show()
                     $('#save-costs').show()
                 }
@@ -676,7 +678,7 @@ DbClass.prototype.getAllIndividuals = function () {
 
         $('#jobs_table').on('click', 'i.delete-job', function () {
             var data = jobs_table.row($(this).closest('tr')).data()
-            if (!self.Helpers.checkIfUserHasPriviledges(data[2])) {
+            if (!self.Helpers.checkIfUserHasPriviledges(data.user_username)) {
                 Swal.fire({
                     title: 'Unable to delete this job.',
                     text: "Unfortunately this is a job inserted by different user. You can't modify it.",
@@ -992,6 +994,8 @@ DbClass.prototype.getAllDeletedIndividuals = function () {
         ' divisions.division_description,' +
         ' ind_jobs.ind_products,' +
         ' ind_jobs.ind_mode,' +
+        ' ind_jobs.ind_mode,' +
+        ' service_types.service_type_description,' +
         ' ind_jobs.ind_vessels,' +
         ' ex_city.city_name as ex_city,' +
         ' to_city.city_name as to_city,' +
@@ -1014,6 +1018,7 @@ DbClass.prototype.getAllDeletedIndividuals = function () {
         ' LEFT JOIN individual_groups on individual_groups.ind_group_id = ind_jobs.ind_group_id' +
         ' LEFT JOIN cities as ex_city on ex_city.city_id = ind_jobs.ind_ex' +
         ' LEFT JOIN cities as to_city on to_city.city_id = ind_jobs.ind_to' +
+        ' LEFT JOIN service_types as service_types on service_types.service_type_id = ind_jobs.ind_service_type' +
         ' WHERE ind_deleted = 1' +
         ' ORDER BY ind_jobs.ind_group_id DESC;'
 
@@ -1045,6 +1050,7 @@ DbClass.prototype.getAllDeletedIndividuals = function () {
                 { title: 'DEPARTMENT', orderable: false },
                 { title: 'PRODUCT', orderable: false },
                 { title: 'MODE', orderable: false },
+                { title: 'SERVICE TYPE', orderable: false },
                 { title: 'VESSEL', orderable: false },
                 { title: 'EX', orderable: false, className: 'danger-header' },
                 { title: 'TO', orderable: false, className: 'danger-header' },
@@ -1157,7 +1163,7 @@ DbClass.prototype.updateJob = function (jobObject) {
 DbClass.prototype.deleteIndividual = function (individualData) {
     let self = this
 
-    var sql = 'UPDATE individuals set ind_deleted = 1, ind_date_deleted = now() WHERE ind_id = ' + individualData[0] + ';'
+    var sql = 'UPDATE individuals set ind_deleted = 1, ind_date_deleted = now() WHERE ind_id = ' + individualData.ind_id + ';'
 
     var mysql = require('mysql')
 
@@ -1176,7 +1182,7 @@ DbClass.prototype.deleteIndividual = function (individualData) {
         if (error) {
             throw error
         }
-        if (individualData[16] === 1) {
+        if (individualData.ind_is_grouped === 1) {
             //the individual was grouped
             console.log('Individual was grouped.....')
             self.checkIfThereIsOneJobAloneGrouped()
@@ -2284,6 +2290,100 @@ DbClass.prototype.assignConJobsToConGroup = async function (selGroup, jobs) {
 
 /**************** MANAGE DATA ***********************/
 
+DbClass.prototype.addServiceType = function (serviceTypeData) {
+    let self = this
+
+    var sql = `INSERT INTO service_types (service_type_description, service_type_group) VALUES ('${serviceTypeData.service_type_description}', '${serviceTypeData.service_type_group}');`
+
+    var mysql = require('mysql')
+
+    var connection = mysql.createConnection({
+        host: self.serverIP,
+        user: self.user,
+        password: self.dbpass,
+        database: self.database,
+        port: self.port,
+        dateStrings: true,
+        multipleStatements: true,
+    })
+
+    connection.connect()
+
+    connection.query(sql, function (error) {
+        if (error) {
+            alert('Unable to add service type...')
+            throw error
+        } else {
+            self.Helpers.toastr('success', 'Service type added successfully.')
+            setTimeout(function () {
+                window.location.reload()
+            }, 2000)
+        }
+    })
+
+    connection.end()
+}
+
+DbClass.prototype.deleteServiceType = function (service_type_id) {
+    let self = this
+
+    var sql = 'UPDATE service_types SET service_type_deleted = 1 WHERE service_type_id = ' + service_type_id + ' LIMIT 1;'
+
+    var mysql = require('mysql')
+
+    var connection = mysql.createConnection({
+        host: self.serverIP,
+        user: self.user,
+        password: self.dbpass,
+        database: self.database,
+        port: self.port,
+        dateStrings: true,
+    })
+
+    connection.connect()
+
+    connection.query(sql, function (error) {
+        if (error) {
+            throw error
+        }
+        self.Helpers.toastr('success', 'Service type deleted')
+        setTimeout(function () {
+            window.location.reload()
+        }, 2000)
+    })
+    connection.end()
+}
+
+DbClass.prototype.updateServiceType = function (serviceTypeData) {
+    let self = this
+
+    var sql = `UPDATE service_types SET service_type_description='${serviceTypeData.service_type_description}',  service_type_group='${serviceTypeData.service_type_group}' WHERE service_type_id=${serviceTypeData.service_type_id}`
+
+    var mysql = require('mysql')
+
+    var connection = mysql.createConnection({
+        host: self.serverIP,
+        user: self.user,
+        password: self.dbpass,
+        database: self.database,
+        port: self.port,
+        dateStrings: true,
+    })
+
+    connection.connect()
+
+    connection.query(sql, function (error) {
+        if (error) {
+            throw error
+        }
+        self.Helpers.toastr('success', 'Service type updated')
+        setTimeout(function () {
+            window.location.reload()
+        }, 2000)
+    })
+    connection.end()
+}
+
 DbClass.prototype.addCity = function (cityName) {
     let self = this
 
@@ -2309,12 +2409,76 @@ DbClass.prototype.addCity = function (cityName) {
             throw error
         } else {
             self.Helpers.toastr('success', 'City added successfully.')
+            setTimeout(function () {
+                window.location.reload()
+            }, 2000)
         }
     })
 
     connection.end()
 }
 
+DbClass.prototype.deleteCity = function (city_id) {
+    let self = this
+
+    var sql = 'UPDATE cities SET city_deleted = 1 WHERE city_id = ' + city_id + ' LIMIT 1;'
+
+    var mysql = require('mysql')
+
+    var connection = mysql.createConnection({
+        host: self.serverIP,
+        user: self.user,
+        password: self.dbpass,
+        database: self.database,
+        port: self.port,
+        dateStrings: true,
+    })
+
+    connection.connect()
+
+    connection.query(sql, function (error) {
+        if (error) {
+            throw error
+        }
+
+        self.Helpers.toastr('success', 'City deleted')
+        setTimeout(function () {
+            window.location.reload()
+        }, 2000)
+    })
+    connection.end()
+}
+
+DbClass.prototype.updateCity = function (cityData) {
+    let self = this
+
+    var sql = `UPDATE cities SET city_name = '${cityData.city_name}' WHERE city_id = ${cityData.city_id};`
+
+    var mysql = require('mysql')
+
+    var connection = mysql.createConnection({
+        host: self.serverIP,
+        user: self.user,
+        password: self.dbpass,
+        database: self.database,
+        port: self.port,
+        dateStrings: true,
+    })
+
+    connection.connect()
+
+    connection.query(sql, function (error) {
+        if (error) {
+            throw error
+        }
+
+        self.Helpers.toastr('success', 'City updated')
+        setTimeout(function () {
+            window.location.reload()
+        }, 2000)
+    })
+    connection.end()
+}
 DbClass.prototype.addVessel = function (vesselName) {
     let self = this
 
@@ -2348,11 +2512,10 @@ DbClass.prototype.addVessel = function (vesselName) {
 
     connection.end()
 }
-
-DbClass.prototype.deleteCity = function (city_id) {
+DbClass.prototype.updateVessel = function (vesselData) {
     let self = this
 
-    var sql = 'DELETE FROM cities WHERE city_id = ' + city_id + ' LIMIT 1;'
+    var sql = `UPDATE vessels SET vessel_description = '${vesselData.vessel_description}' WHERE vessel_id = ${vesselData.vessel_id} LIMIT 1;`
 
     var mysql = require('mysql')
 
@@ -2372,7 +2535,7 @@ DbClass.prototype.deleteCity = function (city_id) {
             throw error
         }
 
-        self.Helpers.toastr('success', 'City deleted')
+        self.Helpers.toastr('success', 'Vessel updated')
         setTimeout(function () {
             window.location.reload()
         }, 2000)
@@ -2383,7 +2546,7 @@ DbClass.prototype.deleteCity = function (city_id) {
 DbClass.prototype.deleteVessel = function (vessel_id) {
     let self = this
 
-    var sql = 'DELETE FROM vessels WHERE vessel_id = ' + vessel_id + ' LIMIT 1;'
+    var sql = 'UPDATE vessels SET vessel_deleted = 1 WHERE vessel_id = ' + vessel_id + ' LIMIT 1;'
 
     var mysql = require('mysql')
 
@@ -2409,7 +2572,6 @@ DbClass.prototype.deleteVessel = function (vessel_id) {
     })
     connection.end()
 }
-
 /**************** END OF MANAGE DATA ***********************/
 
 /**************** MANAGER ***********************/

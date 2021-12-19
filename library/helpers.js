@@ -1,5 +1,6 @@
 let HelpersClass = function () {
     $.fn.modal.Constructor.prototype._enforceFocus = function () {}
+    console.log('%c App Created by AG! Visit: aggalatis.com', 'background: #222; color: yellow')
     console.log('Constructing Helpers...')
     this.user_username = ''
     this.user_fullname = ''
@@ -99,97 +100,36 @@ HelpersClass.prototype.changeMysqlDateToNormal = function (datetime) {
 HelpersClass.prototype.initliazeModalToEditJob = function (divisions, products, vessels, cities, jobData) {
     let self = this
     myTransfers.initializeDivisionsSelect()
-    self.findChoosenValueForDivision(divisions, jobData[3])
+    self.findChoosenValueForDivision(divisions, jobData.division_description)
     myTransfers.initializeProductsSelect(divisions[i].division_id)
-    self.findChoosenValueForProducts(products, jobData[4])
+    self.findChoosenValueForProducts(products, jobData.ind_products)
     myTransfers.initialiazeVesselsSelect()
-    self.findChoosenValueForVessels(vessels, jobData[6])
+    self.findChoosenValueForVessels(vessels, jobData.ind_vessels)
     myTransfers.initialiazeCitiesSelect()
-    self.findChoosenValueForCities(cities, jobData[7], jobData[8])
+    self.findChoosenValueForCities(cities, jobData.ex_city, jobData.to_city)
 
     $('#modal-title-text').html('Edit Job')
-    $('#mode-select').val(jobData[5])
+    $('#mode-select').val(jobData.ind_mode)
     $('#mode-select').trigger('chosen:updated')
-    $('#deadline_date').val(jobData[9])
-    $('#forwarder').val(jobData[10])
-    $('#reference').val(jobData[11])
-    $('#kg').val(jobData[12])
-    if (jobData[12] == '0') {
+    $('#deadline_date').val(jobData.ind_deadline)
+    $('#forwarder').val(jobData.ind_forwarder)
+    $('#reference').val(jobData.ind_reference)
+    $('#kg').val(jobData.ind_kg)
+    if (jobData.ind_kg == '0') {
         $('#kg').val('')
     } else {
-        $('#kg').val(jobData[12])
+        $('#kg').val(jobData.ind_kg)
     }
 
-    if (jobData[13] == '0') {
+    if (jobData.ind_estimate_cost == '0') {
         $('#estimate_cost').val('')
     } else {
-        $('#estimate_cost').val(jobData[13])
+        $('#estimate_cost').val(jobData.ind_estimate_cost)
     }
-    $('#notes').val(jobData[14])
+    $('#notes').val(jobData.ind_notes)
 
     $('#save-job-btn').attr('disabled', null)
     $('#add-job-modal').modal('show')
-}
-
-HelpersClass.prototype.initliazeModalToEditConsolidation = function (divisions, ports, products, vessels, cities, jobData) {
-    let self = this
-
-    myConsolidations.initializeDivisionsSelect()
-    self.findChoosenValueForDivision(divisions, jobData[2])
-    myConsolidations.initializeProductsSelect(divisions[i].division_id)
-    self.findChoosenValueForProducts(products, jobData[3])
-    myConsolidations.initialiazeVesselsSelect()
-    self.findChoosenValueForVessels(vessels, jobData[15])
-    myConsolidations.initialiazeCitiesSelect()
-
-    $('#modal-title-text').html('Edit Consolidation')
-    $('#mode-select').val(jobData[4])
-    $('#mode-select').trigger('chosen:updated')
-    $('#deadline_date').val(jobData[19])
-    $('#cutoff_date').val(jobData[20])
-    $('#forwarder').val(jobData[22])
-    $('#carrier').val(jobData[5])
-    $('#notes').val(jobData[23])
-    $('#reference').val(jobData[6])
-    $('#actual_weight').val(jobData[7])
-    $('#length').val(jobData[8])
-    $('#width').val(jobData[9])
-    $('#height').val(jobData[10])
-    $('#pieces').val(jobData[11])
-    $('#volume_weight').val(jobData[12])
-
-    $('#ex-input').val(jobData[16]).trigger('chosen:updated')
-    $('#to-input').val(jobData[17]).trigger('chosen:updated')
-
-    $('#save-job-btn').attr('disabled', null)
-
-    $('#add-consolidation-modal').modal('show')
-}
-
-HelpersClass.prototype.initliazeModalToEditPersonnel = function (divisions, products, vessels, cities, jobData) {
-    let self = this
-    myPersonnel.initializeDivisionsSelect()
-    self.findChoosenValueForDivision(divisions, jobData[3])
-    myPersonnel.initializeProductsSelect(divisions[i].division_id)
-    self.findChoosenValueForProducts(products, jobData[4])
-    myPersonnel.initialiazeVesselsSelect()
-    self.findChoosenValueForVessels(vessels, jobData[7])
-    myPersonnel.initialiazeCitiesSelect()
-    self.findChoosenValueForCities(cities, jobData[8], jobData[9])
-
-    $('#modal-title-text').html('Edit Personnel')
-    $('#mode-select').val(jobData[5])
-    $('#mode-select').trigger('chosen:updated')
-    $('#deadline_date').val(jobData[10])
-    $('#name').val(jobData[6])
-    $('#kg').val(jobData[11])
-    $('#estimate_cost').val(jobData[12])
-    $('#actual_cost').val(jobData[13])
-    $('#saving').val(jobData[14])
-    $('#notes').val(jobData[15])
-
-    $('#save-per-btn').attr('disabled', null)
-    $('#add-per-modal').modal('show')
 }
 
 HelpersClass.prototype.findChoosenValueForDivision = function (divisions, division_description) {

@@ -68,7 +68,7 @@
     </head>
     <body class="top-navigation">
         <!-- Start Notes modal -->
-        <div aria-hidden="true" class="modal fade bd-example-modal-sm" role="dialog" tabindex="-1" style="top: 15%" id="notes-modal">
+        <div aria-hidden="true" class="modal fade bd-example-modal-sm" role="dialog" tabindex="-1" style="top: 15%" id="notes-modal" data-keyboard="false" data-backdrop="static">
             <div id="edit-notes-modal-header" class="modal-dialog modal-sm">
                 <div class="modal-content">
                     <div class="modal-header">
@@ -95,7 +95,7 @@
         <!-- Start Notes modal -->
 
         <!-- Start Costs modal -->
-        <div aria-hidden="true" class="modal fade" role="dialog" tabindex="-1" style="top: 15%" id="done-costs-modal">
+        <div aria-hidden="true" class="modal fade" role="dialog" tabindex="-1" style="top: 15%" id="done-costs-modal" data-keyboard="false" data-backdrop="static">
             <div id="cost-data-modal-header" class="modal-dialog">
                 <div class="modal-content">
                     <div class="modal-header">
@@ -171,7 +171,7 @@
         </div>
         <!-- End Costs modal -->
         <!-- Start Consolidation group modal -->
-        <div aria-hidden="true" class="modal fade" role="dialog" tabindex="-1" style="top: 15%" id="assignment-group-modal">
+        <div aria-hidden="true" class="modal fade" role="dialog" tabindex="-1" style="top: 15%" id="assignment-group-modal" data-keyboard="false" data-backdrop="static">
             <div id="assignment-modal-header" class="modal-dialog">
                 <div class="modal-content">
                     <div class="modal-header">
@@ -196,7 +196,7 @@
         <!-- End Consolidation group modal -->
 
         <!-- Start Personnel Costs modal -->
-        <div aria-hidden="true" class="modal fade" role="dialog" tabindex="-1" style="top: 15%" id="done-personnel-costs-modal">
+        <div aria-hidden="true" class="modal fade" role="dialog" tabindex="-1" style="top: 15%" id="done-personnel-costs-modal" data-keyboard="false" data-backdrop="static">
             <div id="done-personnel-modal-header" class="modal-dialog">
                 <div class="modal-content">
                     <div class="modal-header">
@@ -248,7 +248,7 @@
                 <div class="container-fluid">
                     <div class="row">
                         <div class="col-12 p-0">
-                            <img src="../assets/icons/diana_logo.jpg" />
+                            <img src="../assets/icons/new_diana_logo.png" />
 
                             <ul class="list-unstyled m-0 float-right">
                                 <li class="">
@@ -370,7 +370,7 @@
         </section>
 
         <script>
-            if (typeof module === "object") {
+            if (typeof module === 'object') {
                 window.module = module
                 module = undefined
             }
@@ -424,10 +424,10 @@
         <script src="../utilities/individuals.js"></script>
         <script src="../library/db.js"></script>
         <script>
-            const { remote } = require("electron")
-            const electron = require("electron")
-            const { session } = require("electron")
-            const { app, BrowserWindow } = require("electron").remote
+            const { remote } = require('electron')
+            const electron = require('electron')
+            const { session } = require('electron')
+            const { app, BrowserWindow } = require('electron').remote
             const { ipcRenderer } = electron
 
             let myIndividuals = new IndividualsClass()

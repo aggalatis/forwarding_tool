@@ -65,7 +65,7 @@ ConsolidationsClass.prototype.initializetable = async function () {
                     }
                 },
                 defaultContent:
-                    "<i class='fa fa-check confirm-job action-btn' style='cursor: pointer' ></i><i class='fa fa-dollar costs-job action-btn' style='cursor: pointer' ></i><i class='fa fa-trash delete-job action-btn' style='cursor: pointer' ></i>",
+                    "<i class='fa fa-check confirm-job action-btn' title='modify' style='cursor: pointer' ></i><i class='fa fa-dollar costs-job action-btn' title='costs' style='cursor: pointer' ></i><i class='fa fa-trash delete-job action-btn' title='delete' style='cursor: pointer' ></i>",
             },
         ],
         rowCallback: function (row, data, index, cells) {

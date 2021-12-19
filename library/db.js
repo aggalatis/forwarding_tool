@@ -379,7 +379,7 @@ DbClass.prototype.getAllIndividuals = function () {
                         }
                     },
                     defaultContent:
-                        "<i class='fa fa-search job-edit action-btn' id='delete-me' style='cursor: pointer'></i><i class='fa fa-check confirm-job action-btn' style='cursor: pointer' ></i><i class='fa fa-dollar costs-job action-btn' style='cursor: pointer' ></i><i class='fa fa-trash delete-job action-btn' style='cursor: pointer' ></i>",
+                        "<i class='fa fa-search job-edit action-btn' title='modify' id='delete-me' style='cursor: pointer'></i><i class='fa fa-check confirm-job action-btn' title='confirm' style='cursor: pointer' ></i><i class='fa fa-dollar costs-job action-btn' title='costs' style='cursor: pointer' ></i><i class='fa fa-trash delete-job action-btn' title='delete' style='cursor: pointer' ></i>",
                 },
             ],
             rowCallback: function (row, data, index, cells) {

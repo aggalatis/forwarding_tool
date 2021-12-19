@@ -114,7 +114,8 @@ addDataClass.prototype.initCitiesTable = async function () {
             {
                 title: 'ACTIONS',
                 orderable: false,
-                defaultContent: "<i class='fa fa-search edit-job action-btn' style='cursor: pointer' ></i><i class='fa fa-trash delete-job action-btn' style='cursor: pointer' ></i>",
+                defaultContent:
+                    "<i class='fa fa-search edit-job action-btn' title='modify' style='cursor: pointer' ></i><i class='fa fa-trash delete-job action-btn' title='delete' style='cursor: pointer' ></i>",
             },
         ],
         order: [[1, 'asc']],

@@ -107,7 +107,7 @@ DoneConsolidationsClass.prototype.initializetable = async function () {
                         $(td).children('.select-done-jobs').hide()
                     }
                 },
-                defaultContent: "<i class='fa fa-crosshairs select-done-jobs action-btn' style='cursor: pointer' title='select'></i>",
+                defaultContent: "<i class='fa fa-crosshairs select-done-jobs action-btn' title='select' style='cursor: pointer' title='select'></i>",
             },
         ],
         rowCallback: function (row, data, index, cells) {

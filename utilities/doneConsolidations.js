@@ -80,6 +80,7 @@ DoneConsolidationsClass.prototype.initializetable = async function () {
             { title: 'EX', orderable: false, className: 'danger-header', data: 'ex_name' },
             { title: 'TO', orderable: false, className: 'danger-header', data: 'to_name' },
             { title: 'DEADLINE', orderable: false, className: 'danger-header', data: 'con_group_deadline' },
+            { title: 'CONFIRMATION DATE	', orderable: false, data: 'con_group_confirmation_date' },
             { title: 'FORWARDER', orderable: false, data: 'con_group_forwarder' },
             { title: 'REFERENCE', orderable: false, data: 'cond_reference' },
             { title: 'CONSOL. COST', orderable: false, data: 'con_group_cost' },
@@ -156,6 +157,7 @@ DoneConsolidationsClass.prototype.formatData = function (consolidations) {
     let groupSumKG = {}
     for (let cons of consolidations) {
         cons.cond_request_date = self.Helpers.changeMysqlDateToNormal(cons.cond_request_date)
+        cons.con_group_confirmation_date = self.Helpers.changeMysqlDateToNormal(cons.con_group_confirmation_date)
 
         if (typeof groupSumKG[cons.group_id] === 'undefined') groupSumKG[cons.group_id] = 0
         groupSumKG[cons.group_id] += cons.cond_kg

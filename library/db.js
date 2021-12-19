@@ -2862,6 +2862,7 @@ DbClass.prototype.getAllDoneConsolidations = function () {
     cg.con_group_forwarder,
     cg.con_group_color,
     cg.con_group_mode,
+    cg.con_group_confirmation_date,
     d.division_description,
     u.user_username,
     c2.city_name as ex_name,

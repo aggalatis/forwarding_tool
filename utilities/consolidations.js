@@ -179,19 +179,6 @@ ConsolidationsClass.prototype.bindEventsOnButtons = function () {
             groupCost: $('#group-cost').val(),
             groupDeadline: $('#group-deadline').val(),
         }
-        console.log(groupData)
-        let emptyData = false
-        Object.keys(groupData).forEach(key => {
-            if (groupData[key] === '') {
-                emptyData = true
-                return
-            }
-        })
-        if (emptyData) {
-            self.Helpers.toastr('error', 'Some fields are empty!')
-            $(this).attr('disabled', null)
-            return
-        }
         let updateData = await self.DB.updateConGroupData(groupData)
         if (updateData && updateData.affectedRows == 1) {
             self.Helpers.toastr('success', 'Consolidation group updated!')

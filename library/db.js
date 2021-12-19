@@ -2750,8 +2750,13 @@ DbClass.prototype.updateConGroupData = function (groupData) {
         dateStrings: true,
     })
     connection.connect()
+    if (groupData.groupCost == '') groupData.groupCost = null
+    if (groupData.groupTo == '') groupData.groupTo = null
+    if (groupData.groupEx == '') groupData.groupEx = null
+
     let sql = `UPDATE consolidation_groups SET con_group_ex = ${groupData.groupEx}, con_group_to = ${groupData.groupTo}, con_group_cost = ${groupData.groupCost}, con_group_forwarder = '${groupData.groupForwarder}',
         con_group_deadline = '${groupData.groupDeadline}', con_group_mode = '${groupData.groupMode}' WHERE con_group_id = ${groupData.groupId}`
+    console.log(sql)
     return new Promise((resolve, reject) => {
         connection.query(sql, function (error, data) {
             connection.end()

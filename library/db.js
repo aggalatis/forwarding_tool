@@ -9,6 +9,8 @@ let DbClass = function () {
     this.divisions = []
     this.vessels = []
     this.colors = []
+    this.individualServiceTypes = []
+    this.consolidationServiceTypes = []
     this.selectedDoneInd = []
     this.pieCreated = false
     this.getServerDataFromRegistry()
@@ -197,6 +199,39 @@ DbClass.prototype.getAllColors = function () {
         if (error) throw error
 
         self.colors = colors
+    })
+
+    connection.end()
+}
+
+DbClass.prototype.getAllServiceTypes = function () {
+    let self = this
+
+    var mysql = require('mysql')
+
+    var connection = mysql.createConnection({
+        host: self.serverIP,
+        user: self.user,
+        password: self.dbpass,
+        database: self.database,
+        port: self.port,
+        dateStrings: true,
+    })
+
+    connection.connect()
+
+    var sql = 'Select * FROM service_types WHERE service_type_deleted = 0;'
+
+    connection.query(sql, function (error, serviceTypes) {
+        if (error) throw error
+        for (let serviceType of serviceTypes) {
+            if (serviceType.service_type_group == 'Individuals') {
+                self.individualServiceTypes.push(serviceType)
+            }
+            if (serviceType.service_type_group == 'Consolidations') {
+                self.consolidationServiceTypes.push(serviceType)
+            }
+        }
     })
 
     connection.end()
@@ -410,7 +445,7 @@ DbClass.prototype.getAllIndividuals = function () {
                 return
             }
 
-            self.Helpers.initliazeModalToEditJob(self.divisions, self.products, self.vessels, self.cities, data)
+            self.Helpers.initliazeModalToEditJob(self.divisions, self.products, self.vessels, self.cities, self.individualServiceTypes, data)
 
             $('#job-modal-header').removeClass('noFloat floatMeLeft floatMeRight')
             $('#save-job-btn').unbind('click')
@@ -427,6 +462,7 @@ DbClass.prototype.getAllIndividuals = function () {
                 var reference = $('#reference').val()
                 var kg = self.Helpers.formatFloatValue($('#kg').val())
                 var deadline = $('#deadline_date').val()
+                let serviceType = $('#service-type-select').val()
 
                 if ((deadline != '') & (modeSelectValue != '') && divisionSelectValue != '' && productSelectValue != '' && vesselSelectValue != '') {
                     $(this).attr('disabled', 'disabled')
@@ -465,6 +501,7 @@ DbClass.prototype.getAllIndividuals = function () {
                             ind_reference: reference,
                             ind_kg: kg,
                             ind_group_id: 0,
+                            ind_service_type: serviceType,
                             old_group_id: data.ind_group_id,
                         }
 
@@ -649,7 +686,12 @@ DbClass.prototype.getAllIndividuals = function () {
                     }
 
                     self.initializeGroupCitySelect(data.ex_city, data.to_city)
-                    $('#group_cut_off_date').val(data.ind_group_deadline)
+                    if (data.ind_group_deadline == '' || data.ind_group_deadline == null) {
+                        $('#group_cut_off_date').val('')
+                    } else {
+                        $('#group_cut_off_date').val(data.ind_group_deadline)
+                    }
+
                     var sum_estimate_cost = data.sum_estimated_cost
                     var group_cost = data.ind_group_cost
 
@@ -737,6 +779,7 @@ DbClass.prototype.getAllDoneIndividuals = function () {
         ' divisions.division_description,' +
         ' ind_jobs.ind_products,' +
         ' ind_jobs.ind_mode,' +
+        ' service_types.service_type_description,' +
         ' ind_jobs.ind_vessels,' +
         ' ex_city.city_name as ex_city,' +
         ' to_city.city_name as to_city,' +
@@ -760,6 +803,7 @@ DbClass.prototype.getAllDoneIndividuals = function () {
         ' LEFT JOIN individual_groups on individual_groups.ind_group_id = ind_jobs.ind_group_id' +
         ' LEFT JOIN cities as ex_city on ex_city.city_id = ind_jobs.ind_ex' +
         ' LEFT JOIN cities as to_city on to_city.city_id = ind_jobs.ind_to' +
+        ' LEFT JOIN service_types as service_types on service_types.service_type_id = ind_jobs.ind_service_type' +
         ' WHERE ind_jobs.ind_status = "Done" AND ind_deleted = 0' +
         ' ORDER BY ind_jobs.ind_group_id DESC;'
 
@@ -827,6 +871,7 @@ DbClass.prototype.getAllDoneIndividuals = function () {
                 { title: 'DEPARTMENT', orderable: false },
                 { title: 'PRODUCT', orderable: false },
                 { title: 'MODE', orderable: false },
+                { title: 'SERVICE TYPE', orderable: false },
                 { title: 'VESSEL', orderable: false },
                 { title: 'EX', orderable: false, className: 'danger-header' },
                 { title: 'TO', orderable: false, className: 'danger-header' },
@@ -847,10 +892,10 @@ DbClass.prototype.getAllDoneIndividuals = function () {
                     title: 'CONSOLIDATED',
                     orderable: false,
                     createdCell: function (td, cellData, rowData, row, col) {
-                        if (rowData[24] == 0) {
+                        if (rowData[25] == 0) {
                             $(td).html('NO').css('color', 'red').css('font-weight', 'bold')
                         }
-                        if (rowData[24] == 1) {
+                        if (rowData[25] == 1) {
                             $(td).html('YES').css('color', 'green').css('font-weight', 'bold')
                         }
                     },
@@ -880,7 +925,7 @@ DbClass.prototype.getAllDoneIndividuals = function () {
                 })
                 return
             }
-            if (data[24] == 1) {
+            if (data[25] == 1) {
                 Swal.fire({
                     title: 'Job Consolidated',
                     text: 'Unfortunately the job you selected already exists inside a consolidation group.',
@@ -914,7 +959,7 @@ DbClass.prototype.getAllDoneIndividuals = function () {
                 return
             }
             $('#done_ind_id').val(data[0])
-            $('#notes').val(data[17])
+            $('#notes').val(data[18])
             $('#notes-modal').modal('show')
         })
 
@@ -923,38 +968,38 @@ DbClass.prototype.getAllDoneIndividuals = function () {
             $('#done-personnel-modal-header').removeClass('noFloat floatMeLeft floatMeRight')
             var data = jobs_table.row($(this).closest('tr')).data()
 
-            $('#job_estimate_costs').val(data[16])
+            $('#job_estimate_costs').val(data[17])
             $('#department').val(data[5])
 
             if (data[4] != 'Grouped') {
                 if (data[4] == 'Personnel') {
                     console.log('I am personnel...')
 
-                    $('#personnel-estimate-cost').val(data[16])
-                    $('#personnel-actual-cost').val(data[23])
-                    var savings = data[16] - data[23]
+                    $('#personnel-estimate-cost').val(data[17])
+                    $('#personnel-actual-cost').val(data[24])
+                    var savings = data[16] - data[24]
                     $('#personnel-savings').val(savings)
-                    $('#personnel-savings-percent').val((savings / data[16]) * 100)
+                    $('#personnel-savings-percent').val((savings / data[17]) * 100)
                     $('#done-personnel-costs-modal').modal('show')
                 } else {
                     $('#group-cost-div').hide()
                     $('#done-costs-modal').modal('show')
                 }
             } else {
-                var sum_estimate_cost = data[22]
-                var group_cost = data[19]
+                var sum_estimate_cost = data[23]
+                var group_cost = data[20]
 
                 var savings_percent = ((1 - group_cost / sum_estimate_cost) * 100).toFixed(2)
 
-                var savings_amount = ((data[16] * savings_percent) / 100).toFixed(2)
-                var shared_cost = ((group_cost / sum_estimate_cost) * data[16]).toFixed(2)
+                var savings_amount = ((data[17] * savings_percent) / 100).toFixed(2)
+                var shared_cost = ((group_cost / sum_estimate_cost) * data[17]).toFixed(2)
 
                 $('#group_cost').val(self.Helpers.formatFloatValue(String(group_cost)))
                 $('#group_id').val(data[3])
                 $('#saving_amount').val(savings_amount)
                 $('#saving_percent').val(savings_percent)
                 $('#shared_cost').val(shared_cost)
-                $('#group_forwarder').val(data[21])
+                $('#group_forwarder').val(data[22])
                 $('#group-cost-div').show()
                 $('#save-costs').show()
                 $('#done-costs-modal').modal('show')
@@ -1092,6 +1137,9 @@ DbClass.prototype.updateJob = function (jobObject) {
         'ind_division_id = ' +
         jobObject.ind_division_id +
         ', ' +
+        'ind_service_type = ' +
+        jobObject.ind_service_type +
+        ', ' +
         'ind_products = "' +
         jobObject.ind_products +
         '", ' +
@@ -1216,6 +1264,7 @@ DbClass.prototype.addIndividual = function (indiavidualObject) {
         'ind_kg, ' +
         'ind_estimate_cost, ' +
         'ind_notes, ' +
+        'ind_service_type, ' +
         'ind_deleted' +
         ') VALUES (' +
         indiavidualObject.ind_user_id +
@@ -1247,7 +1296,9 @@ DbClass.prototype.addIndividual = function (indiavidualObject) {
         indiavidualObject.ind_estimate_cost +
         ', "' +
         indiavidualObject.ind_notes +
-        '", 0)'
+        '",' +
+        indiavidualObject.ind_service_type +
+        ', 0)'
 
     var mysql = require('mysql')
 
@@ -2177,7 +2228,7 @@ DbClass.prototype.assignConJobsToNewGroup = async function (jobs) {
     let randomNumber = Math.floor(Math.random() * (self.colors.length - 1))
     const newConGroup = await new Promise(function (resolve, reject) {
         let sql = `INSERT INTO consolidation_groups (con_group_color, con_group_ex, con_group_active) 
-                    VALUES ('${self.colors[randomNumber].color_code}', ${cons[0].group_ex}, 1)`
+                    VALUES ('${self.colors[randomNumber].color_code}', ${cons[0].group_to}, 1)`
         connection.query(sql, (err, data) => {
             if (err) {
                 alert('Unable to add consolidations done')

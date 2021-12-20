@@ -178,14 +178,14 @@ DoneConsolidationsClass.prototype.appendConsolidationGroups = async function () 
     $('#con-group-radios').append(`<label class="custom-control custom-radio dark">
         <input name="radio-stacked" class="custom-control-input con-group" type="radio" value="0" />
         <span class="custom-control-indicator"></span>
-        <span class="custom-control-description">New Group</span>
+        <span class="custom-control-description">New Consolidation</span>
     </label>`)
     let conGroups = await self.DB.getConGroups()
     for (let conGroup of conGroups) {
         $('#con-group-radios').append(`<label class="custom-control custom-radio dark">
             <input name="radio-stacked" class="custom-control-input con-group" type="radio" value="${conGroup.con_group_id}" />
             <span class="custom-control-indicator"></span>
-            <span class="custom-control-description" style="background-color: ${conGroup.con_group_color}">Consolidation Group ID: ${conGroup.con_group_id}</span>
+            <span class="custom-control-description" style="background-color: ${conGroup.con_group_color}">CONSOLIDATION WITH ID: ${conGroup.con_group_id}</span>
             </label>`)
     }
 }

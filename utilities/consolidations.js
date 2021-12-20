@@ -33,7 +33,7 @@ ConsolidationsClass.prototype.initializetable = async function () {
         bLengthChange: false,
         columns: [
             { title: 'ID', orderable: false, data: 'con_id' },
-            { title: 'GROUP ID', orderable: false, data: 'group_id' },
+            { title: 'CONSOLIDATION ID', orderable: false, data: 'group_id' },
             { title: 'REQ. DATE', orderable: false, data: 'con_request_date' },
             { title: 'USER', orderable: false, data: 'user_username' },
             { title: 'DEPARTMENT', orderable: false, data: 'division_description' },
@@ -181,7 +181,7 @@ ConsolidationsClass.prototype.bindEventsOnButtons = function () {
         }
         let updateData = await self.DB.updateConGroupData(groupData)
         if (updateData && updateData.affectedRows == 1) {
-            self.Helpers.toastr('success', 'Consolidation group updated!')
+            self.Helpers.toastr('success', 'Consolidation updated!')
             $('#group-modal').modal('hide')
             self.refreshTable()
         }

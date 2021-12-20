@@ -2,10 +2,10 @@ let IndividualsClass = function () {
     this.DB = new DbClass()
     this.Helpers = new HelpersClass()
     this.Helpers.initializeUser()
-    this.Helpers.bindMovingEvents("edit-notes-modal-header")
-    this.Helpers.bindMovingEvents("cost-data-modal-header")
-    this.Helpers.bindMovingEvents("done-personnel-modal-header")
-    this.Helpers.bindMovingEvents("assignment-modal-header")
+    this.Helpers.bindMovingEvents('edit-notes-modal-header')
+    this.Helpers.bindMovingEvents('cost-data-modal-header')
+    this.Helpers.bindMovingEvents('done-personnel-modal-header')
+    this.Helpers.bindMovingEvents('assignment-modal-header')
     this.bindEventsOnButtons()
     this.selectedJobs = []
     let self = this
@@ -18,35 +18,35 @@ let IndividualsClass = function () {
 IndividualsClass.prototype.bindEventsOnButtons = function () {
     let self = this
 
-    $("#logout-ref").on("click", function () {
+    $('#logout-ref').on('click', function () {
         self.Helpers.handleLogout()
     })
 
-    $("#save-notes").on("click", function () {
-        var jobID = $("#done_ind_id").val()
-        var notesText = $("#notes").val()
+    $('#save-notes').on('click', function () {
+        var jobID = $('#done_ind_id').val()
+        var notesText = $('#notes').val()
 
         self.DB.saveNotesChanges(jobID, notesText)
     })
 
-    $("#assign-btn").on("click", () => {
+    $('#assign-btn').on('click', () => {
         if (self.DB.selectedDoneInd.length == 0) {
             Swal.fire({
-                title: "Select jobs for assignment",
-                text: "Unfortunately you need to select some jobs before you can assign them to consolidation.",
-                icon: "error",
+                title: 'Select jobs for assignment',
+                text: 'Unfortunately you need to select some jobs before you can assign them to consolidation.',
+                icon: 'error',
                 showCancelButton: true,
                 showConfirmButton: false,
             })
             return
         }
-        $("#assignment-group-modal").modal("show")
+        $('#assignment-group-modal').modal('show')
     })
 
-    $("#assign-jobs").on("click", () => {
-        let selGroup = $("input.con-group:checked").val()
-        if (typeof selGroup === "undefined") {
-            self.Helpers.toastr("warning", "Please select a group first.")
+    $('#assign-jobs').on('click', () => {
+        let selGroup = $('input.con-group:checked').val()
+        if (typeof selGroup === 'undefined') {
+            self.Helpers.toastr('warning', 'Please select a group first.')
             return
         }
         if (selGroup == 0) {
@@ -67,17 +67,17 @@ IndividualsClass.prototype.initializetable = async function () {
 IndividualsClass.prototype.appendConsolidationGroups = async function () {
     let self = this
 
-    $("#con-group-radios").append(`<label class="custom-control custom-radio dark">
+    $('#con-group-radios').append(`<label class="custom-control custom-radio dark">
         <input name="radio-stacked" class="custom-control-input con-group" type="radio" value="0" />
         <span class="custom-control-indicator"></span>
-        <span class="custom-control-description">New Group</span>
+        <span class="custom-control-description">NEW CONSOLIDATION</span>
     </label>`)
     let conGroups = await self.DB.getConGroups()
     for (let conGroup of conGroups) {
-        $("#con-group-radios").append(`<label class="custom-control custom-radio dark">
+        $('#con-group-radios').append(`<label class="custom-control custom-radio dark">
             <input name="radio-stacked" class="custom-control-input con-group" type="radio" value="${conGroup.con_group_id}" />
             <span class="custom-control-indicator"></span>
-            <span class="custom-control-description" style="background-color: ${conGroup.con_group_color}">Consolidation Group ID: ${conGroup.con_group_id}</span>
+            <span class="custom-control-description" style="background-color: ${conGroup.con_group_color}">CONSOLIDATION ID: ${conGroup.con_group_id}</span>
             </label>`)
     }
 }

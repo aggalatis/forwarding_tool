@@ -97,8 +97,9 @@ HelpersClass.prototype.changeMysqlDateToNormal = function (datetime) {
     return `${dateSplitted[2]}/${dateSplitted[1]}/${dateSplitted[0]} ${dateTimeArray[1]}`
 }
 
-HelpersClass.prototype.initliazeModalToEditJob = function (divisions, products, vessels, cities, jobData) {
+HelpersClass.prototype.initliazeModalToEditJob = function (divisions, products, vessels, cities, serviceTypes, jobData) {
     let self = this
+    console.log(jobData)
     myTransfers.initializeDivisionsSelect()
     self.findChoosenValueForDivision(divisions, jobData.division_description)
     myTransfers.initializeProductsSelect(divisions[i].division_id)
@@ -107,6 +108,8 @@ HelpersClass.prototype.initliazeModalToEditJob = function (divisions, products, 
     self.findChoosenValueForVessels(vessels, jobData.ind_vessels)
     myTransfers.initialiazeCitiesSelect()
     self.findChoosenValueForCities(cities, jobData.ex_city, jobData.to_city)
+    myTransfers.initialiazeServiceTypeSelect()
+    self.findChoosenValueForServiceType(serviceTypes, jobData.service_type_description)
 
     $('#modal-title-text').html('Edit Job')
     $('#mode-select').val(jobData.ind_mode)
@@ -139,6 +142,20 @@ HelpersClass.prototype.findChoosenValueForDivision = function (divisions, divisi
         if (divisions[i].division_description == division_description) {
             $('#division-select').val(divisions[i].division_id)
             $('#division-select').trigger('chosen:updated')
+            break
+        }
+    }
+}
+
+HelpersClass.prototype.findChoosenValueForServiceType = function (serviceTypes, service_type_description) {
+    let self = this
+    console.log(serviceTypes)
+    console.log(service_type_description)
+    for (i = 0; i < serviceTypes.length; i++) {
+        if (serviceTypes[i].service_type_description == service_type_description) {
+            console.log(`I found selected service type`)
+            $('#service-type-select').val(serviceTypes[i].service_type_id)
+            $('#service-type-select').trigger('chosen:updated')
             break
         }
     }

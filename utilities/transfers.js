@@ -54,6 +54,7 @@ TransfersClass.prototype.bindEventsOnButtons = function () {
         self.initializeDivisionsSelect()
         self.initialiazeVesselsSelect()
         self.initialiazeCitiesSelect()
+        self.initialiazeServiceTypeSelect()
         self.bindSaveEventOnSaveJobButton()
 
         $('#add-job-modal').modal('show')
@@ -157,6 +158,7 @@ TransfersClass.prototype.bindSaveEventOnSaveJobButton = function () {
         var reference = $('#reference').val()
         var kg = self.Helpers.formatFloatValue($('#kg').val())
         var deadline = $('#deadline_date').val()
+        let serviceType = $('#service-type-select').val()
 
         if ((deadline != '') & (modeSelectValue != '') && divisionSelectValue != '' && productSelectValue != '' && vesselSelectValue != '') {
             $(this).attr('disabled', 'disabled')
@@ -193,6 +195,7 @@ TransfersClass.prototype.bindSaveEventOnSaveJobButton = function () {
                     ind_group_id: 0,
                     ind_reference: reference,
                     ind_kg: kg,
+                    ind_service_type: serviceType,
                 }
                 console.log(individualData)
                 self.DB.addIndividual(individualData)
@@ -216,6 +219,7 @@ TransfersClass.prototype.initializetable = function () {
     self.DB.getAllProducts()
     self.DB.getAllVessels()
     self.DB.getAllColors()
+    self.DB.getAllServiceTypes()
 }
 
 TransfersClass.prototype.initializeDivisionsSelect = function () {
@@ -263,4 +267,15 @@ TransfersClass.prototype.initialiazeCitiesSelect = function () {
     }
     $('#ex-input').trigger('chosen:updated')
     $('#to-input').trigger('chosen:updated')
+}
+
+TransfersClass.prototype.initialiazeServiceTypeSelect = function () {
+    let self = this
+
+    $('#service-type-select').empty()
+    $('#service-type-select').append('<option></option>')
+    for (i = 0; i < self.DB.individualServiceTypes.length; i++) {
+        $('#service-type-select').append(new Option(self.DB.individualServiceTypes[i].service_type_description, self.DB.individualServiceTypes[i].service_type_id))
+    }
+    $('#service-type-select').trigger('chosen:updated')
 }

@@ -61,6 +61,91 @@
         </style>
     </head>
     <body class="top-navigation">
+        <!-- Start Help modal -->
+        <div aria-hidden="true" class="modal fade" role="dialog" tabindex="-1" style="top: 15%" id="help-modal" data-keyboard="false" data-backdrop="static">
+            <div id="cost-modal-header" class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <div class="row" style="width: 100%">
+                            <div class="col-sm-6">
+                                <div class="form-group">
+                                    <button class="btn btn-success" id="help-instructions" style="width: 100%">INSTRUCTIONS</button>
+                                </div>
+                            </div>
+                            <div class="col-sm-6">
+                                <div class="form-group">
+                                    <button class="btn btn-danger" id="help-visualizer" style="width: 100%">VISUALIZER</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="modal-body" id="help-modal-body">
+                        <div class="col-md-12" id="instrctions-div">
+                            <img src="../assets/images/helpers/a4.jpeg" />
+                        </div>
+                        <div class="col-md-12" id="visualizer-div">
+                            <img src="../assets/images/helpers/a4.jpeg" />
+                            <div class="custom-controls-stacked" id="visualizer-radios">
+                                <label class="custom-control custom-radio dark">
+                                    <input name="radio-stacked" class="custom-control-input con-group" type="radio" value="1" />
+                                    <span class="custom-control-indicator"></span>
+                                    <span class="custom-control-description">SCENARIO A</span>
+                                </label>
+                                <label class="custom-control custom-radio dark">
+                                    <input name="radio-stacked" class="custom-control-input con-group" type="radio" value="2" />
+                                    <span class="custom-control-indicator"></span>
+                                    <span class="custom-control-description">SCENARIO B</span>
+                                </label>
+                                <label class="custom-control custom-radio dark">
+                                    <input name="radio-stacked" class="custom-control-input con-group" type="radio" value="3" />
+                                    <span class="custom-control-indicator"></span>
+                                    <span class="custom-control-description">SCENARIO C</span>
+                                </label>
+                                <label class="custom-control custom-radio dark">
+                                    <input name="radio-stacked" class="custom-control-input con-group" type="radio" value="4" />
+                                    <span class="custom-control-indicator"></span>
+                                    <span class="custom-control-description">SCENARIO D</span>
+                                </label>
+                                <label class="custom-control custom-radio dark">
+                                    <input name="radio-stacked" class="custom-control-input con-group" type="radio" value="5" />
+                                    <span class="custom-control-indicator"></span>
+                                    <span class="custom-control-description">SCENARIO E</span>
+                                </label>
+                                <label class="custom-control custom-radio dark">
+                                    <input name="radio-stacked" class="custom-control-input con-group" type="radio" value="6" />
+                                    <span class="custom-control-indicator"></span>
+                                    <span class="custom-control-description">SCENARIO F</span>
+                                </label>
+                                <label class="custom-control custom-radio dark">
+                                    <input name="radio-stacked" class="custom-control-input con-group" type="radio" value="7" />
+                                    <span class="custom-control-indicator"></span>
+                                    <span class="custom-control-description">SCENARIO G</span>
+                                </label>
+                                <label class="custom-control custom-radio dark">
+                                    <input name="radio-stacked" class="custom-control-input con-group" type="radio" value="8" />
+                                    <span class="custom-control-indicator"></span>
+                                    <span class="custom-control-description">SCENARIO H</span>
+                                </label>
+                                <label class="custom-control custom-radio dark">
+                                    <input name="radio-stacked" class="custom-control-input con-group" type="radio" value="9" />
+                                    <span class="custom-control-indicator"></span>
+                                    <span class="custom-control-description">SCENARIO I</span>
+                                </label>
+                                <label class="custom-control custom-radio dark">
+                                    <input name="radio-stacked" class="custom-control-input con-group" type="radio" value="10" />
+                                    <span class="custom-control-indicator"></span>
+                                    <span class="custom-control-description">SCENARIO J</span>
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button class="btn btn-secondary" data-dismiss="modal" type="button">Close</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- End Help modal -->
         <!-- Start Job modal -->
         <div aria-hidden="true" class="modal fade" role="dialog" tabindex="-1" id="add-job-modal" style="top: 15%" data-keyboard="false" data-backdrop="static">
             <div id="job-modal-header" class="modal-dialog modal-lg">
@@ -433,7 +518,9 @@
                             <button class="btn btn-warning mt-2" id="add-job-btn" disabled>Job entry</button>&nbsp;&nbsp;&nbsp;
                             <button class="btn btn-danger mt-2" onclick="window.location.reload()">REFRESH</button>
                         </li>
+
                         <input placeholder="Search Table..." id="search_datatable" style="float: right; height: 35px; margin: 5px" />
+                        <button class="btn btn-info mt-2" id="help-btn" style="float: right; height: 35px; margin: 5px">Help</button>
                     </ul>
                 </div>
             </nav>

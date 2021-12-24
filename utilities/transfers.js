@@ -2,6 +2,7 @@ let TransfersClass = function () {
     this.DB = new DbClass()
     this.Helpers = new HelpersClass()
     this.Helpers.initializeUser()
+    this.Helpers.initializeHelp()
     this.Helpers.bindMovingEvents('job-modal-header')
     this.Helpers.bindMovingEvents('cost-modal-header')
     this.Helpers.bindMovingEvents('personnel-modal-header')
@@ -195,7 +196,7 @@ TransfersClass.prototype.bindSaveEventOnSaveJobButton = function () {
                     ind_group_id: 0,
                     ind_reference: reference,
                     ind_kg: kg,
-                    ind_service_type: serviceType == "" ? 0 : serviceType,
+                    ind_service_type: serviceType == '' ? 0 : serviceType,
                 }
                 console.log(individualData)
                 self.DB.addIndividual(individualData)

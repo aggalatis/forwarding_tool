@@ -75,6 +75,24 @@ HelpersClass.prototype.initializeUser = function () {
     }
 }
 
+HelpersClass.prototype.initializeHelp = function () {
+    let self = this
+
+    $('#instrctions-div').hide()
+    $('#visualizer-div').hide()
+    $('#help-btn').on('click', function () {
+        $('#help-modal').modal('show')
+    })
+
+    $('#help-instructions').on('click', function () {
+        $('#instrctions-div').show(1000)
+    })
+
+    $('#help-visualizer').on('click', function () {
+        $('#visualizer-div').show(1000)
+    })
+}
+
 HelpersClass.prototype.getDateTimeNow = function () {
     var datetime = require('datetime-js')
     var dateObj = new Date()
@@ -246,9 +264,7 @@ HelpersClass.prototype.checkIfUserHasPriviledges = function (jobUserName) {
 }
 
 HelpersClass.prototype.jobsHaveSameDestination = function (jobsDestinations) {
-
-    for (let i = 1; i < jobsDestinations.length; i++)
-        if (jobsDestinations[i-1] !== jobsDestinations[i]) return false
+    for (let i = 1; i < jobsDestinations.length; i++) if (jobsDestinations[i - 1] !== jobsDestinations[i]) return false
 
     return true
 }

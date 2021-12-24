@@ -59,6 +59,7 @@ ConsolidationsClass.prototype.initializetable = async function () {
                         rowData.con_group_cost == null ||
                         rowData.con_group_deadline == null ||
                         rowData.con_group_forwarder == null ||
+                        rowData.con_group_forwarder == "" ||
                         rowData.con_group_mode == null
                     ) {
                         $(td).children('.confirm-job').hide()

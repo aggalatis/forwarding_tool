@@ -195,7 +195,7 @@ TransfersClass.prototype.bindSaveEventOnSaveJobButton = function () {
                     ind_group_id: 0,
                     ind_reference: reference,
                     ind_kg: kg,
-                    ind_service_type: serviceType,
+                    ind_service_type: serviceType == "" ? 0 : serviceType,
                 }
                 console.log(individualData)
                 self.DB.addIndividual(individualData)

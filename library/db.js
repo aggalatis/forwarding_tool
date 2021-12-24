@@ -476,7 +476,7 @@ DbClass.prototype.getAllIndividuals = function () {
                             ind_reference: reference,
                             ind_kg: kg,
                             ind_group_id: 0,
-                            ind_service_type: serviceType,
+                            ind_service_type: serviceType == "" ? 0 : serviceType,
                             old_group_id: data.ind_group_id,
                         }
 
@@ -2994,8 +2994,14 @@ DbClass.prototype.confirmConsGroup = async function (data) {
     let conAdded = await new Promise(function (resolve, reject) {
         let sql = ''
         for (let con of cons) {
-            sql = `INSERT INTO consolidations_done (cond_ind_id, cond_con_done_id, cond_user_id, cond_division_id, cond_products, cond_vessels, cond_reference, cond_kg, cond_status, cond_request_date, cond_group_id)
-                    VALUES (${con.con_ind_id}, ${con.con_done_id}, ${self.Helpers.user_id}, ${con.con_division_id}, '${con.con_products}', '${con.con_vessels}', '${con.con_reference}', ${con.con_kg}, 'Done', '${con.con_request_date}', ${con.con_group_id});`
+            if (con.con_done_id == null) {
+                sql = `INSERT INTO consolidations_done (cond_ind_id, cond_con_done_id, cond_user_id, cond_division_id, cond_products, cond_vessels, cond_reference, cond_kg, cond_status, cond_request_date, cond_group_id)
+                VALUES (${con.con_ind_id}, ${con.con_done_id}, ${self.Helpers.user_id}, ${con.con_division_id}, '${con.con_products}', '${con.con_vessels}', '${con.con_reference}', ${con.con_kg}, 'Done', '${con.con_request_date}', ${con.con_group_id});`
+            } else {
+                sql = `INSERT INTO consolidations_done (cond_ind_id, cond_con_done_id, cond_consolidated, cond_user_id, cond_division_id, cond_products, cond_vessels, cond_reference, cond_kg, cond_status, cond_request_date, cond_group_id)
+                VALUES (${con.con_ind_id}, ${con.con_done_id}, 1, ${self.Helpers.user_id}, ${con.con_division_id}, '${con.con_products}', '${con.con_vessels}', '${con.con_reference}', ${con.con_kg}, 'Done', '${con.con_request_date}', ${con.con_group_id});`
+            }
+           
             connection.query(sql, (err, data) => {
                 if (err) {
                     alert('Unable to add consolidations done')

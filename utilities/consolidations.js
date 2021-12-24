@@ -5,15 +5,14 @@ let ConsolidationsClass = function () {
     this.Helpers.initializeUser()
     this.bindEventsOnButtons()
     this.DB.getAllCities()
+    this.DB.getAllServiceTypes()
     let self = this
     setTimeout(function () {
         self.initializetable()
         self.initialiazeCitiesSelect()
-    }, 500)
-
-    setTimeout(function () {
-        $('#add-consolidation-btn').attr('disabled', null)
+        self.initializeServiceTypeSelect()
     }, 1000)
+
 }
 
 ConsolidationsClass.prototype.initializetable = async function () {
@@ -39,6 +38,7 @@ ConsolidationsClass.prototype.initializetable = async function () {
             { title: 'DEPARTMENT', orderable: false, data: 'division_description' },
             { title: 'PRODUCTS', orderable: false, data: 'con_products' },
             { title: 'MODE', orderable: false, data: 'con_group_mode' },
+            { title: 'SERVICE TYPE', orderable: false, data: 'service_type_description' },
             { title: 'VESSELS', orderable: false, data: 'con_vessels' },
             { title: 'EX', orderable: false, className: 'danger-header', data: 'ex_name' },
             { title: 'TO', orderable: false, className: 'danger-header', data: 'to_name' },
@@ -147,6 +147,7 @@ ConsolidationsClass.prototype.initializetable = async function () {
             return
         }
         self.findChoosenValueForCities(data.ex_name, data.to_name)
+        self.Helpers.findChoosenValueForServiceType(self.DB.consolidationServiceTypes, data.service_type_description)
         $('#group-mode-select').val(data.con_group_mode)
         $('#group-mode-select').trigger('chosen:updated')
         $('#group-forwarder').val(data.con_group_forwarder)
@@ -163,7 +164,9 @@ ConsolidationsClass.prototype.bindEventsOnButtons = function () {
     $('#group-mode-select').chosen()
     $('#group-ex-select').chosen()
     $('#group-to-select').chosen()
+    $('#service-type-select').chosen()
 
+    
     $('#logout-ref').on('click', function () {
         self.Helpers.handleLogout()
     })
@@ -178,6 +181,7 @@ ConsolidationsClass.prototype.bindEventsOnButtons = function () {
             groupTo: $('#group-to-select').val(),
             groupCost: $('#group-cost').val(),
             groupDeadline: $('#group-deadline').val(),
+            groupServiceType: $('#service-type-select').val()
         }
         let updateData = await self.DB.updateConGroupData(groupData)
         if (updateData && updateData.affectedRows == 1) {
@@ -264,40 +268,6 @@ ConsolidationsClass.prototype.bindSaveEventOnSaveJobButton = function () {
     })
 }
 
-ConsolidationsClass.prototype.initialiazeExToSelect = function (modeValue) {
-    let self = this
-
-    switch (modeValue) {
-        case 'Air':
-            $('#ex-select-port-div').hide()
-            $('#to-select-port-div').hide()
-            $('#to-input-div').hide()
-            $('#ex-input-div').hide()
-
-            $('#ex-select-airport-div').show('500')
-            $('#to-select-airport-div').show('500')
-            break
-        case 'Sea':
-            $('#ex-select-airport-div').hide()
-            $('#to-select-airport-div').hide()
-            $('#to-input-div').hide()
-            $('#ex-input-div').hide()
-
-            $('#ex-select-port-div').show('500')
-            $('#to-select-port-div').show('500')
-            break
-        default:
-            $('#ex-select-airport-div').hide()
-            $('#to-select-airport-div').hide()
-            $('#ex-select-port-div').hide()
-            $('#to-select-port-div').hide()
-
-            $('#to-input-div').show('500')
-            $('#ex-input-div').show('500')
-            break
-    }
-}
-
 ConsolidationsClass.prototype.formatData = function (consolidations) {
     let self = this
 
@@ -357,4 +327,15 @@ ConsolidationsClass.prototype.refreshTable = function () {
     setTimeout(function () {
         self.initializetable()
     }, 2000)
+}
+
+ConsolidationsClass.prototype.initializeServiceTypeSelect = function () {
+    let self = this
+
+    $('#service-type-select').empty()
+    $('#service-type-select').append('<option></option>')
+    for (i = 0; i < self.DB.consolidationServiceTypes.length; i++) {
+        $('#service-type-select').append(new Option(self.DB.consolidationServiceTypes[i].service_type_description, self.DB.consolidationServiceTypes[i].service_type_id))
+    }
+    $('#service-type-select').trigger('chosen:updated')
 }

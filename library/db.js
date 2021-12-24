@@ -12,6 +12,7 @@ let DbClass = function () {
     this.individualServiceTypes = []
     this.consolidationServiceTypes = []
     this.selectedDoneInd = []
+    this.selectedDoneDestination = []
     this.pieCreated = false
     this.getServerDataFromRegistry()
 }
@@ -145,33 +146,6 @@ DbClass.prototype.getAllVessels = function () {
         if (error) throw error
 
         self.vessels = vessels
-    })
-
-    connection.end()
-}
-
-DbClass.prototype.getAllServiceTypes = function () {
-    let self = this
-
-    var mysql = require('mysql')
-
-    var connection = mysql.createConnection({
-        host: self.serverIP,
-        user: self.user,
-        password: self.dbpass,
-        database: self.database,
-        port: self.port,
-        dateStrings: true,
-    })
-
-    connection.connect()
-
-    var sql = 'SELECT * FROM service_types WHERE service_type_deleted = 0 ORDER BY service_type_description'
-
-    connection.query(sql, function (error, serviceTypes) {
-        if (error) throw error
-
-        self.serviceTypes = serviceTypes
     })
 
     connection.end()
@@ -377,8 +351,9 @@ DbClass.prototype.getAllIndividuals = function () {
                     },
                     data: 'ind_mode',
                 },
-                { title: 'VESSELS', orderable: false, data: 'ind_vessels' },
                 { title: 'SERVICE TYPE', orderable: false, data: 'service_type_description' },
+
+                { title: 'VESSELS', orderable: false, data: 'ind_vessels' },
                 { title: 'EX', orderable: false, className: 'danger-header', data: 'ex_city' },
                 { title: 'TO', orderable: false, className: 'danger-header', data: 'to_city' },
                 { title: 'DEADLINE', orderable: false, className: 'danger-header', data: 'ind_deadline' },
@@ -938,9 +913,11 @@ DbClass.prototype.getAllDoneIndividuals = function () {
             if (self.selectedDoneInd.indexOf(data[0]) == -1) {
                 $(this).parents('tr').addClass('datatableBack')
                 self.selectedDoneInd.push(data[0])
+                self.selectedDoneDestination.push(data[11])
             } else {
                 $(this).parents('tr').removeClass('datatableBack')
-                self.selectedDoneInd.splice(self.selectedDoneInd.indexOf(data[0], 1))
+                self.selectedDoneInd.splice(self.selectedDoneInd.indexOf(data[0]), 1)
+                self.selectedDoneDestination.splice(self.selectedDoneDestination.indexOf(data[11]), 1)
             }
         })
 
@@ -2052,7 +2029,10 @@ DbClass.prototype.getConGroups = function () {
         dateStrings: true,
     })
 
-    var sql = 'SELECT * FROM consolidation_groups WHERE con_group_active = 1;'
+    var sql = `SELECT cg.* , c.city_name as city_name
+        FROM consolidation_groups cg
+        LEFT JOIN cities c on c.city_id = cg.con_group_ex
+        WHERE cg.con_group_active = 1;`
     connection.connect()
     return new Promise((resolve, reject) => {
         connection.query(sql, function (error, data) {
@@ -2213,7 +2193,7 @@ DbClass.prototype.assignConJobsToNewGroup = async function (jobs) {
     const cons = await new Promise((resolve, reject) => {
         let sql = `SELECT 
         cd.* ,
-        cg.con_group_ex as group_ex
+        cg.con_group_to as group_to
         FROM consolidations_done cd
         JOIN consolidation_groups cg on cg.con_group_id = cd.cond_group_id 
         WHERE cd.cond_id IN (${jobs.join(',')})`
@@ -2263,6 +2243,7 @@ DbClass.prototype.assignConJobsToNewGroup = async function (jobs) {
     }
     await new Promise(function (resolve, reject) {
         let sql = `UPDATE consolidations_done set cond_consolidated = 1 WHERE cond_id IN (${jobs.join(',')})`
+        console.log(sql)
         connection.query(sql, (err, data) => {
             if (err) {
                 alert('Unable to update consolidations done')
@@ -2876,6 +2857,7 @@ DbClass.prototype.getAllConsolidations = function () {
     cg.con_group_forwarder,
     cg.con_group_color,
     cg.con_group_mode,
+    st.service_type_description,
     d.division_description,
     u.user_username,
     c2.city_name as ex_name,
@@ -2886,6 +2868,7 @@ DbClass.prototype.getAllConsolidations = function () {
     LEFT JOIN users u on c.con_user_id = u.user_id 
     LEFT JOIN cities c2 on c2.city_id = cg.con_group_ex 
     LEFT JOIN cities c3 on c3.city_id = cg.con_group_to
+    LEFT JOIN service_types st on st.service_type_id = cg.con_group_service_type
     WHERE c.con_status = 'Pending'`
     return new Promise((resolve, reject) => {
         connection.query(sql, function (error, data) {
@@ -2966,10 +2949,10 @@ DbClass.prototype.updateConGroupData = function (groupData) {
     if (groupData.groupCost == '') groupData.groupCost = null
     if (groupData.groupTo == '') groupData.groupTo = null
     if (groupData.groupEx == '') groupData.groupEx = null
+    if (groupData.groupServiceType == '') groupData.groupServiceType = null
 
     let sql = `UPDATE consolidation_groups SET con_group_ex = ${groupData.groupEx}, con_group_to = ${groupData.groupTo}, con_group_cost = ${groupData.groupCost}, con_group_forwarder = '${groupData.groupForwarder}',
-        con_group_deadline = '${groupData.groupDeadline}', con_group_mode = '${groupData.groupMode}' WHERE con_group_id = ${groupData.groupId}`
-    console.log(sql)
+        con_group_deadline = '${groupData.groupDeadline}', con_group_mode = '${groupData.groupMode}', con_group_service_type = ${groupData.groupServiceType} WHERE con_group_id = ${groupData.groupId}`
     return new Promise((resolve, reject) => {
         connection.query(sql, function (error, data) {
             connection.end()
@@ -3076,6 +3059,7 @@ DbClass.prototype.getAllDoneConsolidations = function () {
     cg.con_group_color,
     cg.con_group_mode,
     cg.con_group_confirmation_date,
+    st.service_type_description,
     d.division_description,
     u.user_username,
     c2.city_name as ex_name,
@@ -3086,6 +3070,7 @@ DbClass.prototype.getAllDoneConsolidations = function () {
     LEFT JOIN users u on c.cond_user_id = u.user_id 
     LEFT JOIN cities c2 on c2.city_id = cg.con_group_ex 
     LEFT JOIN cities c3 on c3.city_id = cg.con_group_to
+    LEFT JOIN service_types st on st.service_type_id = cg.con_group_service_type
     `
     return new Promise((resolve, reject) => {
         connection.query(sql, function (error, data) {

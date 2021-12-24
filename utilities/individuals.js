@@ -11,7 +11,6 @@ let IndividualsClass = function () {
     let self = this
     setTimeout(function () {
         self.initializetable()
-        self.appendConsolidationGroups()
     }, 500)
 }
 
@@ -40,6 +39,17 @@ IndividualsClass.prototype.bindEventsOnButtons = function () {
             })
             return
         }
+        if (!self.Helpers.jobsHaveSameDestination(self.DB.selectedDoneDestination)) {
+            Swal.fire({
+                title: 'Job destination mismatch',
+                text: `Unfortunately all jobs selected don't have the same destination.`,
+                icon: 'error',
+                showCancelButton: true,
+                showConfirmButton: false,
+            })
+            return
+        }
+        self.appendConsolidationGroups(self.DB.selectedDoneDestination[0])
         $('#assignment-group-modal').modal('show')
     })
 
@@ -64,9 +74,9 @@ IndividualsClass.prototype.initializetable = async function () {
     self.DB.getAllColors()
 }
 
-IndividualsClass.prototype.appendConsolidationGroups = async function () {
+IndividualsClass.prototype.appendConsolidationGroups = async function (to_name) {
     let self = this
-
+    $('#con-group-radios').html("")
     $('#con-group-radios').append(`<label class="custom-control custom-radio dark">
         <input name="radio-stacked" class="custom-control-input con-group" type="radio" value="0" />
         <span class="custom-control-indicator"></span>
@@ -74,10 +84,12 @@ IndividualsClass.prototype.appendConsolidationGroups = async function () {
     </label>`)
     let conGroups = await self.DB.getConGroups()
     for (let conGroup of conGroups) {
-        $('#con-group-radios').append(`<label class="custom-control custom-radio dark">
-            <input name="radio-stacked" class="custom-control-input con-group" type="radio" value="${conGroup.con_group_id}" />
-            <span class="custom-control-indicator"></span>
-            <span class="custom-control-description" style="background-color: ${conGroup.con_group_color}">CONSOLIDATION ID: ${conGroup.con_group_id}</span>
-            </label>`)
+        console.log()
+        if (conGroup.city_name == to_name)
+            $('#con-group-radios').append(`<label class="custom-control custom-radio dark">
+                <input name="radio-stacked" class="custom-control-input con-group" type="radio" value="${conGroup.con_group_id}" />
+                <span class="custom-control-indicator"></span>
+                <span class="custom-control-description" style="background-color: ${conGroup.con_group_color}">CONSOLIDATION ID: ${conGroup.con_group_id}</span>
+                </label>`)
     }
 }

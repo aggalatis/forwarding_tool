@@ -6,10 +6,10 @@ let DoneConsolidationsClass = function () {
     this.Helpers.initializeUser()
     this.bindEventsOnButtons()
     this.selectedDoneInds = []
+    this.selectedDoneDestination = []
     let self = this
     setTimeout(function () {
         self.initializetable()
-        self.appendConsolidationGroups()
     }, 500)
 }
 
@@ -37,6 +37,18 @@ DoneConsolidationsClass.prototype.bindEventsOnButtons = function () {
             })
             return
         }
+        console.log(self.selectedDoneInds)
+        if (!self.Helpers.jobsHaveSameDestination(self.selectedDoneDestination)) {
+            Swal.fire({
+                title: 'Job destination mismatch',
+                text: `Unfortunately all jobs selected don't have the same destination.`,
+                icon: 'error',
+                showCancelButton: true,
+                showConfirmButton: false,
+            })
+            return
+        }
+        self.appendConsolidationGroups(self.selectedDoneDestination[0])
         $('#assignment-group-modal').modal('show')
     })
 
@@ -76,6 +88,7 @@ DoneConsolidationsClass.prototype.initializetable = async function () {
             { title: 'DEPARTMENT', orderable: false, data: 'division_description' },
             { title: 'PRODUCTS', orderable: false, data: 'cond_products' },
             { title: 'MODE', orderable: false, data: 'con_group_mode' },
+            { title: 'SERVICE TYPE', orderable: false, data: 'service_type_description' },
             { title: 'VESSELS', orderable: false, data: 'cond_vessels' },
             { title: 'EX', orderable: false, className: 'danger-header', data: 'ex_name' },
             { title: 'TO', orderable: false, className: 'danger-header', data: 'to_name' },
@@ -142,9 +155,11 @@ DoneConsolidationsClass.prototype.initializetable = async function () {
         if (self.selectedDoneInds.indexOf(data.cond_id) == -1) {
             $(this).parents('tr').addClass('datatableBack')
             self.selectedDoneInds.push(data.cond_id)
+            self.selectedDoneDestination.push(data.to_name)
         } else {
             $(this).parents('tr').removeClass('datatableBack')
-            self.selectedDoneInds.splice(self.selectedDoneInds.indexOf(data.cond_id, 1))
+            self.selectedDoneInds.splice(self.selectedDoneInds.indexOf(data.cond_id), 1)
+            self.selectedDoneDestination.splice(self.selectedDoneDestination.indexOf(data.to_name), 1)
         }
     })
 }
@@ -172,16 +187,17 @@ DoneConsolidationsClass.prototype.formatData = function (consolidations) {
     return finalData
 }
 
-DoneConsolidationsClass.prototype.appendConsolidationGroups = async function () {
+DoneConsolidationsClass.prototype.appendConsolidationGroups = async function (to_name) {
     let self = this
 
     $('#con-group-radios').append(`<label class="custom-control custom-radio dark">
         <input name="radio-stacked" class="custom-control-input con-group" type="radio" value="0" />
         <span class="custom-control-indicator"></span>
-        <span class="custom-control-description">New Consolidation</span>
+        <span class="custom-control-description">NEW CONSOLIDATION</span>
     </label>`)
     let conGroups = await self.DB.getConGroups()
     for (let conGroup of conGroups) {
+        if (conGroup.city_name == to_name)
         $('#con-group-radios').append(`<label class="custom-control custom-radio dark">
             <input name="radio-stacked" class="custom-control-input con-group" type="radio" value="${conGroup.con_group_id}" />
             <span class="custom-control-indicator"></span>

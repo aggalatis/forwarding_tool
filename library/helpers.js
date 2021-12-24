@@ -149,11 +149,9 @@ HelpersClass.prototype.findChoosenValueForDivision = function (divisions, divisi
 
 HelpersClass.prototype.findChoosenValueForServiceType = function (serviceTypes, service_type_description) {
     let self = this
-    console.log(serviceTypes)
-    console.log(service_type_description)
+
     for (i = 0; i < serviceTypes.length; i++) {
         if (serviceTypes[i].service_type_description == service_type_description) {
-            console.log(`I found selected service type`)
             $('#service-type-select').val(serviceTypes[i].service_type_id)
             $('#service-type-select').trigger('chosen:updated')
             break
@@ -245,4 +243,12 @@ HelpersClass.prototype.checkIfUserHasPriviledges = function (jobUserName) {
         return true
     }
     return false
+}
+
+HelpersClass.prototype.jobsHaveSameDestination = function (jobsDestinations) {
+
+    for (let i = 1; i < jobsDestinations.length; i++)
+        if (jobsDestinations[i-1] !== jobsDestinations[i]) return false
+
+    return true
 }

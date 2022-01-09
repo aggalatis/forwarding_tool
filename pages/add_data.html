@@ -1,322 +1,394 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta content="ie=edge" http-equiv="x-ua-compatible">
-    <meta content="template language" name="keywords">
-    <meta content="Design_Gurus" name="author">
-    <meta content="WOW Admin dashboard html template" name="description">
-    <meta content="width=device-width, initial-scale=1" name="viewport">
-    <title>Forwarding Tool</title>
+    <head>
+        <meta charset="UTF-8" />
+        <meta content="ie=edge" http-equiv="x-ua-compatible" />
+        <meta content="template language" name="keywords" />
+        <meta content="Design_Gurus" name="author" />
+        <meta content="WOW Admin dashboard html template" name="description" />
+        <meta content="width=device-width, initial-scale=1" name="viewport" />
+        <title>Forwarding Tool</title>
 
-    <!--favicon-->
-    <link href="../assets/images/favicon.ico" rel="shortcut icon">
+        <!--favicon-->
+        <link href="../assets/images/favicon.ico" rel="shortcut icon" />
 
-    <!--bootstrap-4-->
+        <!--bootstrap-4-->
 
-    <link rel="stylesheet" href="../assets/css/bootstrap.min.css">
-    <!--Search-->
-    <link rel="stylesheet" href="../assets/plugins/morphin-search/morphin-search.css">
-    <!--Custom Scroll-->
-    <link rel="stylesheet" href="../assets/plugins/customScroll/jquery.mCustomScrollbar.min.css">
-    <!--Font Icons-->
-    <link rel="stylesheet" href="../assets/icons/simple-line/css/simple-line-icons.css">
-    <link rel="stylesheet" href="../assets/icons/dripicons/dripicons.css">
-    <link rel="stylesheet" href="../assets/icons/ionicons/css/ionicons.min.css">
-    <link rel="stylesheet" href="../assets/icons/eightyshades/eightyshades.css">
-    <link rel="stylesheet" href="../assets/icons/fontawesome/css/font-awesome.min.css">
-    <link rel="stylesheet" href="../assets/icons/foundation/foundation-icons.css">
-    <link rel="stylesheet" href="../assets/icons/metrize/metrize.css">
-    <link rel="stylesheet" href="../assets/icons/typicons/typicons.min.css">
-    <link rel="stylesheet" href="../assets/icons/weathericons/css/weather-icons.min.css">
-    <link rel="stylesheet" href="../assets/css/toastr.min.css">
-    <!--Date-range-->
-    <link rel="stylesheet" href="../assets/plugins/date-range/daterangepicker.css">
-    <!--Drop-Zone-->
-    <link rel="stylesheet" href="../assets/plugins/dropzone/dropzone.css">
-    <!--Full Calendar-->
-    <link rel="stylesheet" href="../assets/plugins/full-calendar/fullcalendar.min.css">
-    <!--Normalize Css-->
-    <link rel="stylesheet" href="../assets/css/normalize.css">
-    <!--Main Css-->
-    <link rel="stylesheet" href="../assets/css/main.css">
-    <link rel="stylesheet" href="../assets/js/chosen/chosen.css">
+        <link rel="stylesheet" href="../assets/css/bootstrap.min.css" />
+        <!--Search-->
+        <link rel="stylesheet" href="../assets/plugins/morphin-search/morphin-search.css" />
+        <!--Custom Scroll-->
+        <link rel="stylesheet" href="../assets/plugins/customScroll/jquery.mCustomScrollbar.min.css" />
+        <!--Font Icons-->
+        <link rel="stylesheet" href="../assets/icons/simple-line/css/simple-line-icons.css" />
+        <link rel="stylesheet" href="../assets/icons/dripicons/dripicons.css" />
+        <link rel="stylesheet" href="../assets/icons/ionicons/css/ionicons.min.css" />
+        <link rel="stylesheet" href="../assets/icons/eightyshades/eightyshades.css" />
+        <link rel="stylesheet" href="../assets/icons/fontawesome/css/font-awesome.min.css" />
+        <link rel="stylesheet" href="../assets/icons/foundation/foundation-icons.css" />
+        <link rel="stylesheet" href="../assets/icons/metrize/metrize.css" />
+        <link rel="stylesheet" href="../assets/icons/typicons/typicons.min.css" />
+        <link rel="stylesheet" href="../assets/icons/weathericons/css/weather-icons.min.css" />
+        <link rel="stylesheet" href="../assets/css/toastr.min.css" />
+        <!--Date-range-->
+        <link rel="stylesheet" href="../assets/plugins/date-range/daterangepicker.css" />
+        <!--Drop-Zone-->
+        <link rel="stylesheet" href="../assets/plugins/dropzone/dropzone.css" />
+        <!--Full Calendar-->
+        <link rel="stylesheet" href="../assets/plugins/full-calendar/fullcalendar.min.css" />
+        <!--Normalize Css-->
+        <link rel="stylesheet" href="../assets/css/normalize.css" />
+        <!--Main Css-->
+        <link rel="stylesheet" href="../assets/css/main.css" />
+        <link rel="stylesheet" href="../assets/js/chosen/chosen.css" />
+        <!-- Sweetalert -->
+        <link rel="stylesheet" type="text/css" href="../assets/css/sweetalert.css" />
+    </head>
+    <body class="top-navigation">
+        <!-- Start Help modal -->
+        <div aria-hidden="true" class="modal fade" role="dialog" tabindex="-1" style="top: 15%" id="help-modal" data-keyboard="false" data-backdrop="static">
+            <div id="help-modal-header" class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <button class="close move-left" type="button"><i class="icon-arrow-left"></i></button>
+                        <h5 class="modal-title">Help</h5>
 
-</head>
-<body class="top-navigation">
-
-
-<nav class="fixed-header">
-
-    <div class="navigation-header">
-        <div class="container-fluid">
-            <div class="row">
-                <div class="col-12 p-0">
-
-
-                    <img src="../assets/icons/diana_logo.jpg">
-
-                    <ul class="list-unstyled m-0 float-right">
-                        <li class="">
-
-                            <img src="../assets/icons/efglobal_logo.png">
-                        </li>
-                        <li class="user-div dropdown">
-                            <a href="javascript:;" class="ml-auto dropdown-toggle" data-toggle="dropdown">
-
-                                <span class="name ml-2 d-none d-md-inline-flex" id="span-username"></span>
-                            </a>
-
-                            <div class="dropdown-menu effect dropdown-menu-right">
-                                <a href="#" class="dropdown-item" id="logout-ref">
-                                    <i class="ion-log-out mr-2"></i>
-                                    <span>Logout</span>
-                                </a>
+                        <button class="close move-right" type="button"><i class="icon-arrow-right"></i></button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="row">
+                            <div class="col-sm-12">
+                                <h4>General instructions</h4>
+                                <p class="help-text">
+                                    You can find info for the general use of the app on this <a href="#" id="help-instructions" class="help-link" id="" style="cursor: pointer">LINK</a>
+                                </p>
                             </div>
-                        </li>
-                    </ul>
+                        </div>
+                        <hr />
+                        <div class="row">
+                            <div class="col-sm-12">
+                                <h4>Scenarios visualizer</h4>
+                                <p class="help-text">A full scenarions visualization can be found on this <a href="#" id="help-visualizer" style="cursor: pointer">LINK</a></p>
+                            </div>
+                        </div>
+                        <hr />
+
+                        <div class="row">
+                            <div class="col-sm-12">
+                                <h4>Scenarios</h4>
+                                <div id="append-scenarios"></div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button class="btn btn-secondary" data-dismiss="modal" type="button">Close</button>
+                    </div>
                 </div>
             </div>
         </div>
-    </div>
-
-    <!--Navigation-->
-    <nav id="navigation" class="navigation-sidebar bg-primary ">
-
-        <!--Navigation Menu Links-->
-        <div class="navigation-menu">
-
-            <ul class="menu-items">
-
-
-                <li>
-
-                    <a href="javascript:void(0);" class="have-submenu">
-                        <span class="icon-thumbnail"><i class="dripicons-align-center"></i></span>
-                        <span class="title">Individuals</span>
-                    </a>
-                    <ul class="sub-menu">
-                        <li>
-                            <a href="individuals.html">
-                                <span class="icon-thumbnail"><i class="dripicons-dots-3"></i></span>
-                                <span class="title">Pending</span>
-                            </a>
-                        </li>
-                        <li>
-                            <a href="done_individuals.html">
-                                <span class="icon-thumbnail"><i class="dripicons-checkmark"></i></span>
-                                <span class="title">Done</span>
-                            </a>
-                        </li>
-                        <li>
-                            <a href="deleted_individuals.html" id="deleted-ind" hidden>
-                                <span class="icon-thumbnail"><i class="dripicons-cross"></i></span>
-                                <span class="title">Deleted</span>
-                            </a>
-                        </li>
-                    </ul>
-                </li>
-                <li>
-
-                    <a href="javascript:void(0);" class="have-submenu">
-                        <span class="icon-thumbnail"><i class="dripicons-align-justify"></i></span>
-                        <span class="title">Consolidations</span>
-                    </a>
-                    <ul class="sub-menu">
-                        <li>
-                            <a href="consolidations.html">
-                                <span class="icon-thumbnail"><i class="dripicons-dots-3"></i></span>
-                                <span class="title">Pending</span>
-                            </a>
-                        </li>
-                        <li>
-                            <a href="done_consolidations.html">
-                                <span class="icon-thumbnail"><i class="dripicons-checkmark"></i></span>
-                                <span class="title">Done</span>
-                            </a>
-                        </li>
-                    </ul>
-                </li> 
-                <li id="add_data_list" hidden>
-                    <a href="add_data.html" class="active">
-                        <span class="title">MANAGE DATA</span>
-                    </a>
-                </li>
-                <li id="statistics_list" hidden>
-                    <a href="statistics.html">
-                        <span class="title">OVERVIEW</span>
-                    </a>
-                </li>
-                <li id="actions_list">
-                    <button class="btn btn-danger mt-2" onclick="window.location.reload()">REFRESH</button>
-                </li>
-            </ul>
-        </div>
-    </nav>
-
-</nav>
-<br>
-<section class="page-container">
-    <div class="page-content-wrapper">
-        <div class="content sm-gutter">
-
-            <div class="container-fluid">
-                <div class="row">
-                    <div class="col-12">
-                        <div class="section-title">
-                            <h4>Manage Data</h4>
+        <!-- End Help modal -->
+        <!-- Start Cities modal -->
+        <div aria-hidden="true" class="modal fade bd-example-modal-sm" role="dialog" tabindex="-1" style="top: 15%" id="city-modal" data-keyboard="false" data-backdrop="static">
+            <div id="city-modal-header" class="modal-dialog modal-sm">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <button class="close move-left" type="button"><i class="icon-arrow-left"></i></button>
+                        <h5 class="modal-title">Cities</h5>
+                        <button class="close move-right" type="button"><i class="icon-arrow-right"></i></button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="form-group col-sm-12" style="display: none">
+                            <input class="form-control" id="city_id" />
                         </div>
+                        <div class="form-group col-sm-12">
+                            <label>City Name</label>
+                            <input class="form-control" placeholder="City Name" id="city_name" />
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button class="btn btn-secondary" data-dismiss="modal" type="button">Close</button>
+                        <button class="btn btn-primary" type="button" id="save-city">Save</button>
                     </div>
                 </div>
-                <div class="row">
-                    <div class="col-md-6">
-                        <div class="block form-block mb-4">
-                            <div class="block-heading">
-                                <h5>Add Data</h5>
-                            </div>
-                            <div class="col-md-12">
-                                <label>Data Type</label>
-                                <select class="form-control select" id="data-type-select"
-                                        data-placeholder="Choose data type.." tabindex="1">
-                                    <option></option>
-                                    <option value="city">City</option>
-                                    <option id="vessel-option" value="vessel" style="display: none">Vessel</option>
-                                </select>
-                            </div>
-                            <br/>
-                            <div class="col-md-12">
-                                <label>Data Value</label>
-                                <input class="form-control" placeholder="Data value" id="data-value">
-                            </div>
-                            <br/>
-                            <div class="col-12">
-                                <button id="add-new-data" class="btn btn-success" type="button"
-                                        style="width: 100%">Add Data
-                                </button>
-                            </div>
-                        </div>
-
-                    </div>
-                    <div class="col-md-6">
-                        <div class="block form-block mb-4">
-                            <div class="block-heading">
-                                <h5>Delete Data</h5>
-                            </div>
-                            <div class="col-md-12">
-                                <label>Data Type</label>
-                                <select class="form-control select" id="del-data-type-select"
-                                        data-placeholder="Choose data type.." tabindex="1">
-                                    <option></option>
-                                    <option value="del-city">City</option>
-                                    <option value="del-vessel">Vessel</option>
-                                </select>
-                            </div>
-                            <br/>
-                            <div class="col-md-12" id="del-vessel-div">
-                                <label>Vessels List</label>
-                                <select class="form-control select" id="del-vessel-select"
-                                        data-placeholder="Choose vessel.." tabindex="1">
-                                    <option></option>
-                                </select>
-                            </div>
-                            <br/>
-                            <div class="col-md-12" id="del-city-div">
-                                <label>Cities List</label>
-                                <select class="form-control select" id="del-city-select"
-                                        data-placeholder="Choose city.." tabindex="1">
-                                    <option></option>
-                                </select>
-                            </div>
-                            <br/>
-                            <div class="col-12">
-                                <button id="delete-data" class="btn btn-danger" type="button"
-                                        style="width: 100%">Delete Data
-                                </button>
-                            </div>
-                        </div>
-
-                    </div>
-
-
-                </div>
-
-
-
             </div>
         </div>
-    </div>
-    <footer>
-
-        <!-- Copyright -->
-        <div class="footer-copyright text-center py-3">© 2020 Copyright:
-            <a href="#"> PARIS ANANIA.</a> All rights reserved.
+        <!-- End Cities modal -->
+        <!-- Start Vessels modal -->
+        <div aria-hidden="true" class="modal fade bd-example-modal-sm" role="dialog" tabindex="-1" style="top: 15%" id="vessel-modal" data-keyboard="false" data-backdrop="static">
+            <div id="vessel-modal-header" class="modal-dialog modal-sm">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <button class="close move-left" type="button"><i class="icon-arrow-left"></i></button>
+                        <h5 class="modal-title">Vessels</h5>
+                        <button class="close move-right" type="button"><i class="icon-arrow-right"></i></button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="form-group col-sm-12" style="display: none">
+                            <input class="form-control" id="vessel_id" />
+                        </div>
+                        <div class="form-group col-sm-12">
+                            <label>Vessel Name</label>
+                            <input class="form-control" placeholder="Vessel Name" id="vessel_description" />
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button class="btn btn-secondary" data-dismiss="modal" type="button">Close</button>
+                        <button class="btn btn-primary" type="button" id="save-vessel">Save</button>
+                    </div>
+                </div>
+            </div>
         </div>
-        <!-- Copyright -->
+        <!-- End Vessels modal -->
+        <!-- Start Service type modal -->
+        <div aria-hidden="true" class="modal fade bd-example-modal-sm" role="dialog" tabindex="-1" style="top: 15%" id="service-type-modal" data-keyboard="false" data-backdrop="static">
+            <div id="service-type-modal-header" class="modal-dialog modal-sm">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <button class="close move-left" type="button"><i class="icon-arrow-left"></i></button>
+                        <h5 class="modal-title">Service Types</h5>
+                        <button class="close move-right" type="button"><i class="icon-arrow-right"></i></button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="form-group col-sm-12" style="display: none">
+                            <input class="form-control" id="service_type_id" />
+                        </div>
+                        <div class="form-group col-sm-12">
+                            <label> Service Type Group</label>
+                            <select class="form-control select" id="service_type_group" data-placeholder="Choose Service Type Group" tabindex="1">
+                                <option value="Individuals">Individuals</option>
+                                <option value="Consolidations">Consolidations</option>
+                            </select>
+                        </div>
+                        <div class="form-group col-sm-12">
+                            <label>Service Type Description</label>
+                            <input class="form-control" placeholder="Service Type Description" id="service_type_description" />
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button class="btn btn-secondary" data-dismiss="modal" type="button">Close</button>
+                        <button class="btn btn-primary" type="button" id="save-service-type">Save</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- End Servie type modal -->
+        <nav class="fixed-header">
+            <div class="navigation-header">
+                <div class="container-fluid">
+                    <div class="row">
+                        <div class="col-12 p-0">
+                            <img src="../assets/icons/new_diana_logo.png" />
 
-    </footer>
+                            <ul class="list-unstyled m-0 float-right">
+                                <li class="">
+                                    <img src="../assets/icons/efglobal_logo.png" />
+                                </li>
+                                <li class="user-div dropdown">
+                                    <a href="javascript:;" class="ml-auto dropdown-toggle" data-toggle="dropdown">
+                                        <span class="name ml-2 d-none d-md-inline-flex" id="span-username"></span>
+                                    </a>
 
-</section>
-<script>if (typeof module === 'object') {
-    window.module = module;
-    module = undefined;
-}
+                                    <div class="dropdown-menu effect dropdown-menu-right">
+                                        <a href="#" class="dropdown-item" id="logout-ref">
+                                            <i class="ion-log-out mr-2"></i>
+                                            <span>Logout</span>
+                                        </a>
+                                    </div>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
 
-</script>
+            <!--Navigation-->
+            <nav id="navigation" class="navigation-sidebar bg-primary">
+                <!--Navigation Menu Links-->
+                <div class="navigation-menu">
+                    <ul class="menu-items">
+                        <li>
+                            <a href="javascript:void(0);" class="have-submenu">
+                                <span class="icon-thumbnail"><i class="dripicons-align-center"></i></span>
+                                <span class="title">Individuals</span>
+                            </a>
+                            <ul class="sub-menu">
+                                <li>
+                                    <a href="individuals.html">
+                                        <span class="icon-thumbnail"><i class="dripicons-dots-3"></i></span>
+                                        <span class="title">Pending</span>
+                                    </a>
+                                </li>
+                                <li>
+                                    <a href="done_individuals.html">
+                                        <span class="icon-thumbnail"><i class="dripicons-checkmark"></i></span>
+                                        <span class="title">Done</span>
+                                    </a>
+                                </li>
+                                <li>
+                                    <a href="deleted_individuals.html" id="deleted-ind" hidden>
+                                        <span class="icon-thumbnail"><i class="dripicons-cross"></i></span>
+                                        <span class="title">Deleted</span>
+                                    </a>
+                                </li>
+                            </ul>
+                        </li>
+                        <li>
+                            <a href="javascript:void(0);" class="have-submenu">
+                                <span class="icon-thumbnail"><i class="dripicons-align-justify"></i></span>
+                                <span class="title">Consolidations</span>
+                            </a>
+                            <ul class="sub-menu">
+                                <li>
+                                    <a href="consolidations.html">
+                                        <span class="icon-thumbnail"><i class="dripicons-dots-3"></i></span>
+                                        <span class="title">Pending</span>
+                                    </a>
+                                </li>
+                                <li>
+                                    <a href="done_consolidations.html">
+                                        <span class="icon-thumbnail"><i class="dripicons-checkmark"></i></span>
+                                        <span class="title">Done</span>
+                                    </a>
+                                </li>
+                            </ul>
+                        </li>
+                        <li id="add_data_list" hidden>
+                            <a href="add_data.html" class="active">
+                                <span class="title">MANAGE DATA</span>
+                            </a>
+                        </li>
+                        <li id="statistics_list" hidden>
+                            <a href="statistics.html">
+                                <span class="title">OVERVIEW</span>
+                            </a>
+                        </li>
+                        <li id="actions_list">
+                            <button class="btn btn-danger mt-2" onclick="window.location.reload()">REFRESH</button>
+                        </li>
+                    </ul>
+                </div>
+            </nav>
+        </nav>
+        <br />
+        <section class="page-container">
+            <div class="page-content-wrapper">
+                <div class="content sm-gutter">
+                    <div class="container-fluid">
+                        <div class="row">
+                            <div class="col-12">
+                                <div class="section-title">
+                                    <h4>Manage Application Data</h4>
+                                </div>
+                            </div>
+                            <div class="col-12">
+                                <button id="cities-btn" class="btn btn-outline-dark data-changer">Cities</button>
+                                <button id="vessels-btn" class="btn btn-outline-danger data-changer">Vessels</button>
+                                <button id="service-types-btn" class="btn btn-outline-primary data-changer">Service types</button>
+                            </div>
+                            <div class="col-12 data-table-div" id="cities-div" style="display: none">
+                                <div class="block bg-trans table-block mb-4">
+                                    <div class="col-md-12">
+                                        <button class="btn btn-success" id="create-city">CREATE NEW CITY</button>
+                                    </div>
+                                    <div class="row">
+                                        <div class="table-responsive">
+                                            <table id="cities-table" class="display table table-striped" style="width: 100%"></table>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-12 data-table-div" id="vessels-div" style="display: none">
+                                <div class="block bg-trans table-block mb-4">
+                                    <div class="col-md-12">
+                                        <button class="btn btn-success" id="create-vessel">CREATE NEW VESSEL</button>
+                                    </div>
+                                    <div class="row">
+                                        <div class="table-responsive">
+                                            <table id="vessels-table" class="display table table-striped" style="width: 100%"></table>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-12 data-table-div" id="service-types-div" style="display: none">
+                                <div class="block bg-trans table-block mb-4">
+                                    <div class="col-md-12">
+                                        <button class="btn btn-success" id="create-service-type">CREATE NEW SERVICE TYPE</button>
+                                    </div>
+                                    <div class="row">
+                                        <div class="table-responsive">
+                                            <table id="service-types-table" class="display table table-striped" style="width: 100%"></table>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <footer>
+                <!-- Copyright -->
+                <div class="footer-copyright text-center py-3">© 2020 Copyright: <a href="#"> PARIS ANANIA.</a> All rights reserved.</div>
+                <!-- Copyright -->
+            </footer>
+        </section>
+        <script>
+            if (typeof module === 'object') {
+                window.module = module
+                module = undefined
+            }
+        </script>
 
-<!--Jquery-->
-<script type="text/javascript" src="../assets/js/jquery-3.2.1.min.js"></script>
-<!--Bootstrap Js-->
-<script type="text/javascript" src="../assets/js/popper.min.js"></script>
-<script type="text/javascript" src="../assets/js/bootstrap.min.js"></script>
-<!--Modernizr Js-->
-<script type="text/javascript" src="../assets/js/modernizr.custom.js"></script>
+        <!--Jquery-->
+        <script type="text/javascript" src="../assets/js/jquery-3.2.1.min.js"></script>
+        <!--Bootstrap Js-->
+        <script type="text/javascript" src="../assets/js/popper.min.js"></script>
+        <script type="text/javascript" src="../assets/js/bootstrap.min.js"></script>
+        <!--Modernizr Js-->
+        <script type="text/javascript" src="../assets/js/modernizr.custom.js"></script>
 
+        <!--Chart js-->
+        <script type="text/javascript" src="../assets/plugins/charts/Chart.min.js"></script>
 
-<!--Chart js-->
-<script type="text/javascript" src="../assets/plugins/charts/Chart.min.js"></script>
+        <!--Sweetalert js-->
+        <script type="text/javascript" src="../assets/js/sweetalert.min.js"></script>
 
-<!--Sparkline Chart Js-->
-<script type="text/javascript" src="../assets/plugins/sparkline/jquery.sparkline.min.js"></script>
-<script type="text/javascript" src="../assets/plugins/sparkline/jquery.charts-sparkline.js"></script>
+        <!--Sparkline Chart Js-->
+        <script type="text/javascript" src="../assets/plugins/sparkline/jquery.sparkline.min.js"></script>
+        <script type="text/javascript" src="../assets/plugins/sparkline/jquery.charts-sparkline.js"></script>
 
-<!--Custom Scroll-->
-<script type="text/javascript" src="../assets/plugins/customScroll/jquery.mCustomScrollbar.min.js"></script>
-<!--Sortable Js-->
-<script type="text/javascript" src="../assets/plugins/sortable2/sortable.min.js"></script>
-<!--DropZone Js-->
-<script type="text/javascript" src="../assets/plugins/dropzone/dropzone.js"></script>
-<!--Date Range JS-->
-<script type="text/javascript" src="../assets/plugins/date-range/moment.min.js"></script>
-<script type="text/javascript" src="../assets/plugins/date-range/daterangepicker.js"></script>
-<!--CK Editor JS-->
-<script type="text/javascript" src="../assets/plugins/ckEditor/ckeditor.js"></script>
-<!--Data-Table JS-->
-<script type="text/javascript" src="../assets/plugins/data-tables/datatables.min.js"></script>
-<!--Editable JS-->
-<script type="text/javascript" src="../assets/plugins/editable/editable.js"></script>
-<script type="text/javascript" src="../assets/js/toastr.js"></script>
+        <!--Custom Scroll-->
+        <script type="text/javascript" src="../assets/plugins/customScroll/jquery.mCustomScrollbar.min.js"></script>
+        <!--Sortable Js-->
+        <script type="text/javascript" src="../assets/plugins/sortable2/sortable.min.js"></script>
+        <!--DropZone Js-->
+        <script type="text/javascript" src="../assets/plugins/dropzone/dropzone.js"></script>
+        <!--Date Range JS-->
+        <script type="text/javascript" src="../assets/plugins/date-range/moment.min.js"></script>
+        <script type="text/javascript" src="../assets/plugins/date-range/daterangepicker.js"></script>
+        <!--CK Editor JS-->
+        <script type="text/javascript" src="../assets/plugins/ckEditor/ckeditor.js"></script>
+        <!--Data-Table JS-->
+        <script type="text/javascript" src="../assets/plugins/data-tables/datatables.min.js"></script>
+        <!--Editable JS-->
+        <script type="text/javascript" src="../assets/plugins/editable/editable.js"></script>
+        <script type="text/javascript" src="../assets/js/toastr.js"></script>
+        <script type="text/javascript" src="../assets/js/chosen/chosen.jquery.js"></script>
+        <!--Full Calendar JS-->
+        <script type="text/javascript" src="../assets/plugins/full-calendar/fullcalendar.min.js"></script>
 
-<script type="text/javascript" src="../assets/js/chosen/chosen.jquery.js"></script>
-<!--Full Calendar JS-->
-<script type="text/javascript" src="../assets/plugins/full-calendar/fullcalendar.min.js"></script>
+        <!--- Main JS -->
+        <script src="../assets/js/main.js"></script>
+        <script src="../library/helpers.js"></script>
+        <script src="../utilities/addData.js"></script>
+        <script src="../library/db.js"></script>
+        <script>
+            const { remote } = require('electron')
+            const electron = require('electron')
+            const { session } = require('electron')
+            const { app, BrowserWindow } = require('electron').remote
+            const { ipcRenderer } = electron
 
-<!--- Main JS -->
-<script src="../assets/js/main.js"></script>
-<script src="../library/helpers.js"></script>
-<script src="../utilities/addData.js"></script>
-<script src="../library/db.js"></script>
-<script>
-
-    const {remote} = require('electron')
-    const electron = require('electron')
-    const {session} = require('electron')
-    const {app, BrowserWindow} = require('electron').remote;
-    const {ipcRenderer} = electron;
-
-    let addData = new addDataClass();
-
-
-</script>
-
-</body>
+            let addData = new addDataClass()
+        </script>
+    </body>
 </html>

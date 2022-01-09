@@ -1,323 +1,323 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta content="ie=edge" http-equiv="x-ua-compatible">
-    <meta content="template language" name="keywords">
-    <meta content="Design_Gurus" name="author">
-    <meta content="WOW Admin dashboard html template" name="description">
-    <meta content="width=device-width, initial-scale=1" name="viewport">
-    <title>Forwarding Tool</title>
+    <head>
+        <meta charset="UTF-8" />
+        <meta content="ie=edge" http-equiv="x-ua-compatible" />
+        <meta content="template language" name="keywords" />
+        <meta content="Design_Gurus" name="author" />
+        <meta content="WOW Admin dashboard html template" name="description" />
+        <meta content="width=device-width, initial-scale=1" name="viewport" />
+        <title>Forwarding Tool</title>
 
-    <!--favicon-->
-    <link href="../assets/images/favicon.ico" rel="shortcut icon">
+        <!--favicon-->
+        <link href="../assets/images/favicon.ico" rel="shortcut icon" />
 
-    <!--Preloader-CSS-->
-    <link rel="stylesheet" href="../assets/plugins/preloader/preloader.css">
+        <!--Preloader-CSS-->
+        <link rel="stylesheet" href="../assets/plugins/preloader/preloader.css" />
 
-    <!--bootstrap-4-->
-    <link rel="stylesheet" href="../assets/css/bootstrap.min.css">
-    <!--Search-->
-    <link rel="stylesheet" href="../assets/plugins/morphin-search/morphin-search.css">
-    <!--Custom Scroll-->
-    <link rel="stylesheet" href="../assets/plugins/customScroll/jquery.mCustomScrollbar.min.css">
-    <!--Font Icons-->
-    <link rel="stylesheet" href="../assets/icons/simple-line/css/simple-line-icons.css">
-    <link rel="stylesheet" href="../assets/icons/dripicons/dripicons.css">
-    <link rel="stylesheet" href="../assets/icons/ionicons/css/ionicons.min.css">
-    <link rel="stylesheet" href="../assets/icons/eightyshades/eightyshades.css">
-    <link rel="stylesheet" href="../assets/icons/fontawesome/css/font-awesome.min.css">
-    <link rel="stylesheet" href="../assets/icons/foundation/foundation-icons.css">
-    <link rel="stylesheet" href="../assets/icons/metrize/metrize.css">
-    <link rel="stylesheet" href="../assets/icons/typicons/typicons.min.css">
-    <link rel="stylesheet" href="../assets/icons/weathericons/css/weather-icons.min.css">
-    <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/fixedheader/3.1.7/css/fixedHeader.dataTables.min.css">
-    <!--Date-range-->
-    <link rel="stylesheet" href="../assets/plugins/date-range/daterangepicker.css">
-    <!--Drop-Zone-->
-    <link rel="stylesheet" href="../assets/plugins/dropzone/dropzone.css">
-    <!--Full Calendar-->
-    <link rel="stylesheet" href="../assets/plugins/full-calendar/fullcalendar.min.css">
-    <!--Normalize Css-->
-    <link rel="stylesheet" href="../assets/css/normalize.css">
-    <!--Main Css-->
-    <link rel="stylesheet" href="../assets/css/main.css">
-    <!--Chosen-->
-    <link rel="stylesheet" href="../assets/js/chosen/chosen.css">
-    <!-- Sweetalert -->
-    <link rel="stylesheet" type="text/css" href="../assets/css/sweetalert.css">
+        <!--bootstrap-4-->
+        <link rel="stylesheet" href="../assets/css/bootstrap.min.css" />
+        <!--Search-->
+        <link rel="stylesheet" href="../assets/plugins/morphin-search/morphin-search.css" />
+        <!--Custom Scroll-->
+        <link rel="stylesheet" href="../assets/plugins/customScroll/jquery.mCustomScrollbar.min.css" />
+        <!--Font Icons-->
+        <link rel="stylesheet" href="../assets/icons/simple-line/css/simple-line-icons.css" />
+        <link rel="stylesheet" href="../assets/icons/dripicons/dripicons.css" />
+        <link rel="stylesheet" href="../assets/icons/ionicons/css/ionicons.min.css" />
+        <link rel="stylesheet" href="../assets/icons/eightyshades/eightyshades.css" />
+        <link rel="stylesheet" href="../assets/icons/fontawesome/css/font-awesome.min.css" />
+        <link rel="stylesheet" href="../assets/icons/foundation/foundation-icons.css" />
+        <link rel="stylesheet" href="../assets/icons/metrize/metrize.css" />
+        <link rel="stylesheet" href="../assets/icons/typicons/typicons.min.css" />
+        <link rel="stylesheet" href="../assets/icons/weathericons/css/weather-icons.min.css" />
+        <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/fixedheader/3.1.7/css/fixedHeader.dataTables.min.css" />
+        <!--Date-range-->
+        <link rel="stylesheet" href="../assets/plugins/date-range/daterangepicker.css" />
+        <!--Drop-Zone-->
+        <link rel="stylesheet" href="../assets/plugins/dropzone/dropzone.css" />
+        <!--Full Calendar-->
+        <link rel="stylesheet" href="../assets/plugins/full-calendar/fullcalendar.min.css" />
+        <!--Normalize Css-->
+        <link rel="stylesheet" href="../assets/css/normalize.css" />
+        <!--Main Css-->
+        <link rel="stylesheet" href="../assets/css/main.css" />
+        <!--Chosen-->
+        <link rel="stylesheet" href="../assets/js/chosen/chosen.css" />
+        <!-- Sweetalert -->
+        <link rel="stylesheet" type="text/css" href="../assets/css/sweetalert.css" />
 
-    <style>
+        <style>
+            .table thead th {
+                color: black;
+                font-weight: bold;
+            }
 
-        .table thead th {
-            color: black;
-            font-weight: bold;
+            .action-btn {
+                padding: 5px;
+            }
+            .dataTables_filter {
+                display: none;
+            }
+        </style>
+    </head>
+    <body class="top-navigation">
+        <!-- Start Help modal -->
+        <div aria-hidden="true" class="modal fade" role="dialog" tabindex="-1" style="top: 15%" id="help-modal" data-keyboard="false" data-backdrop="static">
+            <div id="help-modal-header" class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <button class="close move-left" type="button"><i class="icon-arrow-left"></i></button>
+                        <h5 class="modal-title">Help</h5>
 
-        }
-
-        .action-btn {
-
-            padding: 5px;
-        }
-        .dataTables_filter {
-            display: none;
-
-        }
-
-    </style>
-
-</head>
-<body class="top-navigation">
-
-<!-- Start Notes modal -->
-<div aria-hidden="true" class="modal fade bd-example-modal-sm" role="dialog" tabindex="-1" style="top: 15%"
-     id="notes-modal">
-    <div id="edit-notes-modal-header" class="modal-dialog modal-sm">
-        <div class="modal-content">
-            <div class="modal-header">
-                <button class="close move-left" type="button"><i class="icon-arrow-left"></i></button>
-                <h5 class="modal-title">Edit notes</h5>
-                <button class="close move-right" type="button"><i class="icon-arrow-right"></i></button>
-
-            </div>
-            <div class="modal-body">
-                <div class="form-group col-sm-12" style="display: none">
-
-                    <input class="form-control" id="done_ind_id">
-                </div>
-                <div class="form-group col-sm-12">
-                    <label>Notes</label>
-                    <textarea class="form-control" rows="3" id="notes"></textarea>
-                </div>
-            </div>
-            <div class="modal-footer">
-                <button class="btn btn-secondary" data-dismiss="modal" type="button"> Close</button>
-                <button class="btn btn-primary" type="button" id="save-notes"> Save changes</button>
-            </div>
-        </div>
-    </div>
-</div>
-<!-- Start Notes modal -->
-
-<nav class="fixed-header">
-
-    <div class="navigation-header">
-        <div class="container-fluid">
-            <div class="row">
-                <div class="col-12 p-0">
-
-
-                    <img src="../assets/icons/diana_logo.jpg">
-
-                    <ul class="list-unstyled m-0 float-right">
-                        <li class="">
-
-                            <img src="../assets/icons/efglobal_logo.png">
-                        </li>
-                        <li class="user-div dropdown">
-                            <a href="javascript:;" class="ml-auto dropdown-toggle" data-toggle="dropdown">
-
-                                <span class="name ml-2 d-none d-md-inline-flex" id="span-username"></span>
-                            </a>
-
-                            <div class="dropdown-menu effect dropdown-menu-right">
-                                <a href="#" class="dropdown-item" id="logout-ref">
-                                    <i class="ion-log-out mr-2"></i>
-                                    <span>Logout</span>
-                                </a>
+                        <button class="close move-right" type="button"><i class="icon-arrow-right"></i></button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="row">
+                            <div class="col-sm-12">
+                                <h4>General instructions</h4>
+                                <p class="help-text">
+                                    You can find info for the general use of the app on this <a href="#" id="help-instructions" class="help-link" id="" style="cursor: pointer">LINK</a>
+                                </p>
                             </div>
-                        </li>
-                    </ul>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!--Navigation-->
-    <nav id="navigation" class="navigation-sidebar bg-primary ">
-
-        <!--Navigation Menu Links-->
-        <div class="navigation-menu">
-
-            <ul class="menu-items">
-
-
-                <li>
-
-                    <a href="javascript:void(0);" class="have-submenu active">
-                        <span class="icon-thumbnail"><i class="dripicons-align-center"></i></span>
-                        <span class="title">Individuals</span>
-                    </a>
-                    <ul class="sub-menu">
-                        <li>
-                            <a href="individuals.html">
-                                <span class="icon-thumbnail"><i class="dripicons-dots-3"></i></span>
-                                <span class="title">Pending</span>
-                            </a>
-                        </li>
-                        <li>
-                            <a href="done_individuals.html">
-                                <span class="icon-thumbnail"><i class="dripicons-checkmark"></i></span>
-                                <span class="title">Done</span>
-                            </a>
-                        </li>
-                        <li>
-                            <a href="deleted_individuals.html" id="deleted-ind" hidden>
-                                <span class="icon-thumbnail"><i class="dripicons-cross"></i></span>
-                                <span class="title">Deleted</span>
-                            </a>
-                        </li>
-                    </ul>
-                </li>
-                <li>
-
-                    <a href="javascript:void(0);" class="have-submenu">
-                        <span class="icon-thumbnail"><i class="dripicons-align-justify"></i></span>
-                        <span class="title">Consolidations</span>
-                    </a>
-                    <ul class="sub-menu">
-                        <li>
-                            <a href="consolidations.html">
-                                <span class="icon-thumbnail"><i class="dripicons-dots-3"></i></span>
-                                <span class="title">Pending</span>
-                            </a>
-                        </li>
-                        <li>
-                            <a href="done_consolidations.html">
-                                <span class="icon-thumbnail"><i class="dripicons-checkmark"></i></span>
-                                <span class="title">Done</span>
-                            </a>
-                        </li>
-                    </ul>
-                </li> 
-                <li id="add_data_list" hidden>
-                    <a href="add_data.html">
-                        <span class="title" >Manage Data</span>
-                    </a>
-                </li>
-                <li id="statistics_list" hidden>
-                    <a href="statistics.html">
-                        <span class="title">OVERVIEW</span>
-                    </a>
-                </li>
-                <li id="actions_list">
-
-                    <button class="btn btn-danger mt-2" onclick="window.location.reload()">REFRESH</button>
-                    <button id="empty-trashcan" class="btn btn-success mt-2">EMPTY TRASHCAN</button>
-
-
-                </li>
-                <input placeholder="Search Table..." id="search_datatable" style="float: right; height: 35px;margin: 5px;">
-
-            </ul>
-        </div>
-    </nav>
-
-</nav>
-
-
-<!--Page Container-->
-<section class="page-container">
-    <div class="page-content-wrapper">
-        <div class="content sm-gutter">
-
-            <div class="container-fluid">
-
-                <div class="row">
-
-                    <div class="col-12">
-                        <div class="block bg-trans table-block mb-4">
-                            <div class="row">
-                                <div class="table-responsive">
-                                    <table id="deleted_individuals_table" class="display table table-striped"
-                                           style="width: 100%">
-                                    </table>
-                                </div>
+                        </div>
+                        <hr />
+                        <div class="row">
+                            <div class="col-sm-12">
+                                <h4>Scenarios visualizer</h4>
+                                <p class="help-text">A full scenarions visualization can be found on this <a href="#" id="help-visualizer" style="cursor: pointer">LINK</a></p>
                             </div>
+                        </div>
+                        <hr />
 
+                        <div class="row">
+                            <div class="col-sm-12">
+                                <h4>Scenarios</h4>
+                                <div id="append-scenarios"></div>
+                            </div>
                         </div>
                     </div>
-
+                    <div class="modal-footer">
+                        <button class="btn btn-secondary" data-dismiss="modal" type="button">Close</button>
+                    </div>
                 </div>
             </div>
         </div>
-    </div>
-    <footer >
-
-        <!-- Copyright -->
-        <div class="footer-copyright text-center py-3">© 2020 Copyright:
-            <a href="#">  PARIS ANANIA.</a> All rights reserved.
+        <!-- End Help modal -->
+        <!-- Start Notes modal -->
+        <div aria-hidden="true" class="modal fade bd-example-modal-sm" role="dialog" tabindex="-1" style="top: 15%" id="notes-modal" data-keyboard="false" data-backdrop="static">
+            <div id="edit-notes-modal-header" class="modal-dialog modal-sm">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <button class="close move-left" type="button"><i class="icon-arrow-left"></i></button>
+                        <h5 class="modal-title">Edit notes</h5>
+                        <button class="close move-right" type="button"><i class="icon-arrow-right"></i></button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="form-group col-sm-12" style="display: none">
+                            <input class="form-control" id="done_ind_id" />
+                        </div>
+                        <div class="form-group col-sm-12">
+                            <label>Notes</label>
+                            <textarea class="form-control" rows="3" id="notes"></textarea>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button class="btn btn-secondary" data-dismiss="modal" type="button">Close</button>
+                        <button class="btn btn-primary" type="button" id="save-notes">Save changes</button>
+                    </div>
+                </div>
+            </div>
         </div>
-        <!-- Copyright -->
+        <!-- Start Notes modal -->
 
-    </footer>
+        <nav class="fixed-header">
+            <div class="navigation-header">
+                <div class="container-fluid">
+                    <div class="row">
+                        <div class="col-12 p-0">
+                            <img src="../assets/icons/new_diana_logo.png" />
 
-</section>
+                            <ul class="list-unstyled m-0 float-right">
+                                <li class="">
+                                    <img src="../assets/icons/efglobal_logo.png" />
+                                </li>
+                                <li class="user-div dropdown">
+                                    <a href="javascript:;" class="ml-auto dropdown-toggle" data-toggle="dropdown">
+                                        <span class="name ml-2 d-none d-md-inline-flex" id="span-username"></span>
+                                    </a>
 
-<script>if (typeof module === 'object') {
-    window.module = module;
-    module = undefined;
-}
+                                    <div class="dropdown-menu effect dropdown-menu-right">
+                                        <a href="#" class="dropdown-item" id="logout-ref">
+                                            <i class="ion-log-out mr-2"></i>
+                                            <span>Logout</span>
+                                        </a>
+                                    </div>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
 
-</script>
+            <!--Navigation-->
+            <nav id="navigation" class="navigation-sidebar bg-primary">
+                <!--Navigation Menu Links-->
+                <div class="navigation-menu">
+                    <ul class="menu-items">
+                        <li>
+                            <a href="javascript:void(0);" class="have-submenu active">
+                                <span class="icon-thumbnail"><i class="dripicons-align-center"></i></span>
+                                <span class="title">Individuals</span>
+                            </a>
+                            <ul class="sub-menu">
+                                <li>
+                                    <a href="individuals.html">
+                                        <span class="icon-thumbnail"><i class="dripicons-dots-3"></i></span>
+                                        <span class="title">Pending</span>
+                                    </a>
+                                </li>
+                                <li>
+                                    <a href="done_individuals.html">
+                                        <span class="icon-thumbnail"><i class="dripicons-checkmark"></i></span>
+                                        <span class="title">Done</span>
+                                    </a>
+                                </li>
+                                <li>
+                                    <a href="deleted_individuals.html" id="deleted-ind" hidden>
+                                        <span class="icon-thumbnail"><i class="dripicons-cross"></i></span>
+                                        <span class="title">Deleted</span>
+                                    </a>
+                                </li>
+                            </ul>
+                        </li>
+                        <li>
+                            <a href="javascript:void(0);" class="have-submenu">
+                                <span class="icon-thumbnail"><i class="dripicons-align-justify"></i></span>
+                                <span class="title">Consolidations</span>
+                            </a>
+                            <ul class="sub-menu">
+                                <li>
+                                    <a href="consolidations.html">
+                                        <span class="icon-thumbnail"><i class="dripicons-dots-3"></i></span>
+                                        <span class="title">Pending</span>
+                                    </a>
+                                </li>
+                                <li>
+                                    <a href="done_consolidations.html">
+                                        <span class="icon-thumbnail"><i class="dripicons-checkmark"></i></span>
+                                        <span class="title">Done</span>
+                                    </a>
+                                </li>
+                            </ul>
+                        </li>
+                        <li id="add_data_list" hidden>
+                            <a href="add_data.html">
+                                <span class="title">Manage Data</span>
+                            </a>
+                        </li>
+                        <li id="statistics_list" hidden>
+                            <a href="statistics.html">
+                                <span class="title">OVERVIEW</span>
+                            </a>
+                        </li>
+                        <li id="actions_list">
+                            <button class="btn btn-danger mt-2" onclick="window.location.reload()">REFRESH</button>
+                            <button id="empty-trashcan" class="btn btn-success mt-2">EMPTY TRASHCAN</button>
+                        </li>
+                        <input placeholder="Search Table..." id="search_datatable" style="float: right; height: 35px; margin: 5px" />
+                        <button class="btn btn-info mt-2" id="help-btn" style="float: right; height: 35px; margin: 5px">Help</button>
+                    </ul>
+                </div>
+            </nav>
+        </nav>
 
-<!--Jquery-->
-<script type="text/javascript" src="../assets/js/jquery-3.2.1.min.js"></script>
-<!--Bootstrap Js-->
-<script type="text/javascript" src="../assets/js/popper.min.js"></script>
-<script type="text/javascript" src="../assets/js/bootstrap.min.js"></script>
-<!--Modernizr Js-->
-<script type="text/javascript" src="../assets/js/modernizr.custom.js"></script>
+        <!--Page Container-->
+        <section class="page-container">
+            <div class="page-content-wrapper">
+                <div class="content sm-gutter">
+                    <div class="container-fluid">
+                        <div class="row">
+                            <div class="col-12">
+                                <div class="block bg-trans table-block mb-4">
+                                    <div class="row">
+                                        <div class="table-responsive">
+                                            <table id="deleted_individuals_table" class="display table table-striped" style="width: 100%"></table>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <footer>
+                <!-- Copyright -->
+                <div class="footer-copyright text-center py-3">© 2020 Copyright: <a href="#"> PARIS ANANIA.</a> All rights reserved.</div>
+                <!-- Copyright -->
+            </footer>
+        </section>
 
+        <script>
+            if (typeof module === 'object') {
+                window.module = module
+                module = undefined
+            }
+        </script>
 
-<!--Chart js-->
-<script type="text/javascript" src="../assets/plugins/charts/Chart.min.js"></script>
+        <!--Jquery-->
+        <script type="text/javascript" src="../assets/js/jquery-3.2.1.min.js"></script>
+        <!--Bootstrap Js-->
+        <script type="text/javascript" src="../assets/js/popper.min.js"></script>
+        <script type="text/javascript" src="../assets/js/bootstrap.min.js"></script>
+        <!--Modernizr Js-->
+        <script type="text/javascript" src="../assets/js/modernizr.custom.js"></script>
 
-<!--Sweetalert js-->
-<script type="text/javascript" src="../assets/js/sweetalert.min.js"></script>
+        <!--Chart js-->
+        <script type="text/javascript" src="../assets/plugins/charts/Chart.min.js"></script>
 
-<!--Sparkline Chart Js-->
-<script type="text/javascript" src="../assets/plugins/sparkline/jquery.sparkline.min.js"></script>
-<script type="text/javascript" src="../assets/plugins/sparkline/jquery.charts-sparkline.js"></script>
+        <!--Sweetalert js-->
+        <script type="text/javascript" src="../assets/js/sweetalert.min.js"></script>
 
-<!--Custom Scroll-->
-<script type="text/javascript" src="../assets/plugins/customScroll/jquery.mCustomScrollbar.min.js"></script>
-<!--Sortable Js-->
-<script type="text/javascript" src="../assets/plugins/sortable2/sortable.min.js"></script>
-<!--DropZone Js-->
-<script type="text/javascript" src="../assets/plugins/dropzone/dropzone.js"></script>
-<!--Date Range JS-->
-<script type="text/javascript" src="../assets/plugins/date-range/moment.min.js"></script>
-<script type="text/javascript" src="../assets/plugins/date-range/daterangepicker.js"></script>
-<!--CK Editor JS-->
-<script type="text/javascript" src="../assets/plugins/ckEditor/ckeditor.js"></script>
-<!--Data-Table JS-->
-<script type="text/javascript" src="../assets/plugins/data-tables/datatables.min.js"></script>
-<script type="text/javascript" src="https://cdn.datatables.net/fixedheader/3.1.7/js/dataTables.fixedHeader.min.js"></script>
-<!--Editable JS-->
-<script type="text/javascript" src="../assets/plugins/editable/editable.js"></script>
-<!--Full Calendar JS-->
-<script type="text/javascript" src="../assets/plugins/full-calendar/fullcalendar.min.js"></script>
-<!--Mask-->
-<script type="text/javascript" src="../assets/js/jquery.mask.min.js"></script>
-<!--Chosen-->
-<script type="text/javascript" src="../assets/js/chosen/chosen.jquery.js"></script>
-<!--- Main JS -->
-<script src="../assets/js/main.js"></script>
-<script src="../library/helpers.js"></script>
-<script src="../utilities/deleted_individuals.js"></script>
-<script src="../library/db.js"></script>
-<script>
+        <!--Sparkline Chart Js-->
+        <script type="text/javascript" src="../assets/plugins/sparkline/jquery.sparkline.min.js"></script>
+        <script type="text/javascript" src="../assets/plugins/sparkline/jquery.charts-sparkline.js"></script>
 
-    const {remote} = require('electron')
-    const electron = require('electron')
-    const {session} = require('electron')
-    const {app, BrowserWindow} = require('electron').remote;
-    const {ipcRenderer} = electron;
+        <!--Custom Scroll-->
+        <script type="text/javascript" src="../assets/plugins/customScroll/jquery.mCustomScrollbar.min.js"></script>
+        <!--Sortable Js-->
+        <script type="text/javascript" src="../assets/plugins/sortable2/sortable.min.js"></script>
+        <!--DropZone Js-->
+        <script type="text/javascript" src="../assets/plugins/dropzone/dropzone.js"></script>
+        <!--Date Range JS-->
+        <script type="text/javascript" src="../assets/plugins/date-range/moment.min.js"></script>
+        <script type="text/javascript" src="../assets/plugins/date-range/daterangepicker.js"></script>
+        <!--CK Editor JS-->
+        <script type="text/javascript" src="../assets/plugins/ckEditor/ckeditor.js"></script>
+        <!--Data-Table JS-->
+        <script type="text/javascript" src="../assets/plugins/data-tables/datatables.min.js"></script>
+        <script type="text/javascript" src="https://cdn.datatables.net/fixedheader/3.1.7/js/dataTables.fixedHeader.min.js"></script>
+        <!--Editable JS-->
+        <script type="text/javascript" src="../assets/plugins/editable/editable.js"></script>
+        <!--Full Calendar JS-->
+        <script type="text/javascript" src="../assets/plugins/full-calendar/fullcalendar.min.js"></script>
+        <!--Mask-->
+        <script type="text/javascript" src="../assets/js/jquery.mask.min.js"></script>
+        <!--Chosen-->
+        <script type="text/javascript" src="../assets/js/chosen/chosen.jquery.js"></script>
+        <!--- Main JS -->
+        <script src="../assets/js/main.js"></script>
+        <script src="../library/helpers.js"></script>
+        <script src="../utilities/deleted_individuals.js"></script>
+        <script src="../library/db.js"></script>
+        <script>
+            const { remote } = require('electron')
+            const electron = require('electron')
+            const { session } = require('electron')
+            const { app, BrowserWindow } = require('electron').remote
+            const { ipcRenderer } = electron
 
-    let myDeletedInd = new DeletedIndividualsClass();
-
-</script>
-
-</body>
+            let myDeletedInd = new DeletedIndividualsClass()
+        </script>
+    </body>
 </html>

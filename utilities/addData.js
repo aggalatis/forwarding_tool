@@ -1,156 +1,242 @@
-let addDataClass  = function () {
+let addDataClass = function () {
+    this.DB = new DbClass()
+    this.Helpers = new HelpersClass()
+    this.Helpers.bindMovingEvents('city-modal-header')
+    this.Helpers.bindMovingEvents('vessel-modal-header')
+    this.Helpers.bindMovingEvents('service-type-modal-header')
+    this.Helpers.initializeUser()
 
+    this.addEventsOnButtons()
+    this.DB.getAllCities()
+    this.DB.getAllVessels()
+    this.DB.getAllServiceTypes()
 
-    this.DB = new DbClass();
-    this.Helpers = new HelpersClass();
-    this.Helpers.initializeUser();
-
-    setTimeout(function() {
-        self.initializeDeleteSelects();
-
-    }, 500)
-
-    setTimeout(function() {
-        self.initialiazeCitiesSelect();
-        self.initialiazeVesselsSelect();
-
-    }, 1000)
-
-    let self = this;
-    this.addEventsOnButtons();
-
-
-
+    let self = this
+    setTimeout(function () {
+        self.initCitiesTable()
+        self.initVesselsTable()
+        self.initServiceTypesTable()
+    }, 1500)
 }
 
-addDataClass.prototype.addEventsOnButtons = function() {
+addDataClass.prototype.addEventsOnButtons = function () {
+    let self = this
 
-
-    let self = this;
-
-    $('#logout-ref').on('click', function() {
-
-        self.Helpers.handleLogout();
-
+    $('#logout-ref').on('click', function () {
+        self.Helpers.handleLogout()
     })
 
-    $('#data-type-select').chosen();
+    $('.data-changer').on('click', function () {
+        $('.data-table-div').each(function () {
+            $(this).css('display', 'none')
+        })
+        let tableDivId = $(this).attr('id').replace('-btn', '-div')
+        $(`#${tableDivId}`).css('display', 'block')
+    })
 
-    $('#add-new-data').on('click', function() {
-
-        $(this).attr('disabled', 'disabled')
-        var dataType = $('#data-type-select').val();
-        var dataValue = $('#data-value').val();
-
-        if (dataType !== '' && dataValue !== '') {
-
-            switch(dataType) {
-                case "city":
-                    self.DB.addCity(dataValue)
-                    break;
-                case "vessel":
-                    self.DB.addVessel(dataValue)
-                    break;
-                default:
-                    console.log("nothing to add")
-                    $('#add-new-data').attr('disabled', null)
-
-            }
-
+    $('#save-city').on('click', function () {
+        let cityData = {
+            city_id: $('#city_id').val(),
+            city_name: $('#city_name').val(),
+        }
+        if (cityData.city_name == '') {
+            self.Helpers.toastr('error', 'Some fields are empty..')
+            return
+        }
+        if (cityData.city_id == 0) {
+            self.DB.addCity(cityData.city_name)
         } else {
-            $('#add-new-data').attr('disabled', null)
-            self.Helpers.toastr('error', 'Some fields are empty. Please try again')
-    }
-
+            self.DB.updateCity(cityData)
+        }
     })
+    $('#save-vessel').on('click', function () {
+        let vesselData = {
+            vessel_id: $('#vessel_id').val(),
+            vessel_description: $('#vessel_description').val(),
+        }
+        if (vesselData.vessel_description == '') {
+            self.Helpers.toastr('error', 'Some fields are empty..')
+            return
+        }
+        if (vesselData.vessel_id == 0) {
+            self.DB.addVessel(vesselData.vessel_description)
+        } else {
+            self.DB.updateVessel(vesselData)
+        }
+    })
+    $('#save-service-type').on('click', function () {
+        let serviceTypeData = {
+            service_type_id: $('#service_type_id').val(),
+            service_type_description: $('#service_type_description').val(),
+            service_type_group: $('#service_type_group').val(),
+        }
+        if (serviceTypeData.service_type_description == '') {
+            self.Helpers.toastr('error', 'Some fields are empty..')
+            return
+        }
+        if (serviceTypeData.service_type_id == 0) {
+            self.DB.addServiceType(serviceTypeData)
+        } else {
+            self.DB.updateServiceType(serviceTypeData)
+        }
+    })
+    $('#create-city').on('click', function () {
+        $('#city_id').val(0)
+        $('#city_name').val('')
+        $('#city-modal').modal('show')
+    })
+    $('#create-vessel').on('click', function () {
+        $('#vessel_id').val(0)
+        $('#vessel_description').val('')
+        $('#vessel-modal').modal('show')
+    })
+    $('#create-service-type').on('click', function () {
+        $('#service_type_id').val(0)
+        $('#service_type_description').val('')
+        $('#service-type-modal').modal('show')
+    })
+}
 
-    $('#delete-data').on('click', function() {
-        let del_type = $('#del-data-type-select').val()
-        console.log($('#del-data-type-select').val())
-        if (del_type == "del-city") {
-            let city_id = $('#del-city-select').val()
-            if (city_id != "") {
-                self.DB.deleteCity(city_id)
-            } else {
-                self.Helpers.toastr('error', 'Some fields are empty. Please try again')
-
+addDataClass.prototype.initCitiesTable = async function () {
+    let self = this
+    let citiesTable = $('#cities-table').DataTable({
+        data: self.DB.cities,
+        processing: true,
+        fixedHeader: {
+            headerOffset: 100,
+            header: true,
+            footer: false,
+        },
+        bLengthChange: false,
+        columns: [
+            { title: 'ID', orderable: false, data: 'city_id' },
+            { title: 'NAME', orderable: false, data: 'city_name' },
+            {
+                title: 'ACTIONS',
+                orderable: false,
+                defaultContent:
+                    "<i class='fa fa-search edit-job action-btn' title='modify' style='cursor: pointer' ></i><i class='fa fa-trash delete-job action-btn' title='delete' style='cursor: pointer' ></i>",
+            },
+        ],
+        order: [[1, 'asc']],
+        pageLength: 25,
+    })
+    $('#cities-table').on('click', 'i.edit-job', function () {
+        var data = citiesTable.row($(this).closest('tr')).data()
+        $('#city_id').val(data.city_id)
+        $('#city_name').val(data.city_name)
+        $('#city-modal').modal('show')
+    })
+    $('#cities-table').on('click', 'i.delete-job', function () {
+        var data = citiesTable.row($(this).closest('tr')).data()
+        Swal.fire({
+            title: 'Delete City?',
+            text: `Are you sure you want to delete ${data.city_name}? You won't be able to revert it!`,
+            icon: 'warning',
+            showCancelButton: true,
+            cancelButtonText: 'Cancel',
+            confirmButtonColor: '#dc3545',
+            confirmButtonText: 'Confirm',
+        }).then(result => {
+            if (result.isConfirmed) {
+                self.DB.deleteCity(data.city_id)
             }
+        })
+    })
+}
 
-        }
-
-        if (del_type == "del-vessel") {
-            let vessel_id = $('#del-vessel-select').val()
-            if (vessel_id != "") {
-                self.DB.deleteVessel(vessel_id)
-            } else {
-                self.Helpers.toastr('error', 'Some fields are empty. Please try again')
+addDataClass.prototype.initVesselsTable = async function () {
+    let self = this
+    let vesselsTable = $('#vessels-table').DataTable({
+        data: self.DB.vessels,
+        processing: true,
+        fixedHeader: {
+            headerOffset: 100,
+            header: true,
+            footer: false,
+        },
+        bLengthChange: false,
+        columns: [
+            { title: 'ID', orderable: false, data: 'vessel_id' },
+            { title: 'NAME', orderable: false, data: 'vessel_description' },
+            {
+                title: 'ACTIONS',
+                orderable: false,
+                defaultContent: "<i class='fa fa-search edit-job action-btn' style='cursor: pointer' ></i><i class='fa fa-trash delete-job action-btn' style='cursor: pointer' ></i>",
+            },
+        ],
+        order: [[1, 'asc']],
+        pageLength: 25,
+    })
+    $('#vessels-table').on('click', 'i.edit-job', function () {
+        var data = vesselsTable.row($(this).closest('tr')).data()
+        $('#vessel_id').val(data.vessel_id)
+        $('#vessel_description').val(data.vessel_description)
+        $('#vessel-modal').modal('show')
+    })
+    $('#vessels-table').on('click', 'i.delete-job', function () {
+        var data = vesselsTable.row($(this).closest('tr')).data()
+        Swal.fire({
+            title: 'Delete Vessel?',
+            text: `Are you sure you want to delete ${data.vessel_description}? You won't be able to revert it!`,
+            icon: 'warning',
+            showCancelButton: true,
+            cancelButtonText: 'Cancel',
+            confirmButtonColor: '#dc3545',
+            confirmButtonText: 'Confirm',
+        }).then(result => {
+            if (result.isConfirmed) {
+                self.DB.deleteVessel(data.vessel_id)
             }
-
-        }
-
+        })
     })
-
-
-
 }
+addDataClass.prototype.initServiceTypesTable = async function () {
+    let self = this
 
-addDataClass.prototype.initializeDeleteSelects = function() {
-
-    let self = this;
-    self.DB.getAllCities();
-    self.DB.getAllVessels();
-
-
-    $('#del-data-type-select').chosen();
-    $('#del-city-select').chosen();
-    $('#del-vessel-select').chosen();
-    $('#del-city-div').hide()
-    $('#del-vessel-div').hide()
-
-    $('#del-data-type-select').on('change', function() {
-        let chosen_value = $(this).val()
-
-        if (chosen_value == 'del-city') {
-            $('#del-vessel-div').hide()
-            $('#del-city-div').show(350)
-
-        }
-        if (chosen_value == 'del-vessel') {
-            $('#del-city-div').hide()
-            $('#del-vessel-div').show(350)
-
-        }
-
+    let serviceTypes = $('#service-types-table').DataTable({
+        data: self.DB.serviceTypes,
+        processing: true,
+        fixedHeader: {
+            headerOffset: 100,
+            header: true,
+            footer: false,
+        },
+        bLengthChange: false,
+        columns: [
+            { title: 'ID', orderable: false, data: 'service_type_id' },
+            { title: 'GROUP', orderable: false, data: 'service_type_group' },
+            { title: 'DESCRIPTION', orderable: false, data: 'service_type_description' },
+            {
+                title: 'ACTIONS',
+                orderable: false,
+                defaultContent: "<i class='fa fa-search edit-job action-btn' style='cursor: pointer' ></i><i class='fa fa-trash delete-job action-btn' style='cursor: pointer' ></i>",
+            },
+        ],
+        order: [[1, 'asc']],
+        pageLength: 25,
     })
-
+    $('#service-types-table').on('click', 'i.edit-job', function () {
+        var data = serviceTypes.row($(this).closest('tr')).data()
+        $('#service_type_id').val(data.service_type_id)
+        $('#service_type_description').val(data.service_type_description)
+        $('#service_type_group').val(data.service_type_group)
+        $('#service-type-modal').modal('show')
+    })
+    $('#service-types-table').on('click', 'i.delete-job', function () {
+        var data = serviceTypes.row($(this).closest('tr')).data()
+        Swal.fire({
+            title: 'Delete Service Type?',
+            text: `Are you sure you want to delete ${data.service_type_description}? You won't be able to revert it!`,
+            icon: 'warning',
+            showCancelButton: true,
+            cancelButtonText: 'Cancel',
+            confirmButtonColor: '#dc3545',
+            confirmButtonText: 'Confirm',
+        }).then(result => {
+            if (result.isConfirmed) {
+                self.DB.deleteServiceType(data.service_type_id)
+            }
+        })
+    })
 }
-
-addDataClass.prototype.initialiazeVesselsSelect = function() {
-
-    let self = this;
-    $('#del-vessel-select').empty();
-    $('#del-vessel-select').append("<option></option>")
-    for (i=0; i < self.DB.vessels.length; i++) {
-
-
-        $('#del-vessel-select').append(new Option(self.DB.vessels[i].vessel_description, self.DB.vessels[i].vessel_id))
-
-    }
-    $('#del-vessel-select').trigger("chosen:updated")
-
-}
-
-addDataClass.prototype.initialiazeCitiesSelect = function() {
-
-    let self = this;
-    $('#del-city-select').empty();
-    $('#del-city-select').append("<option></option>")
-    for (i=0; i < self.DB.cities.length; i++) {
-
-        $('#del-city-select').append(new Option(self.DB.cities[i].city_name, self.DB.cities[i].city_id))
-
-    }
-    $('#del-city-select').trigger("chosen:updated")
-
-}
-

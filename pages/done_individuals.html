@@ -67,8 +67,50 @@
         </style>
     </head>
     <body class="top-navigation">
+        <!-- Start Help modal -->
+        <div aria-hidden="true" class="modal fade" role="dialog" tabindex="-1" style="top: 15%" id="help-modal" data-keyboard="false" data-backdrop="static">
+            <div id="help-modal-header" class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <button class="close move-left" type="button"><i class="icon-arrow-left"></i></button>
+                        <h5 class="modal-title">Help</h5>
+
+                        <button class="close move-right" type="button"><i class="icon-arrow-right"></i></button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="row">
+                            <div class="col-sm-12">
+                                <h4>General instructions</h4>
+                                <p class="help-text">
+                                    You can find info for the general use of the app on this <a href="#" id="help-instructions" class="help-link" id="" style="cursor: pointer">LINK</a>
+                                </p>
+                            </div>
+                        </div>
+                        <hr />
+                        <div class="row">
+                            <div class="col-sm-12">
+                                <h4>Scenarios visualizer</h4>
+                                <p class="help-text">A full scenarions visualization can be found on this <a href="#" id="help-visualizer" style="cursor: pointer">LINK</a></p>
+                            </div>
+                        </div>
+                        <hr />
+
+                        <div class="row">
+                            <div class="col-sm-12">
+                                <h4>Scenarios</h4>
+                                <div id="append-scenarios"></div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button class="btn btn-secondary" data-dismiss="modal" type="button">Close</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- End Help modal -->
         <!-- Start Notes modal -->
-        <div aria-hidden="true" class="modal fade bd-example-modal-sm" role="dialog" tabindex="-1" style="top: 15%" id="notes-modal">
+        <div aria-hidden="true" class="modal fade bd-example-modal-sm" role="dialog" tabindex="-1" style="top: 15%" id="notes-modal" data-keyboard="false" data-backdrop="static">
             <div id="edit-notes-modal-header" class="modal-dialog modal-sm">
                 <div class="modal-content">
                     <div class="modal-header">
@@ -95,7 +137,7 @@
         <!-- Start Notes modal -->
 
         <!-- Start Costs modal -->
-        <div aria-hidden="true" class="modal fade" role="dialog" tabindex="-1" style="top: 15%" id="done-costs-modal">
+        <div aria-hidden="true" class="modal fade" role="dialog" tabindex="-1" style="top: 15%" id="done-costs-modal" data-keyboard="false" data-backdrop="static">
             <div id="cost-data-modal-header" class="modal-dialog">
                 <div class="modal-content">
                     <div class="modal-header">
@@ -171,12 +213,12 @@
         </div>
         <!-- End Costs modal -->
         <!-- Start Consolidation group modal -->
-        <div aria-hidden="true" class="modal fade" role="dialog" tabindex="-1" style="top: 15%" id="assignment-group-modal">
+        <div aria-hidden="true" class="modal fade" role="dialog" tabindex="-1" style="top: 15%" id="assignment-group-modal" data-keyboard="false" data-backdrop="static">
             <div id="assignment-modal-header" class="modal-dialog">
                 <div class="modal-content">
                     <div class="modal-header">
                         <button class="close move-left" type="button"><i class="icon-arrow-left"></i></button>
-                        <h5 class="modal-title">Consolidation Groups</h5>
+                        <h5 class="modal-title">Consolidations</h5>
                         <button class="close move-right" type="button"><i class="icon-arrow-right"></i></button>
                     </div>
                     <div class="modal-body">
@@ -196,7 +238,7 @@
         <!-- End Consolidation group modal -->
 
         <!-- Start Personnel Costs modal -->
-        <div aria-hidden="true" class="modal fade" role="dialog" tabindex="-1" style="top: 15%" id="done-personnel-costs-modal">
+        <div aria-hidden="true" class="modal fade" role="dialog" tabindex="-1" style="top: 15%" id="done-personnel-costs-modal" data-keyboard="false" data-backdrop="static">
             <div id="done-personnel-modal-header" class="modal-dialog">
                 <div class="modal-content">
                     <div class="modal-header">
@@ -248,7 +290,7 @@
                 <div class="container-fluid">
                     <div class="row">
                         <div class="col-12 p-0">
-                            <img src="../assets/icons/diana_logo.jpg" />
+                            <img src="../assets/icons/new_diana_logo.png" />
 
                             <ul class="list-unstyled m-0 float-right">
                                 <li class="">
@@ -338,6 +380,8 @@
                             <button class="btn btn-warning mt-2" id="assign-btn">ASSIGN</button>
                         </li>
                         <input placeholder="Search Table..." id="search_datatable" style="float: right; height: 35px; margin: 5px" />
+
+                        <button class="btn btn-info mt-2" id="help-btn" style="float: right; height: 35px; margin: 5px">Help</button>
                     </ul>
                 </div>
             </nav>
@@ -370,7 +414,7 @@
         </section>
 
         <script>
-            if (typeof module === "object") {
+            if (typeof module === 'object') {
                 window.module = module
                 module = undefined
             }
@@ -424,10 +468,10 @@
         <script src="../utilities/individuals.js"></script>
         <script src="../library/db.js"></script>
         <script>
-            const { remote } = require("electron")
-            const electron = require("electron")
-            const { session } = require("electron")
-            const { app, BrowserWindow } = require("electron").remote
+            const { remote } = require('electron')
+            const electron = require('electron')
+            const { session } = require('electron')
+            const { app, BrowserWindow } = require('electron').remote
             const { ipcRenderer } = electron
 
             let myIndividuals = new IndividualsClass()

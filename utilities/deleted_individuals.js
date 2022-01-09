@@ -1,9 +1,11 @@
 let DeletedIndividualsClass = function () {
     this.DB = new DbClass()
     this.Helpers = new HelpersClass()
+    this.Helpers.initInstructionFiles(this.DB)
+    this.Helpers.bindMovingEvents('help-modal-header')
     this.Helpers.initializeUser()
-    this.Helpers.bindMovingEvents("edit-notes-modal-header")
-    this.Helpers.bindMovingEvents("cost-data-modal-header")
+    this.Helpers.bindMovingEvents('edit-notes-modal-header')
+    this.Helpers.bindMovingEvents('cost-data-modal-header')
     this.Helpers.initializeUser()
     this.bindEventsOnButtons()
     let self = this
@@ -15,19 +17,19 @@ let DeletedIndividualsClass = function () {
 DeletedIndividualsClass.prototype.bindEventsOnButtons = function () {
     let self = this
 
-    $("#logout-ref").on("click", function () {
+    $('#logout-ref').on('click', function () {
         self.Helpers.handleLogout()
     })
 
-    $("#empty-trashcan").on("click", function () {
+    $('#empty-trashcan').on('click', function () {
         Swal.fire({
-            title: "Are you sure?",
+            title: 'Are you sure?',
             text: "If you empty your trash can you won't be able to find these jobs!",
-            icon: "warning",
+            icon: 'warning',
             showCancelButton: true,
-            cancelButtonText: "Cancel",
-            confirmButtonColor: "#dc3545",
-            confirmButtonText: "Confirm",
+            cancelButtonText: 'Cancel',
+            confirmButtonColor: '#dc3545',
+            confirmButtonText: 'Confirm',
         }).then(result => {
             if (result.isConfirmed) {
                 self.DB.emptyDeletedIndividuals()

@@ -2,6 +2,7 @@ let HelpersClass = function () {
     $.fn.modal.Constructor.prototype._enforceFocus = function () {}
     console.log('%c App Created by AG! Visit: aggalatis.com', 'background: #222; color: yellow')
     console.log('Constructing Helpers...')
+    this.instructionFiles = []
     this.user_username = ''
     this.user_fullname = ''
     this.user_id = ''
@@ -84,12 +85,19 @@ HelpersClass.prototype.initializeHelp = function () {
         $('#help-modal').modal('show')
     })
 
+    $('.help-scenario-link').on('click', function () {
+        let scenarioID = $(this).data('id')
+        let scenario = self.instructionFiles.find(el => el.id === scenarioID)
+        window.open(scenario.url)
+    })
     $('#help-instructions').on('click', function () {
-        $('#instrctions-div').show(1000)
+        let instructions = self.instructionFiles.find(el => el.type === 'instructions')
+        window.open(instructions.url)
     })
 
     $('#help-visualizer').on('click', function () {
-        $('#visualizer-div').show(1000)
+        let visualizer = self.instructionFiles.find(el => el.type === 'visualizer')
+        window.open(visualizer.url)
     })
 }
 
@@ -267,4 +275,20 @@ HelpersClass.prototype.jobsHaveSameDestination = function (jobsDestinations) {
     for (let i = 1; i < jobsDestinations.length; i++) if (jobsDestinations[i - 1] !== jobsDestinations[i]) return false
 
     return true
+}
+
+HelpersClass.prototype.initInstructionFiles = async function (myDB) {
+    let self = this
+
+    const instFiles = await myDB.getInstructionFiles()
+    this.instructionFiles = instFiles
+
+    $('#append-scenarios').html()
+    let appendStr = ''
+    for (let instf of this.instructionFiles) {
+        if (instf.type != 'scenario') continue
+        appendStr += `<p class="help-text"><a href="#" class="help-scenario-link" data-id="${instf.id}" style="cursor: pointer">${instf.name}</a></p>`
+    }
+    $('#append-scenarios').html(appendStr)
+    self.initializeHelp()
 }

@@ -1,6 +1,8 @@
 let IndividualsClass = function () {
     this.DB = new DbClass()
     this.Helpers = new HelpersClass()
+    this.Helpers.initInstructionFiles(this.DB)
+    this.Helpers.bindMovingEvents('help-modal-header')
     this.Helpers.initializeUser()
     this.Helpers.bindMovingEvents('edit-notes-modal-header')
     this.Helpers.bindMovingEvents('cost-data-modal-header')
@@ -76,7 +78,7 @@ IndividualsClass.prototype.initializetable = async function () {
 
 IndividualsClass.prototype.appendConsolidationGroups = async function (to_name) {
     let self = this
-    $('#con-group-radios').html("")
+    $('#con-group-radios').html('')
     $('#con-group-radios').append(`<label class="custom-control custom-radio dark">
         <input name="radio-stacked" class="custom-control-input con-group" type="radio" value="0" />
         <span class="custom-control-indicator"></span>

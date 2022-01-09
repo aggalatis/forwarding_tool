@@ -1,6 +1,8 @@
 let ConsolidationsClass = function () {
     this.DB = new DbClass()
     this.Helpers = new HelpersClass()
+    this.Helpers.initInstructionFiles(this.DB)
+    this.Helpers.bindMovingEvents('help-modal-header')
     this.Helpers.bindMovingEvents('cost-modal-header')
     this.Helpers.initializeUser()
     this.bindEventsOnButtons()
@@ -12,7 +14,6 @@ let ConsolidationsClass = function () {
         self.initialiazeCitiesSelect()
         self.initializeServiceTypeSelect()
     }, 1000)
-
 }
 
 ConsolidationsClass.prototype.initializetable = async function () {
@@ -59,7 +60,7 @@ ConsolidationsClass.prototype.initializetable = async function () {
                         rowData.con_group_cost == null ||
                         rowData.con_group_deadline == null ||
                         rowData.con_group_forwarder == null ||
-                        rowData.con_group_forwarder == "" ||
+                        rowData.con_group_forwarder == '' ||
                         rowData.con_group_mode == null
                     ) {
                         $(td).children('.confirm-job').hide()
@@ -167,7 +168,6 @@ ConsolidationsClass.prototype.bindEventsOnButtons = function () {
     $('#group-to-select').chosen()
     $('#service-type-select').chosen()
 
-    
     $('#logout-ref').on('click', function () {
         self.Helpers.handleLogout()
     })
@@ -182,7 +182,7 @@ ConsolidationsClass.prototype.bindEventsOnButtons = function () {
             groupTo: $('#group-to-select').val(),
             groupCost: $('#group-cost').val(),
             groupDeadline: $('#group-deadline').val(),
-            groupServiceType: $('#service-type-select').val()
+            groupServiceType: $('#service-type-select').val(),
         }
         let updateData = await self.DB.updateConGroupData(groupData)
         if (updateData && updateData.affectedRows == 1) {

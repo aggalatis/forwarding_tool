@@ -1,8 +1,10 @@
 let TransfersClass = function () {
     this.DB = new DbClass()
     this.Helpers = new HelpersClass()
+    this.Helpers.initInstructionFiles(this.DB)
+    this.Helpers.bindMovingEvents('help-modal-header')
+
     this.Helpers.initializeUser()
-    this.Helpers.initializeHelp()
     this.Helpers.bindMovingEvents('job-modal-header')
     this.Helpers.bindMovingEvents('cost-modal-header')
     this.Helpers.bindMovingEvents('personnel-modal-header')

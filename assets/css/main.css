@@ -2934,3 +2934,9 @@ body .jqstooltip {
         height: 28px;
     }
 }
+
+.help-text {
+    font-size: 15px;
+    color: black;
+    margin: 2px;
+}

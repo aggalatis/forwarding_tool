@@ -43,6 +43,48 @@
 
 </head>
 <body class="top-navigation">
+    <!-- Start Help modal -->
+    <div aria-hidden="true" class="modal fade" role="dialog" tabindex="-1" style="top: 15%" id="help-modal" data-keyboard="false" data-backdrop="static">
+        <div id="help-modal-header" class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button class="close move-left" type="button"><i class="icon-arrow-left"></i></button>
+                    <h5 class="modal-title">Help</h5>
+
+                    <button class="close move-right" type="button"><i class="icon-arrow-right"></i></button>
+                </div>
+                <div class="modal-body">
+                    <div class="row">
+                        <div class="col-sm-12">
+                            <h4>General instructions</h4>
+                            <p class="help-text">
+                                You can find info for the general use of the app on this <a href="#" id="help-instructions" class="help-link" id="" style="cursor: pointer">LINK</a>
+                            </p>
+                        </div>
+                    </div>
+                    <hr />
+                    <div class="row">
+                        <div class="col-sm-12">
+                            <h4>Scenarios visualizer</h4>
+                            <p class="help-text">A full scenarions visualization can be found on this <a href="#" id="help-visualizer" style="cursor: pointer">LINK</a></p>
+                        </div>
+                    </div>
+                    <hr />
+
+                    <div class="row">
+                        <div class="col-sm-12">
+                            <h4>Scenarios</h4>
+                            <div id="append-scenarios"></div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button class="btn btn-secondary" data-dismiss="modal" type="button">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- End Help modal -->
 
 
 <nav class="fixed-header">

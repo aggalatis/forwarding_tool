@@ -220,7 +220,7 @@ DbClass.prototype.getAllServiceTypes = function () {
 
     connection.connect()
 
-    var sql = 'Select * FROM service_types WHERE service_type_deleted = 0;'
+    var sql = 'SELECT * FROM service_types WHERE service_type_deleted = 0;'
 
     connection.query(sql, function (error, serviceTypes) {
         if (error) throw error
@@ -232,6 +232,7 @@ DbClass.prototype.getAllServiceTypes = function () {
                 self.consolidationServiceTypes.push(serviceType)
             }
         }
+        self.serviceTypes = self.individualServiceTypes.concat(self.consolidationServiceTypes)
     })
 
     connection.end()

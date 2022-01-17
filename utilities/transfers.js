@@ -104,7 +104,7 @@ TransfersClass.prototype.bindEventsOnButtons = function () {
 
     $('#service-type-info').on('click', function () {
         Swal.fire({
-            title: 'Service Type info.',
+            title: 'Service info.',
             text: 'If "OFFLAND DISPATCH" is selected, in EX insert the city that the port is in and in TO insert the city of your repair shop / warehouse.',
             icon: 'warning',
             showCancelButton: true,

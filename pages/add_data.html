@@ -46,7 +46,16 @@
     </head>
     <body class="top-navigation">
         <!-- Start Help modal -->
-        <div aria-hidden="true" class="modal fade" role="dialog" tabindex="-1" style="top: 15%" id="help-modal" data-keyboard="false" data-backdrop="static">
+        <div
+            aria-hidden="true"
+            class="modal fade"
+            role="dialog"
+            tabindex="-1"
+            style="top: 15%"
+            id="help-modal"
+            data-keyboard="false"
+            data-backdrop="static"
+        >
             <div id="help-modal-header" class="modal-dialog">
                 <div class="modal-content">
                     <div class="modal-header">
@@ -60,7 +69,8 @@
                             <div class="col-sm-12">
                                 <h4>General instructions</h4>
                                 <p class="help-text">
-                                    You can find info for the general use of the app on this <a href="#" id="help-instructions" class="help-link" id="" style="cursor: pointer">LINK</a>
+                                    You can find info for the general use of the app on this
+                                    <a href="#" id="help-instructions" class="help-link" id="" style="cursor: pointer">LINK</a>
                                 </p>
                             </div>
                         </div>
@@ -68,7 +78,10 @@
                         <div class="row">
                             <div class="col-sm-12">
                                 <h4>Scenarios visualizer</h4>
-                                <p class="help-text">A full scenarions visualization can be found on this <a href="#" id="help-visualizer" style="cursor: pointer">LINK</a></p>
+                                <p class="help-text">
+                                    A full scenarions visualization can be found on this
+                                    <a href="#" id="help-visualizer" style="cursor: pointer">LINK</a>
+                                </p>
                             </div>
                         </div>
                         <hr />
@@ -88,7 +101,16 @@
         </div>
         <!-- End Help modal -->
         <!-- Start Cities modal -->
-        <div aria-hidden="true" class="modal fade bd-example-modal-sm" role="dialog" tabindex="-1" style="top: 15%" id="city-modal" data-keyboard="false" data-backdrop="static">
+        <div
+            aria-hidden="true"
+            class="modal fade bd-example-modal-sm"
+            role="dialog"
+            tabindex="-1"
+            style="top: 15%"
+            id="city-modal"
+            data-keyboard="false"
+            data-backdrop="static"
+        >
             <div id="city-modal-header" class="modal-dialog modal-sm">
                 <div class="modal-content">
                     <div class="modal-header">
@@ -114,7 +136,16 @@
         </div>
         <!-- End Cities modal -->
         <!-- Start Vessels modal -->
-        <div aria-hidden="true" class="modal fade bd-example-modal-sm" role="dialog" tabindex="-1" style="top: 15%" id="vessel-modal" data-keyboard="false" data-backdrop="static">
+        <div
+            aria-hidden="true"
+            class="modal fade bd-example-modal-sm"
+            role="dialog"
+            tabindex="-1"
+            style="top: 15%"
+            id="vessel-modal"
+            data-keyboard="false"
+            data-backdrop="static"
+        >
             <div id="vessel-modal-header" class="modal-dialog modal-sm">
                 <div class="modal-content">
                     <div class="modal-header">
@@ -140,7 +171,16 @@
         </div>
         <!-- End Vessels modal -->
         <!-- Start Service type modal -->
-        <div aria-hidden="true" class="modal fade bd-example-modal-sm" role="dialog" tabindex="-1" style="top: 15%" id="service-type-modal" data-keyboard="false" data-backdrop="static">
+        <div
+            aria-hidden="true"
+            class="modal fade bd-example-modal-sm"
+            role="dialog"
+            tabindex="-1"
+            style="top: 15%"
+            id="service-type-modal"
+            data-keyboard="false"
+            data-backdrop="static"
+        >
             <div id="service-type-modal-header" class="modal-dialog modal-sm">
                 <div class="modal-content">
                     <div class="modal-header">
@@ -153,15 +193,15 @@
                             <input class="form-control" id="service_type_id" />
                         </div>
                         <div class="form-group col-sm-12">
-                            <label> Service Type Group</label>
-                            <select class="form-control select" id="service_type_group" data-placeholder="Choose Service Type Group" tabindex="1">
+                            <label> Service Group</label>
+                            <select class="form-control select" id="service_type_group" data-placeholder="Choose Service Group" tabindex="1">
                                 <option value="Individuals">Individuals</option>
                                 <option value="Consolidations">Consolidations</option>
                             </select>
                         </div>
                         <div class="form-group col-sm-12">
-                            <label>Service Type Description</label>
-                            <input class="form-control" placeholder="Service Type Description" id="service_type_description" />
+                            <label>Service Description</label>
+                            <input class="form-control" placeholder="Service Description" id="service_type_description" />
                         </div>
                     </div>
                     <div class="modal-footer">
@@ -283,7 +323,7 @@
                             <div class="col-12">
                                 <button id="cities-btn" class="btn btn-outline-dark data-changer">Cities</button>
                                 <button id="vessels-btn" class="btn btn-outline-danger data-changer">Vessels</button>
-                                <button id="service-types-btn" class="btn btn-outline-primary data-changer">Service types</button>
+                                <button id="service-types-btn" class="btn btn-outline-primary data-changer">Services</button>
                             </div>
                             <div class="col-12 data-table-div" id="cities-div" style="display: none">
                                 <div class="block bg-trans table-block mb-4">
@@ -312,7 +352,7 @@
                             <div class="col-12 data-table-div" id="service-types-div" style="display: none">
                                 <div class="block bg-trans table-block mb-4">
                                     <div class="col-md-12">
-                                        <button class="btn btn-success" id="create-service-type">CREATE NEW SERVICE TYPE</button>
+                                        <button class="btn btn-success" id="create-service-type">CREATE NEW SERVICE</button>
                                     </div>
                                     <div class="row">
                                         <div class="table-responsive">

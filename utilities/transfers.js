@@ -76,9 +76,7 @@ TransfersClass.prototype.bindEventsOnButtons = function () {
         var groupEx = $('#group-ex-select').val()
 
         if (groupDeadline != '' && groupTo != '' && groupEx != '') {
-            console.log(groupCost)
             if (groupCost == '') {
-                console.log('I am here....')
                 groupCost = null
                 groupActive = 1
             }
@@ -278,7 +276,9 @@ TransfersClass.prototype.initialiazeServiceTypeSelect = function () {
     $('#service-type-select').empty()
     $('#service-type-select').append('<option></option>')
     for (i = 0; i < self.DB.individualServiceTypes.length; i++) {
-        $('#service-type-select').append(new Option(self.DB.individualServiceTypes[i].service_type_description, self.DB.individualServiceTypes[i].service_type_id))
+        $('#service-type-select').append(
+            new Option(self.DB.individualServiceTypes[i].service_type_description, self.DB.individualServiceTypes[i].service_type_id)
+        )
     }
     $('#service-type-select').trigger('chosen:updated')
 }

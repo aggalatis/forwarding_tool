@@ -39,11 +39,30 @@ ConsolidationsClass.prototype.initializetable = async function () {
             { title: 'DEPARTMENT', orderable: false, data: 'division_description' },
             { title: 'PRODUCTS', orderable: false, data: 'con_products' },
             { title: 'MODE', orderable: false, data: 'con_group_mode' },
-            { title: 'SERVICE TYPE', orderable: false, data: 'service_type_description' },
+            {
+                title: 'SERVICE',
+                orderable: false,
+                data: 'service_type_description',
+            },
             { title: 'VESSELS', orderable: false, data: 'con_vessels' },
-            { title: 'EX', orderable: false, className: 'danger-header', data: 'ex_name' },
-            { title: 'TO', orderable: false, className: 'danger-header', data: 'to_name' },
-            { title: 'DEADLINE', orderable: false, className: 'danger-header', data: 'con_group_deadline' },
+            {
+                title: 'EX',
+                orderable: false,
+                className: 'danger-header',
+                data: 'ex_name',
+            },
+            {
+                title: 'TO',
+                orderable: false,
+                className: 'danger-header',
+                data: 'to_name',
+            },
+            {
+                title: 'DEADLINE',
+                orderable: false,
+                className: 'danger-header',
+                data: 'con_group_deadline',
+            },
             { title: 'FORWARDER', orderable: false, data: 'con_group_forwarder' },
             { title: 'REFERENCE', orderable: false, data: 'con_reference' },
             { title: 'CONSOL. COST', orderable: false, data: 'con_group_cost' },
@@ -67,7 +86,7 @@ ConsolidationsClass.prototype.initializetable = async function () {
                     }
                 },
                 defaultContent:
-                    "<i class='fa fa-check confirm-job action-btn' title='modify' style='cursor: pointer' ></i><i class='fa fa-dollar costs-job action-btn' title='costs' style='cursor: pointer' ></i><i class='fa fa-trash delete-job action-btn' title='delete' style='cursor: pointer' ></i>",
+                    "<i class='fa fa-check confirm-job action-btn' title='confirm' style='cursor: pointer' ></i><i class='fa fa-dollar costs-job action-btn' title='costs' style='cursor: pointer' ></i><i class='fa fa-trash delete-job action-btn' title='delete' style='cursor: pointer' ></i>",
             },
         ],
         rowCallback: function (row, data, index, cells) {
@@ -157,6 +176,16 @@ ConsolidationsClass.prototype.initializetable = async function () {
         $('#group-deadline').val(data.con_group_deadline)
         $('#group-modal').modal('show')
         $('#save-group-data').attr('disabled', null)
+    })
+
+    $('#search_datatable').keyup(function () {
+        consolidationsTable.search('^' + $(this).val()).draw()
+        if ($(this).val() != '') {
+            let regexp = `\\b${$(this).val()}`
+            consolidationsTable.search(regexp, true, false).draw()
+        } else {
+            consolidationsTable.search('').draw()
+        }
     })
 }
 
@@ -336,7 +365,9 @@ ConsolidationsClass.prototype.initializeServiceTypeSelect = function () {
     $('#service-type-select').empty()
     $('#service-type-select').append('<option></option>')
     for (i = 0; i < self.DB.consolidationServiceTypes.length; i++) {
-        $('#service-type-select').append(new Option(self.DB.consolidationServiceTypes[i].service_type_description, self.DB.consolidationServiceTypes[i].service_type_id))
+        $('#service-type-select').append(
+            new Option(self.DB.consolidationServiceTypes[i].service_type_description, self.DB.consolidationServiceTypes[i].service_type_id)
+        )
     }
     $('#service-type-select').trigger('chosen:updated')
 }

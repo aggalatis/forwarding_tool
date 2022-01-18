@@ -22,11 +22,20 @@ DoneConsolidationsClass.prototype.bindEventsOnButtons = function () {
         self.Helpers.handleLogout()
     })
 
-    $('#save-consol-notes').on('click', function () {
+    $('#save-consol-notes').on('click', async function () {
         var jobID = $('#done_consolidation_id').val()
         var notesText = $('#notes').val()
-        $('#consol-notes-modal').modal('hide')
-        self.DB.saveConsolidationNotes(jobID, notesText)
+        try {
+            await self.DB.saveConsolidationNotes(jobID, notesText)
+            self.Helpers.toastr('success', 'Consolidaiton notes changes')
+            $('#consol-notes-modal').modal('hide')
+            $('#done_consolidations_table').unbind('click')
+            $('#done_consolidations_table').DataTable().clear()
+            $('#done_consolidations_table').DataTable().destroy()
+            self.initializetable()
+        } catch (err) {
+            console.log(err)
+        }
     })
     $('#assign-btn').on('click', () => {
         if (self.selectedDoneInds.length == 0) {
@@ -70,6 +79,7 @@ DoneConsolidationsClass.prototype.bindEventsOnButtons = function () {
 
 DoneConsolidationsClass.prototype.initializetable = async function () {
     let self = this
+
     self.DB.getAllColors()
     let dnConsol = await self.DB.getAllDoneConsolidations()
     let tableData = self.formatData(dnConsol)
@@ -84,7 +94,14 @@ DoneConsolidationsClass.prototype.initializetable = async function () {
         bLengthChange: false,
         columns: [
             { title: 'ID', orderable: false, data: 'cond_id' },
-            { title: 'CONSOL. ID', orderable: false, data: 'group_id' },
+            {
+                title: 'CONSOL. ID',
+                orderable: false,
+                data: 'group_id',
+                createdCell: function (td, cellData, rowData, row, col) {
+                    $(td).css('background-color', rowData.con_group_color)
+                },
+            },
             { title: 'REQ. DATE', orderable: false, data: 'cond_request_date' },
             { title: 'USER', orderable: false, data: 'user_username' },
             { title: 'DEPARTMENT', orderable: false, data: 'division_description' },
@@ -122,7 +139,9 @@ DoneConsolidationsClass.prototype.initializetable = async function () {
                         $(td).children('.select-done-jobs').hide()
                     }
                 },
-                defaultContent: "<i class='fa fa-crosshairs select-done-jobs action-btn' title='select' style='cursor: pointer' title='select'></i>",
+                defaultContent:
+                    "<i class='fa fa-search job-edit action-btn' style='cursor: pointer' title='modify'></i> \
+                    <i class='select-done-jobs' style='cursor: pointer' title='select'><img src='../assets/icons/consolidations.png'/ style='width: 15px'></i>",
             },
         ],
         rowCallback: function (row, data, index, cells) {
@@ -162,6 +181,34 @@ DoneConsolidationsClass.prototype.initializetable = async function () {
             $(this).parents('tr').removeClass('datatableBack')
             self.selectedDoneInds.splice(self.selectedDoneInds.indexOf(data.cond_id), 1)
             self.selectedDoneDestination.splice(self.selectedDoneDestination.indexOf(data.to_name), 1)
+        }
+    })
+    $('#done_consolidations_table').on('click', 'i.job-edit', function () {
+        $('#job-modal-header').removeClass('noFloat floatMeLeft floatMeRight')
+        var data = doneConsTable.row($(this).parents('tr')).data()
+
+        if (!self.Helpers.checkIfUserHasPriviledges(data.user_username)) {
+            Swal.fire({
+                title: 'Unable to edit this job.',
+                text: "Unfortunately this is a job inserted by different user. You can't modify it.",
+                icon: 'error',
+                showCancelButton: true,
+                showConfirmButton: false,
+            })
+            return
+        }
+        $('#done_consolidation_id').val(data.cond_id)
+        $('#notes').val(data.cond_notes)
+        $('#consol-notes-modal').modal('show')
+    })
+
+    $('#search_datatable').keyup(function () {
+        doneConsTable.search('^' + $(this).val()).draw()
+        if ($(this).val() != '') {
+            let regexp = `\\b${$(this).val()}`
+            doneConsTable.search(regexp, true, false).draw()
+        } else {
+            doneConsTable.search('').draw()
         }
     })
 }

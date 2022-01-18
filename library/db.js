@@ -23,7 +23,7 @@ DbClass.prototype.getServerDataFromRegistry = function () {
     let self = this
 
     let fs = require('fs')
-    var dbFile = fs.readFileSync('./dbdata.agcfg', 'utf8')
+    var dbFile = fs.readFileSync('C:\\ForwardTool\\dbdata.agcfg', 'utf8')
 
     var dbFileData = dbFile.split(';')
     self.database = dbFileData[0]
@@ -50,22 +50,25 @@ DbClass.prototype.verifyLogin = function (username, password) {
     connection.connect()
 
     password = md5(password)
-    connection.query('SELECT * FROM users WHERE user_username = "' + username + '" AND user_password = "' + password + '" LIMIT 1', function (error, user) {
-        if (error) throw error
+    connection.query(
+        'SELECT * FROM users WHERE user_username = "' + username + '" AND user_password = "' + password + '" LIMIT 1',
+        function (error, user) {
+            if (error) throw error
 
-        if (user.length === 0) {
-            $('#user_username').val('').blur()
-            $('#user_password').val('').blur()
+            if (user.length === 0) {
+                $('#user_username').val('').blur()
+                $('#user_password').val('').blur()
 
-            self.Helpers.toastr('error', 'Wrong username or password. Please try again.')
-        } else {
-            self.Helpers.saveUserData(user[0])
-            $('#sign-in-btn').prop('disabled', 'disabled')
-            $('#sign-in-btn').html('attempting connection...')
+                self.Helpers.toastr('error', 'Wrong username or password. Please try again.')
+            } else {
+                self.Helpers.saveUserData(user[0])
+                $('#sign-in-btn').prop('disabled', 'disabled')
+                $('#sign-in-btn').html('attempting connection...')
 
-            ipcRenderer.send('loadTransfers', user[0])
+                ipcRenderer.send('loadTransfers', user[0])
+            }
         }
-    })
+    )
 
     connection.end()
 }
@@ -193,7 +196,8 @@ DbClass.prototype.getAllColors = function () {
 
     connection.connect()
 
-    var sql = 'Select * FROM colors WHERE color_code NOT IN (Select ind_group_color FROM individual_groups WHERE ind_group_confirmation_date is null);'
+    var sql =
+        'Select * FROM colors WHERE color_code NOT IN (Select ind_group_color FROM individual_groups WHERE ind_group_confirmation_date is null);'
 
     connection.query(sql, function (error, colors) {
         if (error) throw error
@@ -378,24 +382,60 @@ DbClass.prototype.getAllIndividuals = function () {
                     },
                     data: 'ind_mode',
                 },
-                { title: 'SERVICE', orderable: false, data: 'service_type_description' },
+                {
+                    title: 'SERVICE',
+                    orderable: false,
+                    data: 'service_type_description',
+                },
 
                 { title: 'VESSELS', orderable: false, data: 'ind_vessels' },
-                { title: 'EX', orderable: false, className: 'danger-header', data: 'ex_city' },
-                { title: 'TO', orderable: false, className: 'danger-header', data: 'to_city' },
-                { title: 'DEADLINE', orderable: false, className: 'danger-header', data: 'ind_deadline' },
+                {
+                    title: 'EX',
+                    orderable: false,
+                    className: 'danger-header',
+                    data: 'ex_city',
+                },
+                {
+                    title: 'TO',
+                    orderable: false,
+                    className: 'danger-header',
+                    data: 'to_city',
+                },
+                {
+                    title: 'DEADLINE',
+                    orderable: false,
+                    className: 'danger-header',
+                    data: 'ind_deadline',
+                },
                 { title: 'FORWARDER', orderable: false, data: 'ind_forwarder' },
                 { title: 'REFERENCE', orderable: false, data: 'ind_reference' },
                 { title: 'WEIGHT (KG)', orderable: false, data: 'ind_kg' },
-                { title: 'ESTIMATE COST (€)', orderable: false, data: 'ind_estimate_cost' },
+                {
+                    title: 'ESTIMATE COST (€)',
+                    orderable: false,
+                    data: 'ind_estimate_cost',
+                },
                 { title: 'NOTES', visible: false, data: 'ind_notes' },
                 { title: 'Group', visible: false, data: 'ind_group_id' },
                 { title: 'Is grouped', visible: false, data: 'ind_is_grouped' },
                 { title: 'Group Color', visible: false, data: 'ind_group_color' },
                 { title: 'Group Cost', visible: false, data: 'ind_group_cost' },
-                { title: 'GROUP DEADLINE', orderable: false, visible: false, data: 'ind_group_deadline' },
-                { title: 'GROUP FORWARDER', orderable: false, data: 'ind_group_forwarder' },
-                { title: 'Sum estimate cost', visible: false, data: 'sum_estimated_cost' },
+                {
+                    title: 'GROUP DEADLINE',
+                    orderable: false,
+                    visible: false,
+                    data: 'ind_group_deadline',
+                },
+                {
+                    title: 'GROUP FORWARDER',
+                    orderable: false,
+                    data: 'ind_group_forwarder',
+                },
+                {
+                    title: 'Sum estimate cost',
+                    visible: false,
+                    data: 'sum_estimated_cost',
+                },
                 {
                     title: 'Group Active',
                     visible: false,
@@ -615,7 +655,6 @@ DbClass.prototype.getAllIndividuals = function () {
 
         $('#jobs_table').on('click', 'i.costs-job', function () {
             var data = jobs_table.row($(this).closest('tr')).data()
-            console.log(data)
             if (!self.Helpers.checkIfUserHasPriviledges(data.user_username)) {
                 Swal.fire({
                     title: 'Unable to manage costs in this job.',
@@ -748,7 +787,12 @@ DbClass.prototype.getAllIndividuals = function () {
         })
 
         $('#search_datatable').keyup(function () {
-            jobs_table.search($(this).val()).draw()
+            if ($(this).val() != '') {
+                let regexp = `\\b${$(this).val()}`
+                jobs_table.search(regexp, true, false).draw()
+            } else {
+                jobs_table.search('').draw()
+            }
         })
     })
 
@@ -854,7 +898,13 @@ DbClass.prototype.getAllDoneIndividuals = function () {
                 { title: 'ID', orderable: false },
                 { title: 'REQ. DATE', orderable: false },
                 { title: 'USER', orderable: false },
-                { title: 'GROUP ID', orderable: false },
+                {
+                    title: 'GROUP ID',
+                    orderable: false,
+                    createdCell: function (td, cellData, rowData, row, col) {
+                        $(td).css('background-color', rowData[19])
+                    },
+                },
                 {
                     title: 'TYPE',
                     orderable: false,
@@ -908,7 +958,7 @@ DbClass.prototype.getAllDoneIndividuals = function () {
                     defaultContent:
                         "<i class='fa fa-search job-edit action-btn' style='cursor: pointer' title='modify'></i> \
                         <i class='fa fa-dollar done-job-cost action-btn' style='cursor: pointer' title='costs'></i> \
-                        <i class='fa fa-crosshairs select-done-jobs action-btn' style='cursor: pointer' title='select'></i>",
+                        <i class='select-done-jobs' style='cursor: pointer' title='select'><img src='../assets/icons/consolidations.png'/ style='width: 15px'></i> ",
                 },
             ],
             order: [[4, 'asc']],
@@ -1011,7 +1061,12 @@ DbClass.prototype.getAllDoneIndividuals = function () {
         })
 
         $('#search_datatable').keyup(function () {
-            jobs_table.search($(this).val()).draw()
+            if ($(this).val() != '') {
+                let regexp = `\\b${$(this).val()}`
+                jobs_table.search(regexp, true, false).draw()
+            } else {
+                jobs_table.search('').draw()
+            }
         })
     })
 
@@ -1126,7 +1181,12 @@ DbClass.prototype.getAllDeletedIndividuals = function () {
         })
 
         $('#search_datatable').keyup(function () {
-            jobs_table.search($(this).val()).draw()
+            if ($(this).val() != '') {
+                let regexp = `\\b${$(this).val()}`
+                jobs_table.search(regexp, true, false).draw()
+            } else {
+                jobs_table.search('').draw()
+            }
         })
     })
 
@@ -1384,7 +1444,15 @@ DbClass.prototype.confirmIndividualGroup = function (groupID) {
 DbClass.prototype.confirmPersonnel = function (personnelID) {
     let self = this
 
-    var sql = 'UPDATE individuals SET ' + 'ind_status = "Done", ' + 'ind_confirmation_date = "' + self.Helpers.getDateTimeNow() + '"' + ' WHERE ind_id = ' + personnelID + ' AND ind_deleted = 0;'
+    var sql =
+        'UPDATE individuals SET ' +
+        'ind_status = "Done", ' +
+        'ind_confirmation_date = "' +
+        self.Helpers.getDateTimeNow() +
+        '"' +
+        ' WHERE ind_id = ' +
+        personnelID +
+        ' AND ind_deleted = 0;'
 
     var mysql = require('mysql')
 
@@ -1474,7 +1542,8 @@ DbClass.prototype.handleIndividualGroups = function (individualData, insertedID)
                     if (error) {
                         throw error
                     } else {
-                        var new_sql = 'UPDATE individuals set ind_group_id = ' + insertResult.insertId + ', ind_is_grouped = 0 WHERE ind_id = ' + insertedID
+                        var new_sql =
+                            'UPDATE individuals set ind_group_id = ' + insertResult.insertId + ', ind_is_grouped = 0 WHERE ind_id = ' + insertedID
 
                         var newConnection = mysql.createConnection({
                             host: self.serverIP,
@@ -1498,7 +1567,11 @@ DbClass.prototype.handleIndividualGroups = function (individualData, insertedID)
                 if (groupResults[0].ind_group_color == 'empty') {
                     var randomNumber = Math.floor(Math.random() * (self.colors.length - 1))
 
-                    var updateGroups = 'UPDATE individual_groups SET ind_group_color = "' + self.colors[randomNumber].color_code + '" WHERE ind_group_id = ' + groupResults[0].ind_group_id
+                    var updateGroups =
+                        'UPDATE individual_groups SET ind_group_color = "' +
+                        self.colors[randomNumber].color_code +
+                        '" WHERE ind_group_id = ' +
+                        groupResults[0].ind_group_id
 
                     var updateConnections = mysql.createConnection({
                         host: self.serverIP,
@@ -1541,7 +1614,8 @@ DbClass.prototype.handleIndividualGroups = function (individualData, insertedID)
 
                     updateConnections.end()
                 } else {
-                    var new_sql = 'UPDATE individuals set ind_group_id = ' + groupResults[0].ind_group_id + ', ind_is_grouped = 1 WHERE ind_id = ' + insertedID
+                    var new_sql =
+                        'UPDATE individuals set ind_group_id = ' + groupResults[0].ind_group_id + ', ind_is_grouped = 1 WHERE ind_id = ' + insertedID
 
                     var newConnection = mysql.createConnection({
                         host: self.serverIP,
@@ -1659,7 +1733,11 @@ DbClass.prototype.handleIndividualGroupsUpdate = function (individualData) {
                         alert('Unable to manage groups.')
                         throw error
                     } else {
-                        var new_sql = 'UPDATE individuals set ind_group_id = ' + insertResult.insertId + ', ind_is_grouped = 0 WHERE ind_id = ' + individualData.ind_id
+                        var new_sql =
+                            'UPDATE individuals set ind_group_id = ' +
+                            insertResult.insertId +
+                            ', ind_is_grouped = 0 WHERE ind_id = ' +
+                            individualData.ind_id
 
                         var newConnection = mysql.createConnection({
                             host: self.serverIP,
@@ -1684,7 +1762,11 @@ DbClass.prototype.handleIndividualGroupsUpdate = function (individualData) {
                     if (groupResults[0].individual_count != 0) {
                         var randomNumber = Math.floor(Math.random() * 29) + 1
 
-                        var updateGroups = 'UPDATE individual_groups SET ind_group_color = "' + self.colors[randomNumber].color_code + '" WHERE ind_group_id = ' + groupResults[0].ind_group_id
+                        var updateGroups =
+                            'UPDATE individual_groups SET ind_group_color = "' +
+                            self.colors[randomNumber].color_code +
+                            '" WHERE ind_group_id = ' +
+                            groupResults[0].ind_group_id
 
                         var updateConnections = mysql.createConnection({
                             host: self.serverIP,
@@ -1727,7 +1809,12 @@ DbClass.prototype.handleIndividualGroupsUpdate = function (individualData) {
 
                         updateConnections.end()
                     } else {
-                        var ungroup_sql = 'UPDATE individuals set ind_group_id = ' + groupResults[0].ind_group_id + ', ind_is_grouped = 0 WHERE ind_id = ' + individualData.ind_id + ';'
+                        var ungroup_sql =
+                            'UPDATE individuals set ind_group_id = ' +
+                            groupResults[0].ind_group_id +
+                            ', ind_is_grouped = 0 WHERE ind_id = ' +
+                            individualData.ind_id +
+                            ';'
 
                         var ungrouConn = mysql.createConnection({
                             host: self.serverIP,
@@ -1746,7 +1833,12 @@ DbClass.prototype.handleIndividualGroupsUpdate = function (individualData) {
                         ungrouConn.end()
                     }
                 } else {
-                    var new_sql = 'UPDATE individuals set ind_group_id = ' + groupResults[0].ind_group_id + ', ind_is_grouped = 1 WHERE ind_id = ' + individualData.ind_id + ';'
+                    var new_sql =
+                        'UPDATE individuals set ind_group_id = ' +
+                        groupResults[0].ind_group_id +
+                        ', ind_is_grouped = 1 WHERE ind_id = ' +
+                        individualData.ind_id +
+                        ';'
 
                     var newConnection = mysql.createConnection({
                         host: self.serverIP,
@@ -2370,10 +2462,10 @@ DbClass.prototype.addServiceType = function (serviceTypeData) {
 
     connection.query(sql, function (error) {
         if (error) {
-            alert('Unable to add service type...')
+            alert('Unable to add service...')
             throw error
         } else {
-            self.Helpers.toastr('success', 'Service type added successfully.')
+            self.Helpers.toastr('success', 'Service added successfully.')
             setTimeout(function () {
                 window.location.reload()
             }, 2000)
@@ -2405,7 +2497,7 @@ DbClass.prototype.deleteServiceType = function (service_type_id) {
         if (error) {
             throw error
         }
-        self.Helpers.toastr('success', 'Service type deleted')
+        self.Helpers.toastr('success', 'Service deleted')
         setTimeout(function () {
             window.location.reload()
         }, 2000)
@@ -2435,7 +2527,7 @@ DbClass.prototype.updateServiceType = function (serviceTypeData) {
         if (error) {
             throw error
         }
-        self.Helpers.toastr('success', 'Service type updated')
+        self.Helpers.toastr('success', 'Service updated')
         setTimeout(function () {
             window.location.reload()
         }, 2000)
@@ -2844,7 +2936,11 @@ DbClass.prototype.initializeManagerTable = function (indData, conData) {
         ],
 
         // These labels appear in the legend and in the tooltips when hovering different arcs
-        labels: ['Individual (' + total_individual_cost_per.toFixed(2) + '%)', 'Consolidation (' + total_con_cost_per.toFixed(2) + '%)', 'Grouped (' + total_grouped_cost_per.toFixed(2) + '%)'],
+        labels: [
+            'Individual (' + total_individual_cost_per.toFixed(2) + '%)',
+            'Consolidation (' + total_con_cost_per.toFixed(2) + '%)',
+            'Grouped (' + total_grouped_cost_per.toFixed(2) + '%)',
+        ],
     }
 
     if (self.pieCreated == true) {
@@ -3111,6 +3207,33 @@ DbClass.prototype.getAllDoneConsolidations = function () {
             if (error) {
                 alert('Unable to get done consolidations.')
                 reject(error)
+            }
+            resolve(data)
+        })
+    })
+}
+
+DbClass.prototype.saveConsolidationNotes = async function (conID, notes) {
+    let self = this
+    var mysql = require('mysql')
+
+    var connection = mysql.createConnection({
+        host: self.serverIP,
+        user: self.user,
+        password: self.dbpass,
+        database: self.database,
+        port: self.port,
+        dateStrings: true,
+    })
+
+    connection.connect()
+    return new Promise(function (resolve, reject) {
+        let sql = `UPDATE consolidations_done set cond_notes = "${notes}" WHERE cond_id = ${conID};`
+        connection.query(sql, (err, data) => {
+            if (err) {
+                alert('Unable to update consolidaiton notes')
+                console.log(err)
+                reject(err)
             }
             resolve(data)
         })

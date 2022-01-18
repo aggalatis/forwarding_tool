@@ -207,7 +207,6 @@ $(function () {
         // - #4.1 LINE CHARTS
 
         // Filled Line Chart //
-
         ;('use strict')
         if ($('#filledLineChart').length) {
             var filledLineChart = document.getElementById('filledLineChart').getContext('2d')

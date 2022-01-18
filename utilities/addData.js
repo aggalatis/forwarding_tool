@@ -162,7 +162,8 @@ addDataClass.prototype.initVesselsTable = async function () {
             {
                 title: 'ACTIONS',
                 orderable: false,
-                defaultContent: "<i class='fa fa-search edit-job action-btn' style='cursor: pointer' ></i><i class='fa fa-trash delete-job action-btn' style='cursor: pointer' ></i>",
+                defaultContent:
+                    "<i class='fa fa-search edit-job action-btn' style='cursor: pointer' ></i><i class='fa fa-trash delete-job action-btn' style='cursor: pointer' ></i>",
             },
         ],
         order: [[1, 'asc']],
@@ -210,7 +211,8 @@ addDataClass.prototype.initServiceTypesTable = async function () {
             {
                 title: 'ACTIONS',
                 orderable: false,
-                defaultContent: "<i class='fa fa-search edit-job action-btn' style='cursor: pointer' ></i><i class='fa fa-trash delete-job action-btn' style='cursor: pointer' ></i>",
+                defaultContent:
+                    "<i class='fa fa-search edit-job action-btn' style='cursor: pointer' ></i><i class='fa fa-trash delete-job action-btn' style='cursor: pointer' ></i>",
             },
         ],
         order: [[1, 'asc']],
@@ -226,7 +228,7 @@ addDataClass.prototype.initServiceTypesTable = async function () {
     $('#service-types-table').on('click', 'i.delete-job', function () {
         var data = serviceTypes.row($(this).closest('tr')).data()
         Swal.fire({
-            title: 'Delete Service Type?',
+            title: 'Delete Service?',
             text: `Are you sure you want to delete ${data.service_type_description}? You won't be able to revert it!`,
             icon: 'warning',
             showCancelButton: true,

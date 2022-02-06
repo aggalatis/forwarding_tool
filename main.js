@@ -22,7 +22,7 @@ app.on('ready', () => {
         },
         icon: __dirname + '/assets/icons/diana_icon.png',
     })
-
+    // win.removeMenu()
     win.loadFile('pages/login.html')
     win.maximize()
     //win.setMenu(null); //disables the menu and all the shortcuts
@@ -60,7 +60,9 @@ app.on('ready', () => {
             webPreferences: {
                 nodeIntegration: true,
             },
+            icon: __dirname + '/assets/icons/diana_icon.png',
         })
+        // win_transfers.removeMenu()
         win_transfers.loadFile('pages/individuals.html')
         win_transfers.maximize()
         win_transfers.webContents.on('did-finish-load', () => {

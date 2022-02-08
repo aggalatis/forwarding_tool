@@ -224,7 +224,7 @@ DbClass.prototype.getAllServiceTypes = function () {
 
     connection.connect()
 
-    var sql = 'SELECT * FROM service_types WHERE service_type_deleted = 0;'
+    var sql = 'SELECT * FROM service_types WHERE service_type_deleted = 0 order by service_type_description ASC;'
 
     connection.query(sql, function (error, serviceTypes) {
         if (error) throw error

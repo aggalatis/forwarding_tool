@@ -20,7 +20,7 @@ app.on('ready', () => {
         webPreferences: {
             nodeIntegration: true,
         },
-        icon: __dirname + '/assets/icons/diana_icon.png',
+        icon: __dirname + '/assets/icons/efglobal_logo_transparent.png',
     })
     // win.removeMenu()
     win.loadFile('pages/login.html')
@@ -60,7 +60,7 @@ app.on('ready', () => {
             webPreferences: {
                 nodeIntegration: true,
             },
-            icon: __dirname + '/assets/icons/diana_icon.png',
+            icon: __dirname + '/assets/icons/efglobal_logo_transparent.png',
         })
         // win_transfers.removeMenu()
         win_transfers.loadFile('pages/individuals.html')

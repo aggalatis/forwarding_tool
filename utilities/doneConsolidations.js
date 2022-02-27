@@ -115,7 +115,7 @@ DoneConsolidationsClass.prototype.initializetable = async function () {
             { title: 'CONFIRMATION DATE	', orderable: false, data: 'con_group_confirmation_date' },
             { title: 'FORWARDER', orderable: false, data: 'con_group_forwarder' },
             { title: 'REFERENCE', orderable: false, data: 'cond_reference' },
-            { title: 'CONSOL. COST', orderable: false, data: 'con_group_cost' },
+            { title: 'CONSOL. COST (€)', orderable: false, data: 'con_group_cost' },
             { title: 'KG', orderable: false, data: 'cond_kg' },
             { title: 'COST / KG (€)', orderable: false, data: 'cond_cost_per_kg' },
             { title: 'SHARED CONS COST (€)', visible: true, data: 'cond_shared_cost' },

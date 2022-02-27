@@ -201,8 +201,8 @@
                                 </div>
                                 <div class="col-sm-6">
                                     <div class="form-group">
-                                        <label> Group Cost €</label>
-                                        <input class="form-control" placeholder="Group cost €" id="group_cost" disabled />
+                                        <label> Group Cost (€)</label>
+                                        <input class="form-control" placeholder="Type Group Cost in (€)..." id="group_cost" disabled />
                                     </div>
                                 </div>
                             </div>
@@ -300,25 +300,31 @@
                         <div class="row">
                             <div class="col-sm-6">
                                 <div class="form-group">
-                                    <label> Estimate Cost </label>
-                                    <input class="form-control" placeholder="Estimate cost" id="personnel-estimate-cost" disabled />
+                                    <label> ESTIMATE COST (€)</label>
+                                    <input class="form-control" placeholder="Estimate cost (€)" id="personnel-estimate-cost" disabled />
                                 </div>
                             </div>
                             <div class="col-sm-6">
                                 <div class="form-group">
-                                    <label> Actual Cost</label>
-                                    <input type="number" class="form-control" placeholder="Type actual cost..." id="personnel-actual-cost" disabled />
+                                    <label> Actual Cost (€)</label>
+                                    <input
+                                        type="number"
+                                        class="form-control"
+                                        placeholder="Type actual cost in (€)..."
+                                        id="personnel-actual-cost"
+                                        disabled
+                                    />
                                 </div>
                             </div>
                         </div>
                         <div class="row">
                             <div class="col-sm-6">
                                 <div class="form-group">
-                                    <label> Saving</label>
+                                    <label> Saving (€)</label>
                                     <input
                                         type="number"
                                         class="form-control"
-                                        placeholder="Savings will be calculated once you fill actual cost..."
+                                        placeholder="Savings calculated from actual cost..."
                                         id="personnel-savings"
                                         disabled
                                     />
@@ -326,11 +332,11 @@
                             </div>
                             <div class="col-sm-6">
                                 <div class="form-group">
-                                    <label> Saving %</label>
+                                    <label> Saving (%)</label>
                                     <input
                                         type="number"
                                         class="form-control"
-                                        placeholder="Savings % will be calculated once you fill actual cost..."
+                                        placeholder="Savings calculated from actual cost..."
                                         id="personnel-savings-percent"
                                         disabled
                                     />
@@ -455,6 +461,9 @@
                     <div class="container-fluid">
                         <div class="row">
                             <div class="col-12">
+                                <div class="section-title">
+                                    <h4>Done Individuals</h4>
+                                </div>
                                 <div class="block bg-trans table-block mb-4">
                                     <div class="row">
                                         <div class="table-responsive">

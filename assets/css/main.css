@@ -1530,11 +1530,11 @@ body.top-navigation nav.fixed-header {
 
 .section-title {
     border-bottom: 1px solid var(--light-color);
-    margin-bottom: 30px;
+    margin-top: 1%;
     position: relative;
     display: flex;
     align-items: flex-start;
-    min-height: 40px;
+    min-height: 10px;
 }
 
 .section-title h4,

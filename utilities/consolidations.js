@@ -93,7 +93,7 @@ ConsolidationsClass.prototype.initializetable = async function () {
             //Here I am changing background Color
             $('td', row).css('background-color', data.con_group_color)
         },
-        order: [[1, 'asc']],
+        order: [[2, 'desc']],
         pageLength: 25,
     })
     $('#consolidations_table').on('click', 'i.delete-job', function () {
@@ -219,6 +219,17 @@ ConsolidationsClass.prototype.bindEventsOnButtons = function () {
             $('#group-modal').modal('hide')
             self.refreshTable()
         }
+    })
+
+    $('.deadline-info').on('click', function () {
+        Swal.fire({
+            title: 'Deadline info',
+            text: 'This refers to the berthing date of the vessel.',
+            icon: 'warning',
+            showCancelButton: true,
+            showConfirmButton: false,
+        })
+        return
     })
 }
 

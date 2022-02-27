@@ -148,7 +148,7 @@ DoneConsolidationsClass.prototype.initializetable = async function () {
             //Here I am changing background Color
             // $("td", row).css("background-color", data.con_group_color)
         },
-        order: [[1, 'asc']],
+        order: [[12, 'desc']],
         pageLength: 25,
     })
     $('#done_consolidations_table').on('click', 'i.select-done-jobs', function () {

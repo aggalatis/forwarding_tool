@@ -100,10 +100,21 @@ TransfersClass.prototype.bindEventsOnButtons = function () {
         self.Helpers.addCityAlert(self.DB, self)
     })
 
-    $('#service-type-info').on('click', function () {
+    $('.deadline-info').on('click', function () {
         Swal.fire({
-            title: 'Service info.',
-            text: 'If "OFFLAND DISPATCH" is selected, in EX insert the city that the port is in and in TO insert the city of your repair shop / warehouse.',
+            title: 'Deadline info',
+            text: 'This refers to the last date that consignee requires shipment at destination for customs and further delivery.',
+            icon: 'warning',
+            showCancelButton: true,
+            showConfirmButton: false,
+        })
+        return
+    })
+
+    $('.mode-info').on('click', function () {
+        Swal.fire({
+            title: 'Mode info',
+            text: 'Always check with consignee for recommended means of transport.',
             icon: 'warning',
             showCancelButton: true,
             showConfirmButton: false,

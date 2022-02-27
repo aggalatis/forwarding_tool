@@ -352,7 +352,7 @@ DbClass.prototype.getAllIndividuals = function () {
         ' LEFT JOIN cities as to_city on to_city.city_id = ind_jobs.ind_to' +
         ' LEFT JOIN service_types as service_types on service_types.service_type_id = ind_jobs.ind_service_type' +
         ' WHERE ind_jobs.ind_status = "Pending" AND ind_deleted = 0' +
-        ' ORDER BY ind_jobs.ind_group_id DESC;'
+        ' ;'
 
     connection.query(sql, function (error, data) {
         if (error) throw error
@@ -387,7 +387,6 @@ DbClass.prototype.getAllIndividuals = function () {
                     orderable: false,
                     data: 'service_type_description',
                 },
-
                 { title: 'VESSELS', orderable: false, data: 'ind_vessels' },
                 {
                     title: 'EX',
@@ -466,10 +465,9 @@ DbClass.prototype.getAllIndividuals = function () {
                 }
             },
             order: [
-                [8, 'asc'],
-                [9, 'asc'],
                 [17, 'desc'],
-                [23, 'asc'],
+                [16, 'desc'],
+                [0, 'desc'],
             ],
             pageLength: 25,
         })
@@ -601,7 +599,13 @@ DbClass.prototype.getAllIndividuals = function () {
                 //checking if the individual is grouped...
 
                 if (data.ind_is_grouped == 0) {
-                    if (data.ind_deadline != 'TBA' && data.ind_kg != '0') {
+                    if (
+                        data.ind_deadline != 'TBA' &&
+                        data.ind_kg != '0' &&
+                        data.service_type_description != '' &&
+                        data.ind_reference != '' &&
+                        data.ind_forwarder != ''
+                    ) {
                         Swal.fire({
                             title: 'Are you sure?',
                             text: 'If you confirm the job you will be unable to edit it!',
@@ -851,7 +855,7 @@ DbClass.prototype.getAllDoneIndividuals = function () {
         ' LEFT JOIN cities as to_city on to_city.city_id = ind_jobs.ind_to' +
         ' LEFT JOIN service_types as service_types on service_types.service_type_id = ind_jobs.ind_service_type' +
         ' WHERE ind_jobs.ind_status = "Done" AND ind_deleted = 0' +
-        ' ORDER BY ind_jobs.ind_group_id DESC;'
+        ' ;'
 
     connection.query(sql, function (error, data) {
         if (error) throw error
@@ -961,7 +965,10 @@ DbClass.prototype.getAllDoneIndividuals = function () {
                         <i class='select-done-jobs' style='cursor: pointer' title='select'><img src='../assets/icons/consolidations.png'/ style='width: 15px'></i> ",
                 },
             ],
-            order: [[4, 'asc']],
+            order: [
+                [4, 'asc'],
+                [13, 'desc'],
+            ],
             pageLength: 25,
         })
 

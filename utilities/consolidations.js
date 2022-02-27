@@ -66,7 +66,8 @@ ConsolidationsClass.prototype.initializetable = async function () {
             { title: 'FORWARDER', orderable: false, data: 'con_group_forwarder' },
             { title: 'REFERENCE', orderable: false, data: 'con_reference' },
             { title: 'CONSOL. COST (€)', orderable: false, data: 'con_group_cost' },
-            { title: 'KG', orderable: false, data: 'con_kg' },
+            { title: 'PIECES', orderable: false, data: 'con_pieces' },
+            { title: 'WEIGHT (KG)', orderable: false, data: 'con_kg' },
             { title: 'COST / KG (€)', orderable: false, data: 'con_cost_per_kg' },
             { title: 'SHARED CONS COST (€)', visible: true, data: 'con_shared_cost' },
             {

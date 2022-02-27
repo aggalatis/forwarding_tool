@@ -43,6 +43,8 @@ addDataClass.prototype.addEventsOnButtons = function () {
             self.Helpers.toastr('error', 'Some fields are empty..')
             return
         }
+
+        if ($('#city_associate').val() != '') cityData.city_name += ` (${$('#city_associate').val()})`
         if (cityData.city_id == 0) {
             self.DB.addCity(cityData.city_name)
         } else {

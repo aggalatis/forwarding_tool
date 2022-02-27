@@ -343,7 +343,8 @@ DbClass.prototype.getAllIndividuals = function () {
         ' (SELECT Round(sum(individuals.ind_estimate_cost),2) FROM individuals WHERE ind_group_id = ind_jobs.ind_group_id AND ind_deleted = 0)  as sum_estimated_cost,' +
         ' individual_groups.ind_group_active,' +
         ' ind_jobs.ind_actual_cost,' +
-        ' service_types.service_type_description' +
+        ' service_types.service_type_description,' +
+        ' ind_jobs.ind_pieces' +
         ' FROM individuals as ind_jobs' +
         ' LEFT JOIN divisions on divisions.division_id = ind_jobs.ind_division_id' +
         ' LEFT JOIN users on users.user_id = ind_jobs.ind_user_id' +
@@ -408,6 +409,7 @@ DbClass.prototype.getAllIndividuals = function () {
                 },
                 { title: 'FORWARDER', orderable: false, data: 'ind_forwarder' },
                 { title: 'REFERENCE', orderable: false, data: 'ind_reference' },
+                { title: 'PIECES', orderable: false, data: 'ind_pieces' },
                 { title: 'WEIGHT (KG)', orderable: false, data: 'ind_kg' },
                 {
                     title: 'ESTIMATE COST (€)',
@@ -465,8 +467,8 @@ DbClass.prototype.getAllIndividuals = function () {
                 }
             },
             order: [
+                [18, 'desc'],
                 [17, 'desc'],
-                [16, 'desc'],
                 [0, 'desc'],
             ],
             pageLength: 25,
@@ -503,6 +505,7 @@ DbClass.prototype.getAllIndividuals = function () {
                 var kg = self.Helpers.formatFloatValue($('#kg').val())
                 var deadline = $('#deadline_date').val()
                 let serviceType = $('#service-type-select').val()
+                let pieces = $('#pieces').val()
 
                 if ((deadline != '') & (modeSelectValue != '') && divisionSelectValue != '' && productSelectValue != '' && vesselSelectValue != '') {
                     $(this).attr('disabled', 'disabled')
@@ -541,6 +544,7 @@ DbClass.prototype.getAllIndividuals = function () {
                             ind_reference: reference,
                             ind_kg: kg,
                             ind_group_id: 0,
+                            ind_pieces: pieces,
                             ind_service_type: serviceType == '' ? 0 : serviceType,
                             old_group_id: data.ind_group_id,
                         }
@@ -837,6 +841,7 @@ DbClass.prototype.getAllDoneIndividuals = function () {
         ' DATE_FORMAT(ind_jobs.ind_confirmation_date, "%d/%m/%Y %H:%i:%s" ) as ind_confirmation_date,' +
         ' ind_jobs.ind_forwarder,' +
         ' ind_jobs.ind_reference,' +
+        ' ind_jobs.ind_pieces,' +
         ' ind_jobs.ind_kg,' +
         ' Round(ind_jobs.ind_estimate_cost,2) as ind_estimate_cost,' +
         ' ind_jobs.ind_notes,' +
@@ -906,7 +911,7 @@ DbClass.prototype.getAllDoneIndividuals = function () {
                     title: 'GROUP ID',
                     orderable: false,
                     createdCell: function (td, cellData, rowData, row, col) {
-                        $(td).css('background-color', rowData[19])
+                        $(td).css('background-color', rowData[20])
                     },
                 },
                 {
@@ -935,6 +940,7 @@ DbClass.prototype.getAllDoneIndividuals = function () {
                 { title: 'CONFIRMATION DATE', orderable: false },
                 { title: 'FORWARDER', orderable: false },
                 { title: 'REFERENCE', orderable: false },
+                { title: 'PIECES', orderable: false },
                 { title: 'KG', orderable: false },
                 { title: 'ESTIMATE COST (€)', orderable: false },
                 { title: 'NOTES', visible: false },
@@ -948,10 +954,10 @@ DbClass.prototype.getAllDoneIndividuals = function () {
                     title: 'CONSOLIDATED',
                     orderable: false,
                     createdCell: function (td, cellData, rowData, row, col) {
-                        if (rowData[25] == 0) {
+                        if (rowData[26] == 0) {
                             $(td).html('NO').css('color', 'red').css('font-weight', 'bold')
                         }
-                        if (rowData[25] == 1) {
+                        if (rowData[26] == 1) {
                             $(td).html('YES').css('color', 'green').css('font-weight', 'bold')
                         }
                     },
@@ -984,7 +990,7 @@ DbClass.prototype.getAllDoneIndividuals = function () {
                 })
                 return
             }
-            if (data[25] == 1) {
+            if (data[26] == 1) {
                 Swal.fire({
                     title: 'Job Consolidated',
                     text: 'Unfortunately the job you selected already exists inside a consolidation group.',
@@ -1020,7 +1026,7 @@ DbClass.prototype.getAllDoneIndividuals = function () {
                 return
             }
             $('#done_ind_id').val(data[0])
-            $('#notes').val(data[18])
+            $('#notes').val(data[19])
             $('#notes-modal').modal('show')
         })
 
@@ -1029,38 +1035,38 @@ DbClass.prototype.getAllDoneIndividuals = function () {
             $('#done-personnel-modal-header').removeClass('noFloat floatMeLeft floatMeRight')
             var data = jobs_table.row($(this).closest('tr')).data()
 
-            $('#job_estimate_costs').val(data[17])
+            $('#job_estimate_costs').val(data[18])
             $('#department').val(data[5])
 
             if (data[4] != 'Grouped') {
                 if (data[4] == 'Personnel') {
                     console.log('I am personnel...')
 
-                    $('#personnel-estimate-cost').val(data[17])
-                    $('#personnel-actual-cost').val(data[24])
-                    var savings = data[16] - data[24]
+                    $('#personnel-estimate-cost').val(data[18])
+                    $('#personnel-actual-cost').val(data[25])
+                    var savings = data[17] - data[25]
                     $('#personnel-savings').val(savings)
-                    $('#personnel-savings-percent').val((savings / data[17]) * 100)
+                    $('#personnel-savings-percent').val((savings / data[18]) * 100)
                     $('#done-personnel-costs-modal').modal('show')
                 } else {
                     $('#group-cost-div').hide()
                     $('#done-costs-modal').modal('show')
                 }
             } else {
-                var sum_estimate_cost = data[23]
-                var group_cost = data[20]
+                var sum_estimate_cost = data[24]
+                var group_cost = data[21]
 
                 var savings_percent = ((1 - group_cost / sum_estimate_cost) * 100).toFixed(2)
 
-                var savings_amount = ((data[17] * savings_percent) / 100).toFixed(2)
-                var shared_cost = ((group_cost / sum_estimate_cost) * data[17]).toFixed(2)
+                var savings_amount = ((data[18] * savings_percent) / 100).toFixed(2)
+                var shared_cost = ((group_cost / sum_estimate_cost) * data[18]).toFixed(2)
 
                 $('#group_cost').val(self.Helpers.formatFloatValue(String(group_cost)))
                 $('#group_id').val(data[3])
                 $('#saving_amount').val(savings_amount)
                 $('#saving_percent').val(savings_percent)
                 $('#shared_cost').val(shared_cost)
-                $('#group_forwarder').val(data[22])
+                $('#group_forwarder').val(data[23])
                 $('#group-cost-div').show()
                 $('#save-costs').show()
                 $('#done-costs-modal').modal('show')
@@ -1238,6 +1244,9 @@ DbClass.prototype.updateJob = function (jobObject) {
         'ind_kg = ' +
         jobObject.ind_kg +
         ', ' +
+        'ind_pieces = ' +
+        jobObject.ind_pieces +
+        ', ' +
         'ind_estimate_cost = ' +
         jobObject.ind_estimate_cost +
         ', ' +
@@ -1336,6 +1345,7 @@ DbClass.prototype.addIndividual = function (indiavidualObject) {
         'ind_estimate_cost, ' +
         'ind_notes, ' +
         'ind_service_type, ' +
+        'ind_pieces, ' +
         'ind_deleted' +
         ') VALUES (' +
         indiavidualObject.ind_user_id +
@@ -1369,6 +1379,8 @@ DbClass.prototype.addIndividual = function (indiavidualObject) {
         indiavidualObject.ind_notes +
         '",' +
         indiavidualObject.ind_service_type +
+        ',' +
+        indiavidualObject.ind_pieces +
         ', 0)'
 
     var mysql = require('mysql')
@@ -2215,8 +2227,8 @@ DbClass.prototype.assignJobsToNewGroup = async function () {
     let conAdded = await new Promise(function (resolve, reject) {
         let sql = ''
         for (let ind of inds) {
-            sql = `INSERT INTO consolidations (con_ind_id, con_user_id, con_division_id, con_products, con_vessels, con_reference, con_kg, con_status, con_request_date, con_group_id)
-                    VALUES (${ind.ind_id}, ${self.Helpers.user_id}, ${ind.ind_division_id}, '${ind.ind_products}', '${ind.ind_vessels}', '${ind.ind_reference}', ${ind.ind_kg}, 'Pending', now(), ${newConGroup.insertId});`
+            sql = `INSERT INTO consolidations (con_ind_id, con_user_id, con_division_id, con_products, con_vessels, con_reference, con_kg, con_status, con_request_date, con_group_id, con_pieces)
+                    VALUES (${ind.ind_id}, ${self.Helpers.user_id}, ${ind.ind_division_id}, '${ind.ind_products}', '${ind.ind_vessels}', '${ind.ind_reference}', ${ind.ind_kg}, 'Pending', now(), ${newConGroup.insertId}, ${ind.ind_pieces});`
             connection.query(sql, (err, data) => {
                 if (err) {
                     alert('Unable to add consolidations')
@@ -2272,8 +2284,8 @@ DbClass.prototype.assignJobsToConGroup = async function (selGroup) {
     let conAdded = await new Promise(function (resolve, reject) {
         let sql = ''
         for (let ind of inds) {
-            sql = `INSERT INTO consolidations (con_ind_id, con_user_id, con_division_id, con_products, con_vessels, con_reference, con_kg, con_status, con_request_date, con_group_id)
-                    VALUES (${ind.ind_id}, ${self.Helpers.user_id}, ${ind.ind_division_id}, '${ind.ind_products}', '${ind.ind_vessels}', '${ind.ind_reference}', ${ind.ind_kg}, 'Pending', now(), ${selGroup});`
+            sql = `INSERT INTO consolidations (con_ind_id, con_user_id, con_division_id, con_products, con_vessels, con_reference, con_kg, con_status, con_request_date, con_group_id, con_pieces)
+                    VALUES (${ind.ind_id}, ${self.Helpers.user_id}, ${ind.ind_division_id}, '${ind.ind_products}', '${ind.ind_vessels}', '${ind.ind_reference}', ${ind.ind_kg}, 'Pending', now(), ${selGroup}, ${ind.ind_pieces});`
             connection.query(sql, (err, data) => {
                 if (err) {
                     alert('Unable to add consolidations')
@@ -2351,8 +2363,8 @@ DbClass.prototype.assignConJobsToNewGroup = async function (jobs) {
     let conAdded = await new Promise(function (resolve, reject) {
         let sql = ''
         for (let con of cons) {
-            sql = `INSERT INTO consolidations (con_ind_id, con_done_id, con_user_id, con_division_id, con_products, con_vessels, con_reference, con_kg, con_status, con_request_date, con_group_id)
-                    VALUES (${con.cond_ind_id}, ${con.cond_id}, ${self.Helpers.user_id}, ${con.cond_division_id}, '${con.cond_products}', '${con.cond_vessels}', '${con.cond_reference}', ${con.cond_kg}, 'Pending', now(), ${newConGroup.insertId});`
+            sql = `INSERT INTO consolidations (con_ind_id, con_done_id, con_user_id, con_division_id, con_products, con_vessels, con_reference, con_kg, con_status, con_request_date, con_group_id, con_pieces)
+                    VALUES (${con.cond_ind_id}, ${con.cond_id}, ${self.Helpers.user_id}, ${con.cond_division_id}, '${con.cond_products}', '${con.cond_vessels}', '${con.cond_reference}', ${con.cond_kg}, 'Pending', now(), ${newConGroup.insertId}. ${con.cond_pieces});`
             connection.query(sql, (err, data) => {
                 if (err) {
                     alert('Unable to add consolidations')
@@ -2414,8 +2426,8 @@ DbClass.prototype.assignConJobsToConGroup = async function (selGroup, jobs) {
     let conAdded = await new Promise(function (resolve, reject) {
         let sql = ''
         for (let con of cons) {
-            sql = `INSERT INTO consolidations (con_ind_id, con_done_id, con_user_id, con_division_id, con_products, con_vessels, con_reference, con_kg, con_status, con_request_date, con_group_id)
-                    VALUES (${con.cond_ind_id}, ${con.cond_id}, ${self.Helpers.user_id}, ${con.cond_division_id}, '${con.cond_products}', '${con.cond_vessels}', '${con.cond_reference}', ${con.cond_kg}, 'Pending', now(), ${selGroup});`
+            sql = `INSERT INTO consolidations (con_ind_id, con_done_id, con_user_id, con_division_id, con_products, con_vessels, con_reference, con_kg, con_status, con_request_date, con_group_id, con_pieces)
+                    VALUES (${con.cond_ind_id}, ${con.cond_id}, ${self.Helpers.user_id}, ${con.cond_division_id}, '${con.cond_products}', '${con.cond_vessels}', '${con.cond_reference}', ${con.cond_kg}, 'Pending', now(), ${selGroup}, ${con.cond_pieces});`
             connection.query(sql, (err, data) => {
                 if (err) {
                     alert('Unable to add consolidations')
@@ -3125,11 +3137,11 @@ DbClass.prototype.confirmConsGroup = async function (data) {
         let sql = ''
         for (let con of cons) {
             if (con.con_done_id == null) {
-                sql = `INSERT INTO consolidations_done (cond_ind_id, cond_con_done_id, cond_user_id, cond_division_id, cond_products, cond_vessels, cond_reference, cond_kg, cond_status, cond_request_date, cond_group_id)
-                VALUES (${con.con_ind_id}, ${con.con_done_id}, ${self.Helpers.user_id}, ${con.con_division_id}, '${con.con_products}', '${con.con_vessels}', '${con.con_reference}', ${con.con_kg}, 'Done', '${con.con_request_date}', ${con.con_group_id});`
+                sql = `INSERT INTO consolidations_done (cond_ind_id, cond_con_done_id, cond_user_id, cond_division_id, cond_products, cond_vessels, cond_reference, cond_kg, cond_status, cond_request_date, cond_group_id, cond_pieces)
+                VALUES (${con.con_ind_id}, ${con.con_done_id}, ${self.Helpers.user_id}, ${con.con_division_id}, '${con.con_products}', '${con.con_vessels}', '${con.con_reference}', ${con.con_kg}, 'Done', '${con.con_request_date}', ${con.con_group_id}, ${con.con_pieces});`
             } else {
-                sql = `INSERT INTO consolidations_done (cond_ind_id, cond_con_done_id, cond_consolidated, cond_user_id, cond_division_id, cond_products, cond_vessels, cond_reference, cond_kg, cond_status, cond_request_date, cond_group_id)
-                VALUES (${con.con_ind_id}, ${con.con_done_id}, 1, ${self.Helpers.user_id}, ${con.con_division_id}, '${con.con_products}', '${con.con_vessels}', '${con.con_reference}', ${con.con_kg}, 'Done', '${con.con_request_date}', ${con.con_group_id});`
+                sql = `INSERT INTO consolidations_done (cond_ind_id, cond_con_done_id, cond_consolidated, cond_user_id, cond_division_id, cond_products, cond_vessels, cond_reference, cond_kg, cond_status, cond_request_date, cond_group_id, cond_pieces)
+                VALUES (${con.con_ind_id}, ${con.con_done_id}, 1, ${self.Helpers.user_id}, ${con.con_division_id}, '${con.con_products}', '${con.con_vessels}', '${con.con_reference}', ${con.con_kg}, 'Done', '${con.con_request_date}', ${con.con_group_id}, ${con.con_pieces});`
             }
 
             connection.query(sql, (err, data) => {

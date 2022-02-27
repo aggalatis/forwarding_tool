@@ -49,6 +49,7 @@ TransfersClass.prototype.bindEventsOnButtons = function () {
         $('#estimate_cost').val('')
         $('#reference').val('')
         $('#kg').val('')
+        $('#pieces').val('')
         $('#notes').val('')
         $('#deadline_date').val('')
         $('#ex-input').val('').trigger('chosen:updated')
@@ -171,6 +172,7 @@ TransfersClass.prototype.bindSaveEventOnSaveJobButton = function () {
         var kg = self.Helpers.formatFloatValue($('#kg').val())
         var deadline = $('#deadline_date').val()
         let serviceType = $('#service-type-select').val()
+        let pieces = $('#pieces').val()
 
         if ((deadline != '') & (modeSelectValue != '') && divisionSelectValue != '' && productSelectValue != '' && vesselSelectValue != '') {
             $(this).attr('disabled', 'disabled')
@@ -208,6 +210,7 @@ TransfersClass.prototype.bindSaveEventOnSaveJobButton = function () {
                     ind_reference: reference,
                     ind_kg: kg,
                     ind_service_type: serviceType == '' ? 0 : serviceType,
+                    ind_pieces: pieces,
                 }
                 console.log(individualData)
                 self.DB.addIndividual(individualData)

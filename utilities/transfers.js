@@ -22,6 +22,7 @@ let TransfersClass = function () {
 TransfersClass.prototype.bindEventsOnButtons = function () {
     let self = this
 
+    self.Helpers.initCurrencies(['currency', 'group-currency'])
     $('#division-select').chosen()
     $('#product-select').chosen()
     $('#mode-select').chosen()
@@ -75,11 +76,14 @@ TransfersClass.prototype.bindEventsOnButtons = function () {
         var groupForwarder = $('#group_forwarder').val()
         var groupTo = $('#group-to-select').val()
         var groupEx = $('#group-ex-select').val()
+        var groupCurrency = $('#group-currency').val()
 
         if (groupDeadline != '' && groupTo != '' && groupEx != '') {
             if (groupCost == '') {
                 groupCost = null
                 groupActive = 1
+            } else {
+                groupCost = groupCost / groupCurrency
             }
             var jobCostData = {
                 ind_group_id: $('#group_id').val(),
@@ -168,11 +172,12 @@ TransfersClass.prototype.bindSaveEventOnSaveJobButton = function () {
         var forwarder = $('#forwarder').val()
         var ind_ex = $('#ex-input').val()
         var ind_to = $('#to-input').val()
+        var currency = $('#currency').val()
         var reference = $('#reference').val()
         var kg = self.Helpers.formatFloatValue($('#kg').val())
         var deadline = $('#deadline_date').val()
         let serviceType = $('#service-type-select').val()
-        let pieces = $('#pieces').val()
+        let pieces = self.Helpers.formatFloatValue($('#pieces').val())
 
         if ((deadline != '') & (modeSelectValue != '') && divisionSelectValue != '' && productSelectValue != '' && vesselSelectValue != '') {
             $(this).attr('disabled', 'disabled')
@@ -205,7 +210,7 @@ TransfersClass.prototype.bindSaveEventOnSaveJobButton = function () {
                     ind_deadline: self.Helpers.changeDateToMysql(deadline),
                     ind_forwarder: forwarder,
                     ind_notes: $('#notes').val(),
-                    ind_estimate_cost: estimatecostSelectValue,
+                    ind_estimate_cost: currency != '' ? estimatecostSelectValue / currency : estimatecostSelectValue,
                     ind_group_id: 0,
                     ind_reference: reference,
                     ind_kg: kg,

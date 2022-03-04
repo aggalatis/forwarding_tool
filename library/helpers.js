@@ -2,6 +2,7 @@ let HelpersClass = function () {
     $.fn.modal.Constructor.prototype._enforceFocus = function () {}
     console.log('%c App Created by AG! Visit: aggalatis.com', 'background: #222; color: yellow')
     console.log('Constructing Helpers...')
+    this.API_URL = 'https://api.portalx.eu'
     this.instructionFiles = []
     this.user_username = ''
     this.user_fullname = ''
@@ -125,7 +126,6 @@ HelpersClass.prototype.changeMysqlDateToNormal = function (datetime) {
 
 HelpersClass.prototype.initliazeModalToEditJob = function (divisions, products, vessels, cities, serviceTypes, jobData) {
     let self = this
-    console.log(jobData)
     myTransfers.initializeDivisionsSelect()
     self.findChoosenValueForDivision(divisions, jobData.division_description)
     myTransfers.initializeProductsSelect(divisions[i].division_id)
@@ -136,6 +136,8 @@ HelpersClass.prototype.initliazeModalToEditJob = function (divisions, products, 
     self.findChoosenValueForCities(cities, jobData.ex_city, jobData.to_city)
     myTransfers.initialiazeServiceTypeSelect()
     self.findChoosenValueForServiceType(serviceTypes, jobData.service_type_description)
+    $('#currency').val('1')
+    $('#currency').trigger('chosen:updated')
 
     $('#modal-title-text').html('Edit Job')
     $('#mode-select').val(jobData.ind_mode)
@@ -145,6 +147,7 @@ HelpersClass.prototype.initliazeModalToEditJob = function (divisions, products, 
     $('#reference').val(jobData.ind_reference)
     $('#pieces').val(jobData.ind_pieces)
     $('#kg').val(jobData.ind_kg)
+
     if (jobData.ind_kg == '0') {
         $('#kg').val('')
     } else {
@@ -228,19 +231,21 @@ HelpersClass.prototype.findChoosenValueForCities = function (cities, ex_city, to
     }
 }
 HelpersClass.prototype.formatFloatValue = function (num) {
-    if (num.includes('.')) {
-        var slpittedNum = num.split('.')
+    if (num == null || num == '') return null
+    return parseFloat(num.replace(',', '.')).toFixed(2)
+    // if (num.includes('.')) {
+    //     var slpittedNum = num.split('.')
 
-        if (slpittedNum[1].length > 1) {
-            return num
-        } else {
-            return num + '0'
-        }
-    } else if (num !== '' && num !== 'null') {
-        return num + '.00'
-    } else {
-        return 0
-    }
+    //     if (slpittedNum[1].length > 1) {
+    //         return num
+    //     } else {
+    //         return num + '0'
+    //     }
+    // } else if (num !== '' && num !== 'null') {
+    //     return num + '.00'
+    // } else {
+    //     return 0
+    // }
 }
 
 HelpersClass.prototype.addCityAlert = function (myDB) {
@@ -300,4 +305,43 @@ HelpersClass.prototype.initInstructionFiles = async function (myDB) {
     }
     $('#append-scenarios').html(appendStr)
     self.initializeHelp()
+}
+
+HelpersClass.prototype.initCurrencies = function (currencyInputs) {
+    let self = this
+
+    for (let currency of currencyInputs) {
+        $(`#${currency}`).chosen()
+        $(`#${currency}`).empty()
+        $(`#${currency}`).append('<option></option>')
+    }
+
+    $.ajax({
+        contentType: 'application/json',
+        url: self.API_URL + '/Rates/GetRates',
+        type: 'GET',
+        success: function (response) {
+            if (response.status !== 200) {
+                for (let currency of currencyInputs) {
+                    $(`#${currency}`).append(new Option('EUR', '1'))
+                    $(`#${currency}`).trigger('chosen:updated')
+                }
+                return
+            }
+            for (let currency of currencyInputs) {
+                for (let curr of response.data) $(`#${currency}`).append(new Option(curr.currency, curr.rate))
+                $(`#${currency}`).trigger('chosen:updated')
+            }
+        },
+        error: function (jqXHR, textStatus, error) {
+            console.log('Request failed: ' + textStatus)
+        },
+    })
+
+    // for (i = 0; i < self.DB.cities.length; i++) {
+    //     $('#ex-input').append(new Option(self.DB.cities[i].city_name, self.DB.cities[i].city_id))
+    //     $('#to-input').append(new Option(self.DB.cities[i].city_name, self.DB.cities[i].city_id))
+    // }
+    // $('#ex-input').trigger('chosen:updated')
+    // $('#to-input').trigger('chosen:updated')
 }

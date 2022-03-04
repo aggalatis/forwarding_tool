@@ -91,7 +91,7 @@ IndividualsClass.prototype.appendConsolidationGroups = async function (to_name) 
             $('#con-group-radios').append(`<label class="custom-control custom-radio dark">
                 <input name="radio-stacked" class="custom-control-input con-group" type="radio" value="${conGroup.con_group_id}" />
                 <span class="custom-control-indicator"></span>
-                <span class="custom-control-description" style="background-color: ${conGroup.con_group_color}">CONSOLIDATION ID: ${conGroup.con_group_id}</span>
+                <span class="custom-control-description" style="background-color: ${conGroup.con_group_color}">CONSOLIDATION ID: ${conGroup.con_group_id} VESSEL: ${conGroup.vessel}</span>
                 </label>`)
     }
 }

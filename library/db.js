@@ -344,6 +344,7 @@ DbClass.prototype.getAllIndividuals = function () {
         ' individual_groups.ind_group_active,' +
         ' ind_jobs.ind_actual_cost,' +
         ' service_types.service_type_description,' +
+        ' UNIX_TIMESTAMP(ind_jobs.ind_request_date) as ind_timestamp,' +
         ' ind_jobs.ind_pieces' +
         ' FROM individuals as ind_jobs' +
         ' LEFT JOIN divisions on divisions.division_id = ind_jobs.ind_division_id' +
@@ -448,6 +449,11 @@ DbClass.prototype.getAllIndividuals = function () {
                     data: 'ind_actual_cost',
                 },
                 {
+                    title: 'Timestamp',
+                    visible: false,
+                    data: 'ind_timestamp',
+                },
+                {
                     title: 'ACTIONS',
                     orderable: false,
                     createdCell: function (td, cellData, rowData, row, col) {
@@ -501,11 +507,12 @@ DbClass.prototype.getAllIndividuals = function () {
                 var forwarder = $('#forwarder').val()
                 var ind_ex = $('#ex-input').val()
                 var ind_to = $('#to-input').val()
+                var currency = $('#currency').val()
                 var reference = $('#reference').val()
                 var kg = self.Helpers.formatFloatValue($('#kg').val())
                 var deadline = $('#deadline_date').val()
                 let serviceType = $('#service-type-select').val()
-                let pieces = $('#pieces').val()
+                let pieces = self.Helpers.formatFloatValue($('#pieces').val())
 
                 if ((deadline != '') & (modeSelectValue != '') && divisionSelectValue != '' && productSelectValue != '' && vesselSelectValue != '') {
                     $(this).attr('disabled', 'disabled')
@@ -540,7 +547,7 @@ DbClass.prototype.getAllIndividuals = function () {
                             ind_deadline: self.Helpers.changeDateToMysql(deadline),
                             ind_forwarder: forwarder,
                             ind_notes: $('#notes').val(),
-                            ind_estimate_cost: estimatecostSelectValue,
+                            ind_estimate_cost: currency != '' ? estimatecostSelectValue / currency : estimatecostSelectValue,
                             ind_reference: reference,
                             ind_kg: kg,
                             ind_group_id: 0,
@@ -728,7 +735,6 @@ DbClass.prototype.getAllIndividuals = function () {
                                 }
                             }
                         }
-
                         $('#saving-data').hide()
                     } else {
                         $('#saving-data').show()
@@ -759,6 +765,8 @@ DbClass.prototype.getAllIndividuals = function () {
                     $('#saving_percent').val(savings_percent)
                     $('#shared_cost').val(shared_cost)
                     $('#group_forwarder').val(data.ind_group_forwarder)
+                    $('#group-currency').val('1')
+                    $('#group-currency').trigger('chosen:updated')
                     $('#group-cost-div').show()
                     $('#save-costs').show()
                 }
@@ -851,7 +859,8 @@ DbClass.prototype.getAllDoneIndividuals = function () {
         ' individual_groups.ind_group_forwarder, ' +
         ' (SELECT Round(sum(individuals.ind_estimate_cost),2) FROM individuals WHERE ind_group_id = ind_jobs.ind_group_id AND ind_deleted = 0) as sum_estimated_cost,' +
         ' ind_jobs.ind_actual_cost,' +
-        ' ind_jobs.ind_consolidated' +
+        ' ind_jobs.ind_consolidated,' +
+        ' UNIX_TIMESTAMP(ind_jobs.ind_confirmation_date) as ind_timestamp' +
         ' FROM individuals as ind_jobs' +
         ' LEFT JOIN divisions on divisions.division_id = ind_jobs.ind_division_id' +
         ' LEFT JOIN users on users.user_id = ind_jobs.ind_user_id' +
@@ -962,6 +971,7 @@ DbClass.prototype.getAllDoneIndividuals = function () {
                         }
                     },
                 },
+                { title: 'Timestamp', visible: false },
                 {
                     title: 'ACTIONS',
                     orderable: false,
@@ -973,7 +983,7 @@ DbClass.prototype.getAllDoneIndividuals = function () {
             ],
             order: [
                 [4, 'asc'],
-                [13, 'desc'],
+                [27, 'desc'],
             ],
             pageLength: 25,
         })
@@ -2167,7 +2177,10 @@ DbClass.prototype.getConGroups = function () {
         dateStrings: true,
     })
 
-    var sql = `SELECT cg.* , c.city_name as city_name
+    var sql = `SELECT
+        cg.*,
+        c.city_name as city_name,
+        (SELECT con_vessels FROM consolidations WHERE con_group_id = cg.con_group_id ORDER BY con_id LIMIT 1) as vessel
         FROM consolidation_groups cg
         LEFT JOIN cities c on c.city_id = cg.con_group_ex
         WHERE cg.con_group_active = 1;`
@@ -2381,7 +2394,6 @@ DbClass.prototype.assignConJobsToNewGroup = async function (jobs) {
     }
     await new Promise(function (resolve, reject) {
         let sql = `UPDATE consolidations_done set cond_consolidated = 1 WHERE cond_id IN (${jobs.join(',')})`
-        console.log(sql)
         connection.query(sql, (err, data) => {
             if (err) {
                 alert('Unable to update consolidations done')

@@ -49,7 +49,7 @@ HelpersClass.prototype.saveUserData = function (userData) {
     var userString = ''
     userString = userData.user_username + ';' + userData.user_fullname + ';' + userData.user_id + ';' + userData.user_role_id
 
-    fs.writeFile('C:\\ForwardTool\\usrdata.agcfg', userString, function (err) {
+    fs.writeFile('/home/aggalatis/Projects/forwarding_tool/usrdata.agcfg', userString, function (err) {
         if (err) throw err
     })
 }
@@ -59,7 +59,7 @@ HelpersClass.prototype.initializeUser = function () {
 
     let fs = require('fs')
     console.log('Initialiazing User.....')
-    var userFile = fs.readFileSync('C:\\ForwardTool\\usrdata.agcfg', 'utf8')
+    var userFile = fs.readFileSync('/home/aggalatis/Projects/forwarding_tool/usrdata.agcfg', 'utf8')
 
     var userFileData = userFile.split(';')
     self.user_username = userFileData[0]
@@ -344,4 +344,26 @@ HelpersClass.prototype.initCurrencies = function (currencyInputs) {
     // }
     // $('#ex-input').trigger('chosen:updated')
     // $('#to-input').trigger('chosen:updated')
+}
+
+HelpersClass.prototype.initGlobalSearch = function (myDB) {
+    let self = this
+    $('#search-reference-btn').on('click', async function () {
+        let reference = $('#global-search-reference').val()
+        let individuals = await myDB.getIndividualsByReference(reference)
+        let consoliadtions = await myDB.getConsolidationsByReference(reference)
+        let doneCons = await myDB.getConsolidationDoneByReference(reference)
+        $('#search-reslts-list').html('')
+        let resultsHtml = ''
+        for (let ind of individuals) resultsHtml += `<li>Ref: ${reference} found in Individals-${ind.ind_status} ex: ${ind.ind_ex} to: ${ind.ind_to} service:${ind.ind_service}</li>`
+        $('#search-reslts-list').html(resultsHtml)
+        console.log(individuals)
+        console.log(consoliadtions)
+        console.log(doneCons)
+    })
+
+    $('#global-search-modal-btn').on('click', function () {
+        $('#global-search-modal').modal('show')
+    })
+    self.bindMovingEvents('global-search-modal-header')
 }

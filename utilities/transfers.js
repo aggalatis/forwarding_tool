@@ -1,10 +1,11 @@
 let TransfersClass = function () {
     this.DB = new DbClass()
     this.Helpers = new HelpersClass()
-    this.Helpers.initInstructionFiles(this.DB)
-    this.Helpers.bindMovingEvents('help-modal-header')
+    // this.Helpers.initInstructionFiles(this.DB)
+    this.Helpers.initGlobalSearch(this.DB)
 
     this.Helpers.initializeUser()
+    this.Helpers.bindMovingEvents('help-modal-header')
     this.Helpers.bindMovingEvents('job-modal-header')
     this.Helpers.bindMovingEvents('cost-modal-header')
     this.Helpers.bindMovingEvents('personnel-modal-header')
@@ -295,9 +296,7 @@ TransfersClass.prototype.initialiazeServiceTypeSelect = function () {
     $('#service-type-select').empty()
     $('#service-type-select').append('<option></option>')
     for (i = 0; i < self.DB.individualServiceTypes.length; i++) {
-        $('#service-type-select').append(
-            new Option(self.DB.individualServiceTypes[i].service_type_description, self.DB.individualServiceTypes[i].service_type_id)
-        )
+        $('#service-type-select').append(new Option(self.DB.individualServiceTypes[i].service_type_description, self.DB.individualServiceTypes[i].service_type_id))
     }
     $('#service-type-select').trigger('chosen:updated')
 }

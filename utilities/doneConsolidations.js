@@ -93,7 +93,8 @@ DoneConsolidationsClass.prototype.initializetable = async function () {
         },
         bLengthChange: false,
         columns: [
-            { title: 'ID', orderable: false, data: 'cond_id' },
+            { title: 'ID', orderable: false, data: 'cond_id', visible: false },
+            { title: 'JOB ID', orderable: false, data: 'cond_ind_id' },
             {
                 title: 'CONSOL. ID',
                 orderable: false,
@@ -140,8 +141,7 @@ DoneConsolidationsClass.prototype.initializetable = async function () {
                         $(td).children('.select-done-jobs').hide()
                     }
                 },
-                defaultContent:
-                    "<i class='fa fa-search job-edit action-btn' style='cursor: pointer' title='modify'></i> \
+                defaultContent: "<i class='fa fa-search job-edit action-btn' style='cursor: pointer' title='modify'></i> \
                     <i class='select-done-jobs' style='cursor: pointer' title='select'><img src='../assets/icons/consolidations.png'/ style='width: 15px'></i>",
             },
         ],
@@ -149,7 +149,7 @@ DoneConsolidationsClass.prototype.initializetable = async function () {
             //Here I am changing background Color
             // $("td", row).css("background-color", data.con_group_color)
         },
-        order: [[12, 'desc']],
+        order: [[13, 'desc']],
         pageLength: 25,
     })
     $('#done_consolidations_table').on('click', 'i.select-done-jobs', function () {

@@ -32,7 +32,8 @@ ConsolidationsClass.prototype.initializetable = async function () {
         },
         bLengthChange: false,
         columns: [
-            { title: 'ID', orderable: false, data: 'con_id' },
+            { title: 'ID', orderable: false, data: 'con_id', visible: false },
+            { title: 'JOB ID', orderable: false, data: 'con_ind_id', visible: true },
             { title: 'CONSOLIDATION ID', orderable: false, data: 'group_id' },
             { title: 'REQ. DATE', orderable: false, data: 'con_request_date' },
             { title: 'USER', orderable: false, data: 'user_username' },
@@ -74,15 +75,7 @@ ConsolidationsClass.prototype.initializetable = async function () {
                 title: 'ACTIONS',
                 orderable: false,
                 createdCell: function (td, cellData, rowData, row, col) {
-                    if (
-                        rowData.to_name == null ||
-                        rowData.ex_name == null ||
-                        rowData.con_group_cost == null ||
-                        rowData.con_group_deadline == null ||
-                        rowData.con_group_forwarder == null ||
-                        rowData.con_group_forwarder == '' ||
-                        rowData.con_group_mode == null
-                    ) {
+                    if (rowData.to_name == null || rowData.ex_name == null || rowData.con_group_cost == null || rowData.con_group_deadline == null || rowData.con_group_forwarder == null || rowData.con_group_forwarder == '' || rowData.con_group_mode == null) {
                         $(td).children('.confirm-job').hide()
                     }
                 },
@@ -94,7 +87,7 @@ ConsolidationsClass.prototype.initializetable = async function () {
             //Here I am changing background Color
             $('td', row).css('background-color', data.con_group_color)
         },
-        order: [[2, 'desc']],
+        order: [[3, 'desc']],
         pageLength: 25,
     })
     $('#consolidations_table').on('click', 'i.delete-job', function () {
@@ -249,17 +242,7 @@ ConsolidationsClass.prototype.bindSaveEventOnSaveJobButton = function () {
         var deadlinedate = $('#deadline_date').val()
         var reference = $('#reference').val()
 
-        if (
-            modeSelectValue != '' &&
-            divisionSelectValue != '' &&
-            productSelectValue != '' &&
-            vesselSelectValue != '' &&
-            actualWeight != '' &&
-            volumeWeight != '' &&
-            cutoffDate != '' &&
-            deadlinedate != '' &&
-            reference != ''
-        ) {
+        if (modeSelectValue != '' && divisionSelectValue != '' && productSelectValue != '' && vesselSelectValue != '' && actualWeight != '' && volumeWeight != '' && cutoffDate != '' && deadlinedate != '' && reference != '') {
             $(this).attr('disabled', 'disabled')
             var ind_ex = ''
             var ind_to = ''
@@ -377,9 +360,7 @@ ConsolidationsClass.prototype.initializeServiceTypeSelect = function () {
     $('#service-type-select').empty()
     $('#service-type-select').append('<option></option>')
     for (i = 0; i < self.DB.consolidationServiceTypes.length; i++) {
-        $('#service-type-select').append(
-            new Option(self.DB.consolidationServiceTypes[i].service_type_description, self.DB.consolidationServiceTypes[i].service_type_id)
-        )
+        $('#service-type-select').append(new Option(self.DB.consolidationServiceTypes[i].service_type_description, self.DB.consolidationServiceTypes[i].service_type_id))
     }
     $('#service-type-select').trigger('chosen:updated')
 }

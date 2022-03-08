@@ -61,72 +61,42 @@
         </style>
     </head>
     <body class="top-navigation">
-        <!-- Start Help modal -->
-        <div
-            aria-hidden="true"
-            class="modal fade"
-            role="dialog"
-            tabindex="-1"
-            style="top: 15%"
-            id="help-modal"
-            data-keyboard="false"
-            data-backdrop="static"
-        >
-            <div id="help-modal-header" class="modal-dialog">
+        <!-- Start Global Search modal -->
+        <div aria-hidden="true" class="modal fade" role="dialog" tabindex="-1" style="top: 15%" id="global-search-modal" data-keyboard="false" data-backdrop="static">
+            <div id="global-search-modal-header" class="modal-dialog">
                 <div class="modal-content">
                     <div class="modal-header">
                         <button class="close move-left" type="button"><i class="icon-arrow-left"></i></button>
-                        <h5 class="modal-title">Help</h5>
+                        <h5 class="modal-title">Global Search</h5>
 
                         <button class="close move-right" type="button"><i class="icon-arrow-right"></i></button>
                     </div>
                     <div class="modal-body">
                         <div class="row">
                             <div class="col-sm-12">
-                                <h4>General instructions</h4>
-                                <p class="help-text">
-                                    You can find info for the general use of the app on this
-                                    <a href="#" id="help-instructions" class="help-link" id="" style="cursor: pointer">LINK</a>
-                                </p>
+                                <div class="form-group">
+                                    <label> Job Reference</label>
+                                    <input type="text" class="form-control" placeholder="Type job reference..." id="global-search-reference" />
+                                </div>
                             </div>
-                        </div>
-                        <hr />
-                        <div class="row">
-                            <div class="col-sm-12">
-                                <h4>Scenarios visualizer</h4>
-                                <p class="help-text">
-                                    A full scenarions visualization can be found on this
-                                    <a href="#" id="help-visualizer" style="cursor: pointer">LINK</a>
-                                </p>
-                            </div>
-                        </div>
-                        <hr />
-
-                        <div class="row">
-                            <div class="col-sm-12">
-                                <h4>Scenarios</h4>
-                                <div id="append-scenarios"></div>
+                            <div class="col-sm-12" id="global-search-results">
+                                <div class="form-group">
+                                    <label> Search Results</label>
+                                    <ul id="search-reslts-list"></ul>
+                                </div>
                             </div>
                         </div>
                     </div>
                     <div class="modal-footer">
                         <button class="btn btn-secondary" data-dismiss="modal" type="button">Close</button>
+                        <button class="btn btn-primary" type="button" id="search-reference-btn">Search</button>
                     </div>
                 </div>
             </div>
         </div>
         <!-- End Help modal -->
         <!-- Start Job modal -->
-        <div
-            aria-hidden="true"
-            class="modal fade"
-            role="dialog"
-            tabindex="-1"
-            id="add-job-modal"
-            style="top: 15%"
-            data-keyboard="false"
-            data-backdrop="static"
-        >
+        <div aria-hidden="true" class="modal fade" role="dialog" tabindex="-1" id="add-job-modal" style="top: 15%" data-keyboard="false" data-backdrop="static">
             <div id="job-modal-header" class="modal-dialog modal-lg">
                 <div class="modal-content">
                     <div class="modal-header">
@@ -141,36 +111,19 @@
                                 <div class="col-sm-4">
                                     <div class="form-group">
                                         <label> Department*</label>
-                                        <select
-                                            class="form-control select"
-                                            id="division-select"
-                                            data-placeholder="Choose a department..."
-                                            tabindex="1"
-                                        ></select>
+                                        <select class="form-control select" id="division-select" data-placeholder="Choose a department..." tabindex="1"></select>
                                     </div>
                                 </div>
                                 <div class="col-sm-4">
                                     <div class="form-group">
                                         <label> Product*</label>
-                                        <select
-                                            class="form-control select"
-                                            id="product-select"
-                                            multiple
-                                            data-placeholder="Choose a product..."
-                                            tabindex="1"
-                                        ></select>
+                                        <select class="form-control select" id="product-select" multiple data-placeholder="Choose a product..." tabindex="1"></select>
                                     </div>
                                 </div>
                                 <div class="col-sm-4">
                                     <div class="form-group">
                                         <label> Vessel*</label>
-                                        <select
-                                            class="form-control select"
-                                            id="vessel-select"
-                                            multiple
-                                            data-placeholder="Choose a vessel..."
-                                            tabindex="1"
-                                        ></select>
+                                        <select class="form-control select" id="vessel-select" multiple data-placeholder="Choose a vessel..." tabindex="1"></select>
                                     </div>
                                 </div>
                             </div>
@@ -209,12 +162,7 @@
                                 <div class="col-sm-4">
                                     <div class="form-group">
                                         <label> Service</label>
-                                        <select
-                                            class="form-control select"
-                                            id="service-type-select"
-                                            data-placeholder="Choose service..."
-                                            tabindex="1"
-                                        ></select>
+                                        <select class="form-control select" id="service-type-select" data-placeholder="Choose service..." tabindex="1"></select>
                                     </div>
                                 </div>
                                 <div class="col-sm-2">
@@ -285,16 +233,7 @@
         <!-- End Job modal -->
 
         <!-- Start Costs modal -->
-        <div
-            aria-hidden="true"
-            class="modal fade"
-            role="dialog"
-            tabindex="-1"
-            style="top: 15%"
-            id="costs-modal"
-            data-keyboard="false"
-            data-backdrop="static"
-        >
+        <div aria-hidden="true" class="modal fade" role="dialog" tabindex="-1" style="top: 15%" id="costs-modal" data-keyboard="false" data-backdrop="static">
             <div id="cost-modal-header" class="modal-dialog">
                 <div class="modal-content">
                     <div class="modal-header">
@@ -325,12 +264,7 @@
                                     <a class="deadline-info" href="#"><i class="fa fa-info"></i></a>
                                     <div class="input-group">
                                         <span class="input-group-addon text-dark"><i class="ion-ios-calendar-outline"></i></span>
-                                        <input
-                                            class="single-date-picker form-control"
-                                            type="text"
-                                            placeholder="Select group deadline"
-                                            id="group_cut_off_date"
-                                        />
+                                        <input class="single-date-picker form-control" type="text" placeholder="Select group deadline" id="group_cut_off_date" />
                                     </div>
                                 </div>
                                 <div class="col-sm-3">
@@ -350,23 +284,13 @@
                                 <div class="col-sm-6">
                                     <div class="form-group">
                                         <label> Group Ex*</label>
-                                        <select
-                                            class="form-control select"
-                                            id="group-ex-select"
-                                            data-placeholder="Choose city..."
-                                            tabindex="1"
-                                        ></select>
+                                        <select class="form-control select" id="group-ex-select" data-placeholder="Choose city..." tabindex="1"></select>
                                     </div>
                                 </div>
                                 <div class="col-sm-6">
                                     <div class="form-group">
                                         <label> Group To*</label>
-                                        <select
-                                            class="form-control select"
-                                            id="group-to-select"
-                                            data-placeholder="Choose city..."
-                                            tabindex="1"
-                                        ></select>
+                                        <select class="form-control select" id="group-to-select" data-placeholder="Choose city..." tabindex="1"></select>
                                     </div>
                                 </div>
                             </div>
@@ -417,16 +341,7 @@
         <!-- End Costs modal -->
 
         <!-- Start Personnel Costs modal -->
-        <div
-            aria-hidden="true"
-            class="modal fade"
-            role="dialog"
-            tabindex="-1"
-            style="top: 15%"
-            id="personnel-costs-modal"
-            data-keyboard="false"
-            data-backdrop="static"
-        >
+        <div aria-hidden="true" class="modal fade" role="dialog" tabindex="-1" style="top: 15%" id="personnel-costs-modal" data-keyboard="false" data-backdrop="static">
             <div id="personnel-modal-header" class="modal-dialog">
                 <div class="modal-content">
                     <div class="modal-header">
@@ -454,25 +369,13 @@
                             <div class="col-sm-6">
                                 <div class="form-group">
                                     <label> Saving</label>
-                                    <input
-                                        type="number"
-                                        class="form-control"
-                                        placeholder="Savings calculated from actual cost..."
-                                        id="personnel-savings"
-                                        disabled
-                                    />
+                                    <input type="number" class="form-control" placeholder="Savings calculated from actual cost..." id="personnel-savings" disabled />
                                 </div>
                             </div>
                             <div class="col-sm-6">
                                 <div class="form-group">
                                     <label> Saving %</label>
-                                    <input
-                                        type="number"
-                                        class="form-control"
-                                        placeholder="Savings calculated from actual cost..."
-                                        id="personnel-savings-percent"
-                                        disabled
-                                    />
+                                    <input type="number" class="form-control" placeholder="Savings calculated from actual cost..." id="personnel-savings-percent" disabled />
                                 </div>
                             </div>
                             <div class="col-sm-12" style="display: none">
@@ -587,7 +490,7 @@
                         </li>
 
                         <input placeholder="Search Table..." id="search_datatable" style="float: right; height: 35px; margin: 5px" />
-                        <!-- <button class="btn btn-info mt-2" id="help-btn" style="float: right; height: 35px; margin: 5px">Help</button> -->
+                        <button class="btn btn-info mt-2" id="global-search-modal-btn" style="float: right; height: 35px; margin: 5px">GLOBAL SEARCH</button>
                     </ul>
                 </div>
             </nav>

@@ -2,6 +2,7 @@ let DoneConsolidationsClass = function () {
     this.DB = new DbClass()
     this.Helpers = new HelpersClass()
     this.Helpers.initInstructionFiles(this.DB)
+    this.Helpers.initGlobalSearch(this.DB)
     this.Helpers.bindMovingEvents('help-modal-header')
     this.Helpers.bindMovingEvents('cost-done-cons-head')
     this.Helpers.bindMovingEvents('edit-notes-consolidation-head')
@@ -141,7 +142,8 @@ DoneConsolidationsClass.prototype.initializetable = async function () {
                         $(td).children('.select-done-jobs').hide()
                     }
                 },
-                defaultContent: "<i class='fa fa-search job-edit action-btn' style='cursor: pointer' title='modify'></i> \
+                defaultContent:
+                    "<i class='fa fa-search job-edit action-btn' style='cursor: pointer' title='modify'></i> \
                     <i class='select-done-jobs' style='cursor: pointer' title='select'><img src='../assets/icons/consolidations.png'/ style='width: 15px'></i>",
             },
         ],

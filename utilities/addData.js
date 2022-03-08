@@ -1,6 +1,7 @@
 let addDataClass = function () {
     this.DB = new DbClass()
     this.Helpers = new HelpersClass()
+    this.Helpers.initGlobalSearch(this.DB)
     this.Helpers.bindMovingEvents('city-modal-header')
     this.Helpers.bindMovingEvents('vessel-modal-header')
     this.Helpers.bindMovingEvents('service-type-modal-header')

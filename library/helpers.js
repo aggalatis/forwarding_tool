@@ -49,7 +49,7 @@ HelpersClass.prototype.saveUserData = function (userData) {
     var userString = ''
     userString = userData.user_username + ';' + userData.user_fullname + ';' + userData.user_id + ';' + userData.user_role_id
 
-    fs.writeFile('/home/aggalatis/Projects/forwarding_tool/usrdata.agcfg', userString, function (err) {
+    fs.writeFile('C:\\ForwardTool\\usrdata.agcfg', userString, function (err) {
         if (err) throw err
     })
 }
@@ -59,7 +59,7 @@ HelpersClass.prototype.initializeUser = function () {
 
     let fs = require('fs')
     console.log('Initialiazing User.....')
-    var userFile = fs.readFileSync('/home/aggalatis/Projects/forwarding_tool/usrdata.agcfg', 'utf8')
+    var userFile = fs.readFileSync('C:\\ForwardTool\\usrdata.agcfg', 'utf8')
 
     var userFileData = userFile.split(';')
     self.user_username = userFileData[0]
@@ -349,17 +349,21 @@ HelpersClass.prototype.initCurrencies = function (currencyInputs) {
 HelpersClass.prototype.initGlobalSearch = function (myDB) {
     let self = this
     $('#search-reference-btn').on('click', async function () {
+        $('#global-search-results').show()
         let reference = $('#global-search-reference').val()
         let individuals = await myDB.getIndividualsByReference(reference)
         let consoliadtions = await myDB.getConsolidationsByReference(reference)
         let doneCons = await myDB.getConsolidationDoneByReference(reference)
         $('#search-reslts-list').html('')
         let resultsHtml = ''
-        for (let ind of individuals) resultsHtml += `<li>Ref: ${reference} found in Individals-${ind.ind_status} ex: ${ind.ind_ex} to: ${ind.ind_to} service:${ind.ind_service}</li>`
+        for (let ind of individuals)
+            resultsHtml += `<li style="color: black; font-size: 15px">Ref: <span style="color: red">"${reference}"</span> found in <span style="color: red">Individals-${ind.ind_status} ID: ${ind.ind_id}</span> EX: <span style="color: red">${ind.ex_city}</span> TO: <span style="color: red">${ind.to_city}</span> SERVICE: <span style="color: red">${ind.service_name}</span></li>`
+        for (let con of consoliadtions)
+            resultsHtml += `<li style="color: black; font-size: 15px">Ref: <span style="color: red">"${reference}"</span> found in <span style="color: red">Consolidations-Pending ID: ${con.con_ind_id}</span> EX: <span style="color: red">${con.ex_city}</span> TO: <span style="color: red">${con.to_city}</span> SERVICE: <span style="color: red">${con.service_name}</span></li>`
+        for (let cond of doneCons)
+            resultsHtml += `<li style="color: black; font-size: 15px">Ref: <span style="color: red">"${reference}"</span> found in <span style="color: red">Consolidations-Done ID: ${cond.cond_ind_id}</span> EX: <span style="color: red">${cond.ex_city}</span> TO: <span style="color: red">${cond.to_city}</span> SERVICE: <span style="color: red">${cond.service_name}</span></li>`
+
         $('#search-reslts-list').html(resultsHtml)
-        console.log(individuals)
-        console.log(consoliadtions)
-        console.log(doneCons)
     })
 
     $('#global-search-modal-btn').on('click', function () {

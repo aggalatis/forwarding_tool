@@ -67,6 +67,49 @@
         </style>
     </head>
     <body class="top-navigation">
+        <!-- Start Global Search modal -->
+        <div
+            aria-hidden="true"
+            class="modal fade"
+            role="dialog"
+            tabindex="-1"
+            style="top: 15%"
+            id="global-search-modal"
+            data-keyboard="false"
+            data-backdrop="static"
+        >
+            <div id="global-search-modal-header" class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <button class="close move-left" type="button"><i class="icon-arrow-left"></i></button>
+                        <h5 class="modal-title">Global Search</h5>
+
+                        <button class="close move-right" type="button"><i class="icon-arrow-right"></i></button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="row">
+                            <div class="col-sm-12">
+                                <div class="form-group">
+                                    <label> Job Reference</label>
+                                    <input type="text" class="form-control" placeholder="Type job reference..." id="global-search-reference" />
+                                </div>
+                            </div>
+                            <div class="col-sm-12" id="global-search-results" style="display: none">
+                                <div class="form-group">
+                                    <label> Search Results</label>
+                                    <ul id="search-reslts-list" style="color: black"></ul>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button class="btn btn-secondary" data-dismiss="modal" type="button">Close</button>
+                        <button class="btn btn-primary" type="button" id="search-reference-btn">Search</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- End Help modal -->
         <!-- Start Help modal -->
         <div
             aria-hidden="true"
@@ -313,7 +356,9 @@
                             <button class="btn btn-warning mt-2" id="assign-btn">ASSIGN</button>
                         </li>
                         <input placeholder="Search Table..." id="search_datatable" style="float: right; height: 35px; margin: 5px" />
-                        <!-- <button class="btn btn-info mt-2" id="help-btn" style="float: right; height: 35px; margin: 5px">Help</button> -->
+                        <button class="btn btn-info mt-2" id="global-search-modal-btn" style="float: right; height: 35px; margin: 5px">
+                            GLOBAL SEARCH
+                        </button>
                     </ul>
                 </div>
             </nav>

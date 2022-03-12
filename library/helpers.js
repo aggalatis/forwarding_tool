@@ -8,6 +8,7 @@ let HelpersClass = function () {
     this.user_fullname = ''
     this.user_id = ''
     this.user_role_id = ''
+    this.LOCAL_SERVICE_TYPE_ID = 9
 }
 
 HelpersClass.prototype.bindMovingEvents = function (elementID) {
@@ -232,7 +233,10 @@ HelpersClass.prototype.findChoosenValueForCities = function (cities, ex_city, to
 }
 HelpersClass.prototype.formatFloatValue = function (num) {
     if (num == null || num == '') return null
-    return parseFloat(num.replace(',', '.')).toFixed(2)
+    if (typeof num == 'string') {
+        return parseFloat(num.replace(',', '.')).toFixed(2)
+    }
+    return num.toFixed(2)
     // if (num.includes('.')) {
     //     var slpittedNum = num.split('.')
 
@@ -246,6 +250,13 @@ HelpersClass.prototype.formatFloatValue = function (num) {
     // } else {
     //     return 0
     // }
+}
+
+HelpersClass.prototype.applyRate = function (num, rate) {
+    if (num == null || num == '') return null
+    let numRate = parseFloat(rate)
+    let numNumber = parseFloat(num)
+    return this.formatFloatValue(numNumber / numRate)
 }
 
 HelpersClass.prototype.addCityAlert = function (myDB) {
@@ -330,6 +341,7 @@ HelpersClass.prototype.initCurrencies = function (currencyInputs) {
             }
             for (let currency of currencyInputs) {
                 for (let curr of response.data) $(`#${currency}`).append(new Option(curr.currency, curr.rate))
+                $(`#${currency}`).val('1')
                 $(`#${currency}`).trigger('chosen:updated')
             }
         },

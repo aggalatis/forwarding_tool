@@ -2240,8 +2240,8 @@ DbClass.prototype.assignJobsToNewGroup = async function () {
     let conAdded = await new Promise(function (resolve, reject) {
         let sql = ''
         for (let ind of inds) {
-            sql = `INSERT INTO consolidations (con_ind_id, con_user_id, con_division_id, con_products, con_vessels, con_reference, con_kg, con_status, con_request_date, con_group_id, con_pieces)
-                    VALUES (${ind.ind_id}, ${self.Helpers.user_id}, ${ind.ind_division_id}, '${ind.ind_products}', '${ind.ind_vessels}', '${ind.ind_reference}', ${ind.ind_kg}, 'Pending', now(), ${newConGroup.insertId}, ${ind.ind_pieces});`
+            sql = `INSERT INTO consolidations (con_ind_id, con_user_id, con_division_id, con_products, con_vessels, con_reference, con_kg, con_status, con_request_date, con_group_id, con_pieces, con_is_grouped, con_service_type)
+                    VALUES (${ind.ind_id}, ${self.Helpers.user_id}, ${ind.ind_division_id}, '${ind.ind_products}', '${ind.ind_vessels}', '${ind.ind_reference}', ${ind.ind_kg}, 'Pending', now(), ${newConGroup.insertId}, ${ind.ind_pieces}, ${ind.ind_is_grouped}, ${ind.ind_service_type});`
             connection.query(sql, (err, data) => {
                 if (err) {
                     alert('Unable to add consolidations')
@@ -2297,8 +2297,8 @@ DbClass.prototype.assignJobsToConGroup = async function (selGroup) {
     let conAdded = await new Promise(function (resolve, reject) {
         let sql = ''
         for (let ind of inds) {
-            sql = `INSERT INTO consolidations (con_ind_id, con_user_id, con_division_id, con_products, con_vessels, con_reference, con_kg, con_status, con_request_date, con_group_id, con_pieces)
-                    VALUES (${ind.ind_id}, ${self.Helpers.user_id}, ${ind.ind_division_id}, '${ind.ind_products}', '${ind.ind_vessels}', '${ind.ind_reference}', ${ind.ind_kg}, 'Pending', now(), ${selGroup}, ${ind.ind_pieces});`
+            sql = `INSERT INTO consolidations (con_ind_id, con_user_id, con_division_id, con_products, con_vessels, con_reference, con_kg, con_status, con_request_date, con_group_id, con_pieces, con_is_grouped, con_service_type)
+                    VALUES (${ind.ind_id}, ${self.Helpers.user_id}, ${ind.ind_division_id}, '${ind.ind_products}', '${ind.ind_vessels}', '${ind.ind_reference}', ${ind.ind_kg}, 'Pending', now(), ${selGroup}, ${ind.ind_pieces}, ${ind.ind_is_grouped}, ${ind.ind_service_type});`
             connection.query(sql, (err, data) => {
                 if (err) {
                     alert('Unable to add consolidations')
@@ -3011,7 +3011,9 @@ DbClass.prototype.getAllConsolidations = function () {
     cg.con_group_forwarder,
     cg.con_group_color,
     cg.con_group_mode,
+    cg.con_group_local_cost,
     st.service_type_description,
+    st2.service_type_description as con_service_description,
     d.division_description,
     u.user_username,
     c2.city_name as ex_name,
@@ -3023,12 +3025,40 @@ DbClass.prototype.getAllConsolidations = function () {
     LEFT JOIN cities c2 on c2.city_id = cg.con_group_ex 
     LEFT JOIN cities c3 on c3.city_id = cg.con_group_to
     LEFT JOIN service_types st on st.service_type_id = cg.con_group_service_type
+    LEFT JOIN service_types st2 on st2.service_type_id = c.con_service_type
     WHERE c.con_status = 'Pending'`
     return new Promise((resolve, reject) => {
         connection.query(sql, function (error, data) {
             connection.end()
             if (error) {
                 alert('Unable to get consolidations.')
+                reject(error)
+            }
+            resolve(data)
+        })
+    })
+}
+
+DbClass.prototype.updateConsolidationCost = function (consolidationJob) {
+    let self = this
+    var mysql = require('mysql')
+
+    var connection = mysql.createConnection({
+        host: self.serverIP,
+        user: self.user,
+        password: self.dbpass,
+        database: self.database,
+        port: self.port,
+        dateStrings: true,
+    })
+
+    connection.connect()
+    let sql = `UPDATE consolidations set con_estimate_cost = ${consolidationJob.cost} WHERE con_id = ${consolidationJob.id} LIMIT 1;`
+    return new Promise((resolve, reject) => {
+        connection.query(sql, function (error, data) {
+            connection.end()
+            if (error) {
+                alert('Unable to update consolidation cost')
                 reject(error)
             }
             resolve(data)
@@ -3106,7 +3136,7 @@ DbClass.prototype.updateConGroupData = function (groupData) {
     if (groupData.groupServiceType == '') groupData.groupServiceType = null
 
     let sql = `UPDATE consolidation_groups SET con_group_ex = ${groupData.groupEx}, con_group_to = ${groupData.groupTo}, con_group_cost = ${groupData.groupCost}, con_group_forwarder = '${groupData.groupForwarder}',
-        con_group_deadline = '${groupData.groupDeadline}', con_group_mode = '${groupData.groupMode}', con_group_service_type = ${groupData.groupServiceType} WHERE con_group_id = ${groupData.groupId}`
+        con_group_deadline = '${groupData.groupDeadline}', con_group_mode = '${groupData.groupMode}', con_group_service_type = ${groupData.groupServiceType}, con_group_local_cost = ${groupData.groupLocalCost} WHERE con_group_id = ${groupData.groupId}`
     return new Promise((resolve, reject) => {
         connection.query(sql, function (error, data) {
             connection.end()

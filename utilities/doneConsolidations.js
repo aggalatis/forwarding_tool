@@ -123,7 +123,7 @@ DoneConsolidationsClass.prototype.initializetable = async function () {
             { title: 'COST / KG (€)', orderable: false, data: 'cond_cost_per_kg' },
             { title: 'SHARED CONS COST (€)', visible: true, data: 'cond_shared_cost' },
             {
-                title: 'RE - CONSOLIDATED',
+                title: 'DELIVERY ON BOARD',
                 orderable: false,
                 createdCell: function (td, cellData, rowData, row, col) {
                     if (rowData.cond_consolidated != 1) {

@@ -231,8 +231,22 @@ DoneConsolidationsClass.prototype.formatData = function (consolidations) {
         retData.push(cons)
     }
     for (let con of retData) {
-        con.cond_cost_per_kg = (con.con_group_cost / groupSumKG[con.group_id]).toFixed(2)
-        con.cond_shared_cost = ((con.cond_kg * con.con_group_cost) / groupSumKG[con.group_id]).toFixed(2)
+        if (con.cond_is_grouped == 1) {
+            // Job was grouped
+            con.cond_cost_per_kg = (con.con_group_cost / groupSumKG[con.group_id]).toFixed(2)
+            con.cond_shared_cost = ((con.cond_kg * con.con_group_cost) / groupSumKG[con.group_id]).toFixed(2)
+        } else {
+            if (con.cond_service_type != self.Helpers.LOCAL_SERVICE_TYPE_ID) {
+                // Job is a simple individual
+                con.cond_cost_per_kg = (con.cond_estimate_cost / con.cond_kg).toFixed(2)
+                con.cond_shared_cost = con.cond_estimate_cost.toFixed(2)
+            } else {
+                // Job is a local dispatch
+                con.cond_cost_per_kg = (con.con_group_local_cost / con.cond_kg).toFixed(2)
+                con.cond_shared_cost = con.con_group_local_cost.toFixed(2)
+            }
+        }
+
         finalData.push(con)
     }
 

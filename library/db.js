@@ -3179,11 +3179,11 @@ DbClass.prototype.confirmConsGroup = async function (data) {
         let sql = ''
         for (let con of cons) {
             if (con.con_done_id == null) {
-                sql = `INSERT INTO consolidations_done (cond_ind_id, cond_con_done_id, cond_user_id, cond_division_id, cond_products, cond_vessels, cond_reference, cond_kg, cond_status, cond_request_date, cond_group_id, cond_pieces)
-                VALUES (${con.con_ind_id}, ${con.con_done_id}, ${self.Helpers.user_id}, ${con.con_division_id}, '${con.con_products}', '${con.con_vessels}', '${con.con_reference}', ${con.con_kg}, 'Done', '${con.con_request_date}', ${con.con_group_id}, ${con.con_pieces});`
+                sql = `INSERT INTO consolidations_done (cond_ind_id, cond_con_done_id, cond_user_id, cond_division_id, cond_products, cond_vessels, cond_reference, cond_kg, cond_status, cond_request_date, cond_group_id, cond_pieces, cond_is_grouped, cond_estimate_cost)
+                VALUES (${con.con_ind_id}, ${con.con_done_id}, ${self.Helpers.user_id}, ${con.con_division_id}, '${con.con_products}', '${con.con_vessels}', '${con.con_reference}', ${con.con_kg}, 'Done', '${con.con_request_date}', ${con.con_group_id}, ${con.con_pieces}, ${con.con_is_grouped}, ${con.con_estimate_cost});`
             } else {
-                sql = `INSERT INTO consolidations_done (cond_ind_id, cond_con_done_id, cond_consolidated, cond_user_id, cond_division_id, cond_products, cond_vessels, cond_reference, cond_kg, cond_status, cond_request_date, cond_group_id, cond_pieces)
-                VALUES (${con.con_ind_id}, ${con.con_done_id}, 1, ${self.Helpers.user_id}, ${con.con_division_id}, '${con.con_products}', '${con.con_vessels}', '${con.con_reference}', ${con.con_kg}, 'Done', '${con.con_request_date}', ${con.con_group_id}, ${con.con_pieces});`
+                sql = `INSERT INTO consolidations_done (cond_ind_id, cond_con_done_id, cond_consolidated, cond_user_id, cond_division_id, cond_products, cond_vessels, cond_reference, cond_kg, cond_status, cond_request_date, cond_group_id, cond_pieces, cond_is_grouped, cond_estimate_cost)
+                VALUES (${con.con_ind_id}, ${con.con_done_id}, 1, ${self.Helpers.user_id}, ${con.con_division_id}, '${con.con_products}', '${con.con_vessels}', '${con.con_reference}', ${con.con_kg}, 'Done', '${con.con_request_date}', ${con.con_group_id}, ${con.con_pieces}, ${con.con_is_grouped}, ${con.con_estimate_cost});`
             }
 
             connection.query(sql, (err, data) => {
@@ -3302,6 +3302,168 @@ DbClass.prototype.saveConsolidationNotes = async function (conID, notes) {
 }
 
 /**************** END OF CONSOLIDATIONS ***********************/
+
+/**************** OVERVIEW ***********************/
+
+DbClass.prototype.getIndividualReport = async function (fromDate, toDate) {
+    let self = this
+    var mysql = require('mysql')
+
+    var connection = mysql.createConnection({
+        host: self.serverIP,
+        user: self.user,
+        password: self.dbpass,
+        database: self.database,
+        port: self.port,
+        dateStrings: true,
+    })
+
+    connection.connect()
+    return new Promise(function (resolve, reject) {
+        let sql = `SELECT 
+        d.division_description, 
+        ROUND(sum(ind.ind_estimate_cost), 2) as sum_estimate_cost
+        FROM individuals ind
+        LEFT JOIN divisions d ON ind.ind_division_id = d.division_id
+        WHERE ind_is_grouped = 0
+        AND ind_status = 'Done'
+        AND ind_mode != 'Personnel'
+        AND ind_deleted = 0
+        AND ind_confirmation_date BETWEEN '${fromDate}' AND '${toDate}'
+        GROUP BY ind_division_id
+        ORDER BY d.division_description;`
+        connection.query(sql, (err, data) => {
+            if (err) {
+                alert('Unable to get individual report')
+                console.log(err)
+                reject(err)
+            }
+            resolve(data)
+        })
+    })
+}
+
+DbClass.prototype.getPersonnelReport = async function (fromDate, toDate) {
+    let self = this
+    var mysql = require('mysql')
+
+    var connection = mysql.createConnection({
+        host: self.serverIP,
+        user: self.user,
+        password: self.dbpass,
+        database: self.database,
+        port: self.port,
+        dateStrings: true,
+    })
+
+    connection.connect()
+    return new Promise(function (resolve, reject) {
+        let sql = `SELECT 
+        d.division_description, 
+        ROUND(SUM(ind.ind_estimate_cost), 2) as sum_estimate_cost,
+        ROUND(SUM(ind.ind_actual_cost), 2) as sum_actual_cost,
+        ROUND(SUM(ind.ind_estimate_cost) - SUM(ind.ind_actual_cost), 2) as savings,
+        ROUND((1 - sum(ind.ind_actual_cost) / SUM(ind.ind_estimate_cost)) * 100, 2) as savings_percent
+        FROM individuals ind
+        LEFT JOIN divisions d on ind.ind_division_id = d.division_id
+        WHERE ind_is_grouped = 0
+        AND ind_status = 'Done'
+        AND ind_mode = 'Personnel'
+        AND ind_deleted = 0
+        AND ind_confirmation_date BETWEEN '${fromDate}' AND '${toDate}'
+        GROUP BY ind_division_id
+        ORDER BY d.division_description;`
+        connection.query(sql, (err, data) => {
+            if (err) {
+                alert('Unable to get personnel report')
+                console.log(err)
+                reject(err)
+            }
+            resolve(data)
+        })
+    })
+}
+
+DbClass.prototype.getIndGroupedReport = async function (fromDate, toDate) {
+    let self = this
+    var mysql = require('mysql')
+
+    var connection = mysql.createConnection({
+        host: self.serverIP,
+        user: self.user,
+        password: self.dbpass,
+        database: self.database,
+        port: self.port,
+        dateStrings: true,
+    })
+
+    connection.connect()
+    return new Promise(function (resolve, reject) {
+        let sql = `SELECT 
+        d.division_description,
+        ROUND(sum(i.ind_estimate_cost), 2) as sum_estimate_cost,
+        ROUND(sum(i.ind_estimate_cost * ig.ind_group_cost / (SELECT ROUND(sum(individuals.ind_estimate_cost),2) FROM individuals WHERE ind_group_id = i.ind_group_id AND ind_deleted = 0)), 2) as shared_cost,
+        ROUND(sum(i.ind_estimate_cost) - sum(i.ind_estimate_cost * ig.ind_group_cost / (SELECT ROUND(sum(individuals.ind_estimate_cost),2) FROM individuals WHERE ind_group_id = i.ind_group_id AND ind_deleted = 0)), 2) as savings,
+        ROUND(((sum(i.ind_estimate_cost) - sum(i.ind_estimate_cost * ig.ind_group_cost / (SELECT ROUND(sum(individuals.ind_estimate_cost),2) FROM individuals WHERE ind_group_id = i.ind_group_id AND ind_deleted = 0))) / sum(i.ind_estimate_cost)) * 100, 2) as savings_percent
+        FROM individuals i 
+        LEFT JOIN divisions d on i.ind_division_id = d.division_id
+        LEFT JOIN individual_groups ig on ig.ind_group_id = i.ind_group_id
+        WHERE i.ind_status = 'Done'
+        AND i.ind_is_grouped = 1
+        AND i.ind_deleted = 0
+        AND ind_confirmation_date BETWEEN '${fromDate}' AND '${toDate}'
+        GROUP BY i.ind_division_id
+        ORDER BY d.division_description;`
+        connection.query(sql, (err, data) => {
+            if (err) {
+                alert('Unable to get Grouped report')
+                console.log(err)
+                reject(err)
+            }
+            resolve(data)
+        })
+    })
+}
+
+DbClass.prototype.getConGroupedReport = async function (fromDate, toDate) {
+    let self = this
+    var mysql = require('mysql')
+
+    var connection = mysql.createConnection({
+        host: self.serverIP,
+        user: self.user,
+        password: self.dbpass,
+        database: self.database,
+        port: self.port,
+        dateStrings: true,
+    })
+
+    connection.connect()
+    return new Promise(function (resolve, reject) {
+        let sql = `SELECT 
+        d.division_description,
+        ROUND(sum(cd.cond_estimate_cost), 2) as sum_estimate_cost,
+        ROUND(sum(cd.cond_kg * cg.con_group_cost / (SELECT sum(cond_kg) FROM consolidations_done WHERE cond_group_id = cd.cond_group_id and cond_is_grouped = 1)), 2) as shared_cost,
+        ROUND(sum(cd.cond_estimate_cost) - sum(cd.cond_kg * cg.con_group_cost / (SELECT sum(cond_kg) FROM consolidations_done WHERE cond_group_id = cd.cond_group_id and cond_is_grouped = 1)), 2) as savings,
+        ROUND(((sum(cd.cond_estimate_cost) - sum(cd.cond_kg * cg.con_group_cost / (SELECT sum(cond_kg) FROM consolidations_done WHERE cond_group_id = cd.cond_group_id and cond_is_grouped = 1))) / sum(cd.cond_estimate_cost)) * 100, 2) AS savings_percent
+        FROM consolidations_done cd
+        LEFT JOIN divisions d on cd.cond_division_id = d.division_id
+        LEFT JOIN consolidation_groups cg on cd.cond_group_id = cg.con_group_id
+        WHERE cd.cond_is_grouped = 1
+        AND cg.con_group_confirmation_date BETWEEN '${fromDate}' AND '${toDate}'
+        GROUP BY cd.cond_division_id
+        ORDER BY d.division_description;`
+        connection.query(sql, (err, data) => {
+            if (err) {
+                alert('Unable to get Consolidation report')
+                console.log(err)
+                reject(err)
+            }
+            resolve(data)
+        })
+    })
+}
+/**************** END OF OVERVIEW ***********************/
 
 DbClass.prototype.getIndividualsByReference = async function (reference) {
     let self = this

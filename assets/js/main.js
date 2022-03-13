@@ -1010,6 +1010,7 @@ $(function () {
 
     // - Activate Date pickers
     $('input.single-date-picker').daterangepicker({ singleDatePicker: true, drops: 'up' })
+    $('input.down-date-picker').daterangepicker({ singleDatePicker: true, drops: 'down' })
     $('input.date-range-picker').daterangepicker({ startDate: '03/28/2017', endDate: '01/10/2017' })
 
     // - Activate tooltips

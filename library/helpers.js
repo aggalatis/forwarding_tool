@@ -387,3 +387,52 @@ HelpersClass.prototype.initGlobalSearch = function (myDB) {
     })
     self.bindMovingEvents('global-search-modal-header')
 }
+
+HelpersClass.prototype.individualDataAreEmpty = function (indData, allowTBA = false) {
+    if (
+        indData.division_description == '' ||
+        indData.division_description == null ||
+        indData.ex_city == '' ||
+        indData.ex_city == null ||
+        indData.ind_deadline == '' ||
+        indData.ind_deadline == null ||
+        indData.ind_estimate_cost == '' ||
+        indData.ind_estimate_cost == null ||
+        indData.ind_forwarder == '' ||
+        indData.ind_forwarder == null ||
+        indData.ind_kg == '' ||
+        indData.ind_kg == null ||
+        indData.ind_mode == '' ||
+        indData.ind_mode == null ||
+        indData.ind_pieces == '' ||
+        indData.ind_pieces == null ||
+        indData.ind_products == '' ||
+        indData.ind_products == null ||
+        indData.ind_reference == '' ||
+        indData.ind_reference == null ||
+        indData.ind_vessels == '' ||
+        indData.ind_vessels == null ||
+        indData.to_city == '' ||
+        indData.to_city == null ||
+        indData.service_type_description == '' ||
+        indData.service_type_description == null ||
+        indData.sum_estimated_cost == null ||
+        indData.sum_estimated_cost == ''
+    )
+        return true
+    if (indData.ind_deadline == 'TBA' && allowTBA == false) return true
+    return false
+}
+
+HelpersClass.prototype.groupDataAreEmpty = function (groupData) {
+    if (
+        groupData.ind_group_deadline == '' ||
+        groupData.ind_group_deadline == null ||
+        groupData.ind_group_cost == '' ||
+        groupData.ind_group_cost == null ||
+        groupData.ind_group_forwarder == '' ||
+        groupData.ind_group_forwarder == null
+    )
+        return true
+    return false
+}

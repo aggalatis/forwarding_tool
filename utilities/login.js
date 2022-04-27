@@ -2,6 +2,7 @@ let LoginClass = function () {
     this.DB = new DbClass()
     this.Helpers = new HelpersClass()
     this.submitFormOnEnter()
+
     $('#iso-read-more').on('click', function () {
         var dots = document.getElementById('dots')
         var moreText = document.getElementById('more')

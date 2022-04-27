@@ -358,7 +358,6 @@ DbClass.prototype.getAllIndividuals = function () {
 
     connection.query(sql, function (error, data) {
         if (error) throw error
-
         var jobs_table = $('#jobs_table').DataTable({
             data: data,
             processing: true,
@@ -457,9 +456,15 @@ DbClass.prototype.getAllIndividuals = function () {
                     title: 'ACTIONS',
                     orderable: false,
                     createdCell: function (td, cellData, rowData, row, col) {
-                        if (rowData.ind_group_active == 0) {
-                            $(td).children('.job-edit').hide()
-                            $(td).children('.delete-job').hide()
+                        if (rowData.ind_is_grouped == 1) {
+                            if (rowData.ind_group_active == 0) {
+                                $(td).children('.job-edit').hide()
+                                $(td).children('.delete-job').hide()
+                            } else {
+                                if (self.Helpers.groupDataAreEmpty(rowData)) $(td).children('.confirm-job').hide()
+                            }
+                        } else {
+                            if (self.Helpers.individualDataAreEmpty(rowData, false)) $(td).children('.confirm-job').hide()
                         }
                     },
                     defaultContent:
@@ -467,7 +472,7 @@ DbClass.prototype.getAllIndividuals = function () {
                 },
             ],
             rowCallback: function (row, data, index, cells) {
-                //Here I am changing background Color
+                // Here I am changing background Color
                 if (data.ind_group_color != 'empty') {
                     $('td', row).css('background-color', data.ind_group_color)
                 }
@@ -582,7 +587,7 @@ DbClass.prototype.getAllIndividuals = function () {
             }
 
             if (data.ind_mode == 'Personnel') {
-                if (data.ind_actual_cost == null) {
+                if (self.Helpers.individualDataAreEmpty(data, false)) {
                     Swal.fire({
                         title: 'Unable to confirm this job.',
                         text: 'Some data are empty. You cannot confirm this job.',
@@ -591,7 +596,34 @@ DbClass.prototype.getAllIndividuals = function () {
                         showConfirmButton: false,
                     })
                     return
-                } else {
+                }
+                Swal.fire({
+                    title: 'Are you sure?',
+                    text: 'If you confirm the job you will be unable to edit it!',
+                    icon: 'warning',
+                    showCancelButton: true,
+                    cancelButtonText: 'Cancel',
+                    confirmButtonColor: '#dc3545',
+                    confirmButtonText: 'Confirm',
+                }).then(result => {
+                    if (result.isConfirmed) {
+                        self.confirmPersonnel(data.ind_id)
+                    }
+                })
+            } else {
+                // checking if the individual is grouped...
+
+                if (data.ind_is_grouped == 0) {
+                    if (self.Helpers.individualDataAreEmpty(data, false)) {
+                        Swal.fire({
+                            title: 'Unable to confirm this job.',
+                            text: 'Some data are empty. You cannot confirm this job.',
+                            icon: 'error',
+                            showCancelButton: true,
+                            showConfirmButton: false,
+                        })
+                        return
+                    }
                     Swal.fire({
                         title: 'Are you sure?',
                         text: 'If you confirm the job you will be unable to edit it!',
@@ -602,68 +634,48 @@ DbClass.prototype.getAllIndividuals = function () {
                         confirmButtonText: 'Confirm',
                     }).then(result => {
                         if (result.isConfirmed) {
-                            self.confirmPersonnel(data.ind_id)
+                            self.confirmIndividualGroup(data.ind_group_id)
                         }
                     })
-                }
-            } else {
-                //checking if the individual is grouped...
-
-                if (data.ind_is_grouped == 0) {
-                    if (
-                        data.ind_deadline != 'TBA' &&
-                        data.ind_kg != '0' &&
-                        data.service_type_description != '' &&
-                        data.ind_reference != '' &&
-                        data.ind_forwarder != ''
-                    ) {
-                        Swal.fire({
-                            title: 'Are you sure?',
-                            text: 'If you confirm the job you will be unable to edit it!',
-                            icon: 'warning',
-                            showCancelButton: true,
-                            cancelButtonText: 'Cancel',
-                            confirmButtonColor: '#dc3545',
-                            confirmButtonText: 'Confirm',
-                        }).then(result => {
-                            if (result.isConfirmed) {
-                                self.confirmIndividualGroup(data.ind_group_id)
-                            }
-                        })
-                    } else {
+                } else {
+                    if (data.ind_group_active == 1) {
                         Swal.fire({
                             title: 'Unable to confirm this job.',
-                            text: 'Some data are empty. You cannot confirm this job.',
+                            text: `Some data are empty. You cannot confirm this group.`,
                             icon: 'error',
                             showCancelButton: true,
                             showConfirmButton: false,
                         })
                         return
                     }
-                } else {
-                    if (data.ind_group_active == 1) {
-                        Swal.fire({
-                            title: 'Unable to confirm this group.',
-                            text: 'Group cost is empty! You cannot confirm this group.',
-                            icon: 'error',
-                            showCancelButton: true,
-                            showConfirmButton: false,
-                        })
-                    } else {
-                        Swal.fire({
-                            title: 'Are you sure?',
-                            text: 'If you confirm this group you will not be able to edit it!',
-                            icon: 'warning',
-                            showCancelButton: true,
-                            cancelButtonText: 'Cancel',
-                            confirmButtonColor: '#dc3545',
-                            confirmButtonText: 'Confirm',
-                        }).then(result => {
-                            if (result.isConfirmed) {
-                                self.confirmIndividualGroup(data.ind_group_id)
+                    let allData = jobs_table.rows().data()
+                    for (let i = 0; i < allData.length; i++) {
+                        if (allData[i].ind_group_id == data.ind_group_id) {
+                            if (self.Helpers.individualDataAreEmpty(allData[i], false)) {
+                                Swal.fire({
+                                    title: 'Unable to confirm this job.',
+                                    text: `Some data are empty. You cannot confirm this group.`,
+                                    icon: 'error',
+                                    showCancelButton: true,
+                                    showConfirmButton: false,
+                                })
+                                return
                             }
-                        })
+                        }
                     }
+                    Swal.fire({
+                        title: 'Are you sure?',
+                        text: 'If you confirm this group you will not be able to edit it!',
+                        icon: 'warning',
+                        showCancelButton: true,
+                        cancelButtonText: 'Cancel',
+                        confirmButtonColor: '#dc3545',
+                        confirmButtonText: 'Confirm',
+                    }).then(result => {
+                        if (result.isConfirmed) {
+                            self.confirmIndividualGroup(data.ind_group_id)
+                        }
+                    })
                 }
             }
         })
@@ -717,24 +729,22 @@ DbClass.prototype.getAllIndividuals = function () {
                     $('#group-cost-div').hide()
                     $('#save-costs').hide()
                 } else {
-                    if (data.ind_group_cost == null || data.ind_group_deadline == null || data.ind_group_forwarder == null) {
-                        var allData = jobs_table.rows().data()
-                        $('#group_cost').attr('disabled', null)
-                        for (var i = 0; i < allData.length; i++) {
-                            if (allData[i].ind_group_id == data.ind_group_id) {
-                                if (allData[i].ind_estimate_cost == 0) {
-                                    // Swal.fire({
-                                    //     title: "Unable to manage group costs.",
-                                    //     text: "There is a job with empty estimate cost inside this group. Please fill it up.",
-                                    //     icon: "error",
-                                    //     showCancelButton: true,
-                                    //     showConfirmButton: false
-                                    // })
-                                    $('#group_cost').attr('disabled', 'disabled')
-                                    break
-                                }
+                    var allData = jobs_table.rows().data()
+                    for (var i = 0; i < allData.length; i++) {
+                        if (allData[i].ind_group_id == data.ind_group_id) {
+                            if (self.Helpers.individualDataAreEmpty(allData[i], true)) {
+                                Swal.fire({
+                                    title: 'Unable to manage group costs.',
+                                    text: `Some data are empty. You cannot manage this group.`,
+                                    icon: 'error',
+                                    showCancelButton: true,
+                                    showConfirmButton: false,
+                                })
+                                return
                             }
                         }
+                    }
+                    if (self.Helpers.groupDataAreEmpty(data)) {
                         $('#saving-data').hide()
                     } else {
                         $('#saving-data').show()
@@ -2030,7 +2040,6 @@ DbClass.prototype.updateGroupCost = function (groupCostData) {
                     alert('Unable to update job cost')
                     throw error
                 } else {
-                    console.log(indToChangeGroup)
                     for (let i = 0; i < indToChangeGroup.length; i++) {
                         var changeIndividualSql =
                             'UPDATE individuals SET ind_is_grouped = 1, ind_group_id = ' +

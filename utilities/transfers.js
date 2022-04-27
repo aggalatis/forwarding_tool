@@ -180,54 +180,56 @@ TransfersClass.prototype.bindSaveEventOnSaveJobButton = function () {
         let serviceType = $('#service-type-select').val()
         let pieces = self.Helpers.formatFloatValue($('#pieces').val())
 
-        if ((deadline != '') & (modeSelectValue != '') && divisionSelectValue != '' && productSelectValue != '' && vesselSelectValue != '') {
-            $(this).attr('disabled', 'disabled')
-
-            //change productIds to product Names
-            var productsNames = []
-            for (i = 0; i < self.DB.products.length; i++) {
-                if (productSelectValue.indexOf(self.DB.products[i].product_id.toString()) !== -1) {
-                    //this means i found the product
-                    productsNames.push(self.DB.products[i].product_description)
-                }
-            }
-
-            var vesselsNames = []
-            for (i = 0; i < self.DB.vessels.length; i++) {
-                if (vesselSelectValue.indexOf(self.DB.vessels[i].vessel_id.toString()) !== -1) {
-                    //this means i found the vessel
-                    vesselsNames.push(self.DB.vessels[i].vessel_description)
-                }
-            }
-            if (ind_ex != '' && ind_to != '') {
-                var individualData = {
-                    ind_user_id: self.Helpers.user_id,
-                    ind_division_id: divisionSelectValue,
-                    ind_products: productsNames.join(';'),
-                    ind_mode: modeSelectValue,
-                    ind_vessels: vesselsNames.join(';'),
-                    ind_ex: ind_ex,
-                    ind_to: ind_to,
-                    ind_deadline: self.Helpers.changeDateToMysql(deadline),
-                    ind_forwarder: forwarder,
-                    ind_notes: $('#notes').val(),
-                    ind_estimate_cost: currency != '' ? estimatecostSelectValue / currency : estimatecostSelectValue,
-                    ind_group_id: 0,
-                    ind_reference: reference,
-                    ind_kg: kg,
-                    ind_service_type: serviceType == '' ? 0 : serviceType,
-                    ind_pieces: pieces,
-                }
-                console.log(individualData)
-                self.DB.addIndividual(individualData)
-            } else {
-                $(this).attr('disabled', null)
-                self.Helpers.toastr('error', 'Some required fields are empty.')
-            }
-        } else {
+        $(this).attr('disabled', 'disabled')
+        if (
+            deadline == '' ||
+            modeSelectValue == '' ||
+            divisionSelectValue == '' ||
+            productSelectValue == '' ||
+            vesselSelectValue == '' ||
+            ind_ex == '' ||
+            ind_to == ''
+        ) {
             $(this).attr('disabled', null)
             self.Helpers.toastr('error', 'Some required fields are empty.')
+            return
         }
+        //change productIds to product Names
+        var productsNames = []
+        for (i = 0; i < self.DB.products.length; i++) {
+            if (productSelectValue.indexOf(self.DB.products[i].product_id.toString()) !== -1) {
+                //this means i found the product
+                productsNames.push(self.DB.products[i].product_description)
+            }
+        }
+
+        var vesselsNames = []
+        for (i = 0; i < self.DB.vessels.length; i++) {
+            if (vesselSelectValue.indexOf(self.DB.vessels[i].vessel_id.toString()) !== -1) {
+                //this means i found the vessel
+                vesselsNames.push(self.DB.vessels[i].vessel_description)
+            }
+        }
+        var individualData = {
+            ind_user_id: self.Helpers.user_id,
+            ind_division_id: divisionSelectValue,
+            ind_products: productsNames.join(';'),
+            ind_mode: modeSelectValue,
+            ind_vessels: vesselsNames.join(';'),
+            ind_ex: ind_ex,
+            ind_to: ind_to,
+            ind_deadline: self.Helpers.changeDateToMysql(deadline),
+            ind_forwarder: forwarder,
+            ind_notes: $('#notes').val(),
+            ind_estimate_cost: currency != '' ? estimatecostSelectValue / currency : estimatecostSelectValue,
+            ind_group_id: 0,
+            ind_reference: reference,
+            ind_kg: kg,
+            ind_service_type: serviceType == '' ? 0 : serviceType,
+            ind_pieces: pieces,
+        }
+        console.log(individualData)
+        self.DB.addIndividual(individualData)
     })
 }
 

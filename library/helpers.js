@@ -272,6 +272,10 @@ HelpersClass.prototype.addCityAlert = function (myDB) {
         <label>ADD YOUR ASSOCIATE/SUPPLIER/PORT</label>
         <input class="form-control" placeholder="Associate/Supplier/Port" id="city_associate" />
     </div>
+    <div class="form-group col-sm-12">
+        <p>eg: Shanghai (OMS)</p>
+        <p>&nbsp; &nbsp; &nbsp; Shanghai (Port)</p>
+    </div>
         `,
         showCancelButton: true,
         showConfirmButton: true,

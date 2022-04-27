@@ -43,6 +43,14 @@
     <!--Main Css-->
     <link rel="stylesheet" href="../assets/css/main.css">
 
+    <style>
+        .iso-holder {
+            margin-top: 50%;
+            background-color: white;
+        }
+        #more {display: none;}
+    </style>
+
 </head>
 <body class="top-navigation" style="overflow: hidden">
 
@@ -66,12 +74,19 @@
                                 <input class="form-control input-lg" placeholder="Password" type="password" id="user_password" required>
                                 <div class="invalid-feedback">This field is required.</div>
                             </div>
-
-
-
                         </form>
                         <button style="width: 100%" class="btn btn-primary mt-2" id="sign-in-btn">Sign In</button>
-
+                        <div class="iso-holder">
+                            <p>
+                                This Program also contributes to the company's management systems implementing the ISO 14001 & ISO 9001 <span id="dots">...</span><span id="more">
+                                standards as with regards to the protection of the environment and the quality of service rendered respectively.
+                                </br>
+                                Grouping of items means less packing material, transport, energy, etc. Thus positively contributing to the environment (ISO 14001).
+                                </br>
+                                Effective control and efficient transportation includeing cost saving etc. directly improves the quality of the service customers satisfaction (ISO 9001)</span>
+                            </p>
+                            <button  class="btn btn-info mt-2" id="iso-read-more">Read more</button>
+                        </div>
 
 
                     </div>

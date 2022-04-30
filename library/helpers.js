@@ -120,9 +120,11 @@ HelpersClass.prototype.changeDateToMysql = function (datetime) {
 }
 
 HelpersClass.prototype.changeMysqlDateToNormal = function (datetime) {
-    var dateTimeArray = datetime.split(' ')
+    let dateTimeArray = datetime.split(' ')
     let dateSplitted = dateTimeArray[0].split('-')
-    return `${dateSplitted[2]}/${dateSplitted[1]}/${dateSplitted[0]} ${dateTimeArray[1]}`
+    let stringdate = `${dateSplitted[2]}/${dateSplitted[1]}/${dateSplitted[0]}`
+    if (dateTimeArray.length != 2) return stringdate
+    return `${stringdate} ${dateTimeArray[1]}`
 }
 
 HelpersClass.prototype.initliazeModalToEditJob = function (divisions, products, vessels, cities, serviceTypes, jobData) {
@@ -373,16 +375,49 @@ HelpersClass.prototype.initGlobalSearch = function (myDB) {
         $('#search-reslts-list').html('')
         let resultsHtml = ''
         for (let ind of individuals)
-            resultsHtml += `<li style="color: black; font-size: 15px">Ref: <span style="color: red">"${reference}"</span> found in <span style="color: red">Individals-${ind.ind_status} ID: ${ind.ind_id}</span> EX: <span style="color: red">${ind.ex_city}</span> TO: <span style="color: red">${ind.to_city}</span> SERVICE: <span style="color: red">${ind.service_name}</span></li>`
+            resultsHtml += `<li style="color: black; font-size: 15px">Ref: <span style="color: red">"${self.validOutput(
+                ind.ind_reference
+            )}"</span> found in <span style="color: red">Individals-${ind.ind_status} ID: ${ind.ind_id}</span> EX: <span style="color: red">${
+                ind.ex_city
+            }</span> TO: <span style="color: red">${self.validOutput(ind.to_city)}</span> SERVICE: <span style="color: red">${self.validOutput(
+                ind.service_name
+            )}</span> DEADLINE: <span style="color: red">${self.changeMysqlDateToNormal(self.validOutput(ind.ind_deadline))}</span></li>`
         for (let con of consoliadtions)
-            resultsHtml += `<li style="color: black; font-size: 15px">Ref: <span style="color: red">"${reference}"</span> found in <span style="color: red">Consolidations-Pending ID: ${con.con_ind_id}</span> EX: <span style="color: red">${con.ex_city}</span> TO: <span style="color: red">${con.to_city}</span> SERVICE: <span style="color: red">${con.service_name}</span></li>`
-        for (let cond of doneCons)
-            resultsHtml += `<li style="color: black; font-size: 15px">Ref: <span style="color: red">"${reference}"</span> found in <span style="color: red">Consolidations-Done ID: ${cond.cond_ind_id}</span> EX: <span style="color: red">${cond.ex_city}</span> TO: <span style="color: red">${cond.to_city}</span> SERVICE: <span style="color: red">${cond.service_name}</span></li>`
+            resultsHtml += `<li style="color: black; font-size: 15px">Ref: <span style="color: red">"${self.validOutput(
+                con.con_reference
+            )}"</span> found in <span style="color: red">Consolidations-Pending ID: ${
+                con.con_ind_id
+            }</span> EX: <span style="color: red">${self.validOutput(con.ex_city)}</span> TO: <span style="color: red">${self.validOutput(
+                con.to_city
+            )}</span> SERVICE: <span style="color: red">${self.validOutput(
+                con.service_name
+            )}</span> DEADLINE: <span style="color: red">${self.validOutput(con.group_deadline)}</span></li>`
+        for (let cond of doneCons) {
+            if (cond.con_group_on_board_delivery == null) {
+                resultsHtml += `<li style="color: black; font-size: 15px">Ref: <span style="color: red">"${
+                    cond.cond_reference
+                }"</span> found in <span style="color: red">Consolidations-Done ID: ${
+                    cond.cond_ind_id
+                }</span> EX: <span style="color: red">${self.validOutput(cond.ex_city)}</span> TO: <span style="color: red">${self.validOutput(
+                    cond.to_city
+                )}</span> SERVICE: <span style="color: red">${self.validOutput(
+                    cond.service_name
+                )}</span> DEADLINE: <span style="color: red">${self.validOutput(con.group_deadline)}</span></li>`
+            } else {
+                resultsHtml += `<li style="color: black; font-size: 15px">Ref: <span style="color: red">"${
+                    cond.cond_reference
+                }"</span> found in <span style="color: red">Consolidations-Done ID: ${
+                    cond.cond_ind_id
+                }</span> was delivered on board with DEADLINE: <span style="color: red">${self.validOutput(con.group_deadline)}</span></li>`
+            }
+        }
 
         $('#search-reslts-list').html(resultsHtml)
     })
 
     $('#global-search-modal-btn').on('click', function () {
+        $('#global-search-results').val('')
+        $('#search-reslts-list').html('')
         $('#global-search-modal').modal('show')
     })
     self.bindMovingEvents('global-search-modal-header')
@@ -435,4 +470,9 @@ HelpersClass.prototype.groupDataAreEmpty = function (groupData) {
     )
         return true
     return false
+}
+
+HelpersClass.prototype.validOutput = function (field) {
+    if (typeof field == 'undefined' || field == null) return '-'
+    return field
 }

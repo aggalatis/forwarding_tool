@@ -3527,6 +3527,7 @@ DbClass.prototype.getConsolidationsByReference = async function (reference) {
         let sql = `SELECT con.*,
         c.city_name as ex_city,
         c2.city_name as to_city,
+        cg.con_group_deadline as group_deadline,
         st.service_type_description as service_name
         FROM consolidations con
         left join consolidation_groups cg ON cg.con_group_id  = con.con_group_id 
@@ -3561,6 +3562,7 @@ DbClass.prototype.getConsolidationDoneByReference = async function (reference) {
     connection.connect()
     return new Promise(function (resolve, reject) {
         let sql = `SELECT con.*,
+        cg.con_group_deadline as group_deadline, 
         c.city_name as ex_city,
         c2.city_name as to_city,
         st.service_type_description as service_name

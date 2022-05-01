@@ -40,7 +40,22 @@ ConsolidationsClass.prototype.initializetable = async function () {
             { title: 'REQ. DATE', orderable: false, data: 'con_request_date' },
             { title: 'USER', orderable: false, data: 'user_username' },
             { title: 'DEPARTMENT', orderable: false, data: 'division_description' },
-            { title: 'TYPE', orderable: false, data: 'con_service_description' },
+            {
+                title: 'TYPE',
+                orderable: false,
+                data: 'con_type',
+                createdCell: function (td, cellData, rowData, row, col) {
+                    if (rowData.con_type == 'Individual') {
+                        $(td).css('color', 'blue').css('font-weight', 'bold')
+                    }
+                    if (rowData.con_type == 'Grouped') {
+                        $(td).css('color', '#32CD32').css('font-weight', 'bold')
+                    }
+                    if (rowData.con_type == self.Helpers.LOCAL_SERVICE_TYPE_TEXT) {
+                        $(td).css('color', 'red').css('font-weight', 'bold')
+                    }
+                },
+            },
             { title: 'PRODUCTS', orderable: false, data: 'con_products' },
             { title: 'MODE', orderable: false, data: 'con_group_mode' },
             {
@@ -79,11 +94,13 @@ ConsolidationsClass.prototype.initializetable = async function () {
                 title: 'ACTIONS',
                 orderable: false,
                 createdCell: function (td, cellData, rowData, row, col) {
+                    console.log(rowData)
                     if (
                         rowData.to_name == null ||
                         rowData.ex_name == null ||
-                        rowData.con_group_cost == null ||
                         rowData.con_group_deadline == null ||
+                        rowData.con_group_deadline == '' ||
+                        rowData.con_group_deadline == 'TBA' ||
                         rowData.con_group_forwarder == null ||
                         rowData.con_group_forwarder == '' ||
                         rowData.con_group_mode == null
@@ -99,7 +116,7 @@ ConsolidationsClass.prototype.initializetable = async function () {
             //Here I am changing background Color
             $('td', row).css('background-color', data.con_group_color)
         },
-        order: [[3, 'desc']],
+        order: [[2, 'desc']],
         pageLength: 25,
     })
     $('#consolidations_table').on('click', 'i.delete-job', function () {
@@ -160,6 +177,7 @@ ConsolidationsClass.prototype.initializetable = async function () {
         })
     })
     $('#consolidations_table').on('click', 'i.costs-job', function () {
+        $('#total-savings-div').hide()
         var data = consolidationsTable.row($(this).closest('tr')).data()
         self.selectedGroupID = data.group_id
         if (!self.Helpers.checkIfUserHasPriviledges(data.user_username)) {
@@ -177,15 +195,18 @@ ConsolidationsClass.prototype.initializetable = async function () {
         for (let i = 0; i < tableData.length; i++) {
             if (tableData[i].group_id == self.selectedGroupID) groupJobs.push(tableData[i])
         }
+        console.log(groupJobs)
         let foundGroupedJobs = groupJobs.find(el => el.con_is_grouped == 1)
         let foundIndividualJobs = groupJobs.find(el => el.con_is_grouped == 0 && el.con_service_type != self.Helpers.LOCAL_SERVICE_TYPE_ID)
-        let foundLocalJobs = groupJobs.find(el => el.con_service_type == self.Helpers.LOCAL_SERVICE_TYPE_ID)
+        let foundLocalJobs = groupJobs.find(
+            el => el.con_service_type == self.Helpers.LOCAL_SERVICE_TYPE_ID || el.con_type == self.Helpers.LOCAL_SERVICE_TYPE_TEXT
+        )
         $('#group-savings').val('')
         $('#grouped-jobs-cost').hide()
         $('#individual-jobs-cost').hide()
         $('#local-jobs-costs').hide()
         $('#calculate-group-savings').hide()
-        if (typeof foundLocalJobs != '') {
+        if (typeof foundLocalJobs != 'undefined') {
             $('#local-jobs-costs').show()
             $('#locals-cost').val(data.con_group_local_cost)
         }
@@ -210,7 +231,7 @@ ConsolidationsClass.prototype.initializetable = async function () {
             let divString = ''
             for (let job of groupJobs) {
                 if (job.con_is_grouped == 0 && job.con_service_type !== self.Helpers.LOCAL_SERVICE_TYPE_ID) {
-                    divString += `<div class="col-12"><div class="form-group"><label> Job ${job.con_ind_id} | Ref: ${job.con_reference}:</label><input class="form-control currency-input individual-estimate-cost-input" data-id="${job.con_id}" placeholder="Type Cost in EUR..." type="number" value="${job.con_estimate_cost}"/></div></div>`
+                    divString += `<div class="col-12"><div class="form-group"><label class="bold-label"> Job ${job.con_ind_id} | Ref: ${job.con_reference}:</label><input class="form-control currency-input individual-estimate-cost-input" data-id="${job.con_id}" placeholder="Type Cost in EUR..." type="number" value="${job.con_estimate_cost}"/></div></div>`
                 }
             }
             $('#append-individual-cost').html(divString)
@@ -310,6 +331,7 @@ ConsolidationsClass.prototype.bindEventsOnButtons = function () {
     })
 
     $('#calculate-group-savings').on('click', function () {
+        $('#total-savings-div').show()
         self.calculateGroupSavings()
     })
 }

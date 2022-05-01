@@ -157,6 +157,34 @@ TransfersClass.prototype.bindEventsOnButtons = function () {
             self.Helpers.toastr('error', 'Some data are empty. Please try again.')
         }
     })
+
+    $('#currency').on('change', function () {
+        let rate = $(this).val()
+        rate = 1 / rate
+        let currencyName = $('#currency option:selected').text()
+        $('#estimate-cost-label').html(`Est. Cost (${currencyName})`)
+        $('#estimate_cost_eur').attr('placeholder', `Rate to EUR: ${rate.toFixed(6)}`)
+        let estimateCost = $('#estimate_cost').val()
+        estimateCost == '' ? $('#estimate_cost_eur').val('') : $('#estimate_cost_eur').val(self.Helpers.applyRate(estimateCost, rate))
+    })
+
+    $('#group-currency').on('change', function () {
+        let rate = $(this).val()
+        rate = 1 / rate
+        let currencyName = $('#group-currency option:selected').text()
+        $('#group-cost-label').html(`Group Cost (${currencyName})`)
+        $('#group_cost_eur').attr('placeholder', `Rate to EUR: ${rate.toFixed(6)}`)
+        let groupCost = $('#group_cost').val()
+        groupCost == '' ? $('#group_cost_eur').val('') : $('#group_cost_eur').val(self.Helpers.applyRate(groupCost, rate))
+    })
+
+    $('#estimate_cost').on('keyup', function () {
+        $('#currency').trigger('change')
+    })
+
+    $('#group_cost').on('keyup', function () {
+        $('#group-currency').trigger('change')
+    })
 }
 
 TransfersClass.prototype.bindSaveEventOnSaveJobButton = function () {
@@ -221,7 +249,7 @@ TransfersClass.prototype.bindSaveEventOnSaveJobButton = function () {
             ind_deadline: self.Helpers.changeDateToMysql(deadline),
             ind_forwarder: forwarder,
             ind_notes: $('#notes').val(),
-            ind_estimate_cost: currency != '' ? estimatecostSelectValue / currency : estimatecostSelectValue,
+            ind_estimate_cost: self.Helpers.applyRate(estimatecostSelectValue, currency),
             ind_group_id: 0,
             ind_reference: reference,
             ind_kg: kg,

@@ -126,7 +126,7 @@
                     <div class="modal-body">
                         <form>
                             <div class="row">
-                                <div class="col-sm-4">
+                                <div class="col-sm-3">
                                     <div class="form-group">
                                         <label> Department*</label>
                                         <select
@@ -137,7 +137,7 @@
                                         ></select>
                                     </div>
                                 </div>
-                                <div class="col-sm-4">
+                                <div class="col-sm-3">
                                     <div class="form-group">
                                         <label> Product*</label>
                                         <select
@@ -149,7 +149,7 @@
                                         ></select>
                                     </div>
                                 </div>
-                                <div class="col-sm-4">
+                                <div class="col-sm-3">
                                     <div class="form-group">
                                         <label> Vessel*</label>
                                         <select
@@ -161,9 +161,7 @@
                                         ></select>
                                     </div>
                                 </div>
-                            </div>
-                            <div class="row">
-                                <div class="col-sm-4">
+                                <div class="col-sm-3">
                                     <div class="form-group">
                                         <label> Mode*</label>
                                         <a class="mode-info" href="#"><i class="fa fa-info"></i></a>
@@ -177,6 +175,8 @@
                                         </select>
                                     </div>
                                 </div>
+                            </div>
+                            <div class="row">
                                 <div class="col-sm-4" id="ex-input-div">
                                     <div class="form-group">
                                         <label> Ex*</label>
@@ -191,9 +191,6 @@
                                         <select class="form-control select" id="to-input" data-placeholder="Choose city..." tabindex="1"></select>
                                     </div>
                                 </div>
-                            </div>
-
-                            <div class="row">
                                 <div class="col-sm-4">
                                     <div class="form-group">
                                         <label> Service</label>
@@ -205,9 +202,12 @@
                                         ></select>
                                     </div>
                                 </div>
+                            </div>
+
+                            <div class="row">
                                 <div class="col-sm-2">
                                     <div class="form-group">
-                                        <label> Est. cost</label>
+                                        <label id="estimate-cost-label"> Est. cost (EUR)</label>
                                         <input type="number" class="form-control" placeholder="Est Cost" id="estimate_cost" />
                                     </div>
                                 </div>
@@ -215,6 +215,12 @@
                                     <div class="form-group">
                                         <label> Currency</label>
                                         <select class="form-control select" id="currency" data-placeholder="Currency" tabindex="1"></select>
+                                    </div>
+                                </div>
+                                <div class="col-sm-4">
+                                    <div class="form-group">
+                                        <label> Est. cost (EUR)</label>
+                                        <input type="text" class="form-control" placeholder="Est Cost (EUR)" id="estimate_cost_eur" disabled />
                                     </div>
                                 </div>
                                 <div class="col-sm-2">
@@ -283,7 +289,7 @@
             data-keyboard="false"
             data-backdrop="static"
         >
-            <div id="cost-modal-header" class="modal-dialog">
+            <div id="cost-modal-header" class="modal-dialog modal-lg">
                 <div class="modal-content">
                     <div class="modal-header">
                         <button class="close move-left" type="button"><i class="icon-arrow-left"></i></button>
@@ -293,13 +299,19 @@
                     </div>
                     <div class="modal-body">
                         <div class="row">
-                            <div class="col-sm-6">
+                            <div class="col-sm-4">
+                                <div class="form-group">
+                                    <label> Group ID</label>
+                                    <input class="form-control" placeholder="Group ID" id="group_id" disabled />
+                                </div>
+                            </div>
+                            <div class="col-sm-4">
                                 <div class="form-group">
                                     <label> Department </label>
                                     <input class="form-control" placeholder="Department" id="department" disabled />
                                 </div>
                             </div>
-                            <div class="col-sm-6">
+                            <div class="col-sm-4">
                                 <div class="form-group">
                                     <label> Estimate Cost (€)</label>
                                     <input class="form-control" placeholder="Job estimate cost (€)" id="job_estimate_costs" disabled />
@@ -308,29 +320,22 @@
                         </div>
                         <div id="group-cost-div">
                             <div class="row">
-                                <div class="form-group col-sm-6">
-                                    <label>Group deadline*</label>
-                                    <a class="deadline-info" href="#"><i class="fa fa-info"></i></a>
-                                    <div class="input-group">
-                                        <span class="input-group-addon text-dark"><i class="ion-ios-calendar-outline"></i></span>
-                                        <input
-                                            class="single-date-picker form-control"
-                                            type="text"
-                                            placeholder="Select group deadline"
-                                            id="group_cut_off_date"
-                                        />
-                                    </div>
-                                </div>
-                                <div class="col-sm-3">
+                                <div class="col-sm-4">
                                     <div class="form-group">
-                                        <label> Group Cost</label>
-                                        <input class="form-control" placeholder="Group Cost..." id="group_cost" />
+                                        <label id="group-cost-label"> Group Cost (EUR)</label>
+                                        <input class="form-control" placeholder="Group Cost" id="group_cost" />
                                     </div>
                                 </div>
-                                <div class="col-sm-3">
+                                <div class="col-sm-4">
                                     <div class="form-group">
                                         <label> Currency</label>
                                         <select class="form-control select" id="group-currency" data-placeholder="Currency" tabindex="1"></select>
+                                    </div>
+                                </div>
+                                <div class="col-sm-4">
+                                    <div class="form-group">
+                                        <label> Group Cost (EUR)</label>
+                                        <input class="form-control" placeholder="Group Cost (EUR)" id="group_cost_eur" disabled />
                                     </div>
                                 </div>
                             </div>
@@ -359,10 +364,17 @@
                                 </div>
                             </div>
                             <div class="row">
-                                <div class="col-sm-6">
-                                    <div class="form-group">
-                                        <label> Group ID</label>
-                                        <input class="form-control" placeholder="Group ID" id="group_id" disabled />
+                                <div class="form-group col-sm-6">
+                                    <label>Group deadline*</label>
+                                    <a class="deadline-info" href="#"><i class="fa fa-info"></i></a>
+                                    <div class="input-group">
+                                        <span class="input-group-addon text-dark"><i class="ion-ios-calendar-outline"></i></span>
+                                        <input
+                                            class="single-date-picker form-control"
+                                            type="text"
+                                            placeholder="Select group deadline"
+                                            id="group_cut_off_date"
+                                        />
                                     </div>
                                 </div>
                                 <div class="col-sm-6">

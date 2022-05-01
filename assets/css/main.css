@@ -2945,3 +2945,8 @@ body .jqstooltip {
     color: black;
     text-align: center;
 }
+
+.bold-label {
+    color: black !important;
+    font-weight: bold !important;
+}

@@ -10,6 +10,7 @@ let DoneConsolidationsClass = function () {
     this.bindEventsOnButtons()
     this.selectedDoneInds = []
     this.selectedDoneDestination = []
+    this.selectedDoneGroupId = -1
     let self = this
     setTimeout(function () {
         self.initializetable()
@@ -123,7 +124,7 @@ DoneConsolidationsClass.prototype.initializetable = async function () {
             { title: 'COST / KG (€)', orderable: false, data: 'cond_cost_per_kg' },
             { title: 'SHARED CONS COST (€)', visible: true, data: 'cond_shared_cost' },
             {
-                title: 'DELIVERY ON BOARD',
+                title: 'RE-CONSOLIDATED',
                 orderable: false,
                 createdCell: function (td, cellData, rowData, row, col) {
                     if (rowData.cond_consolidated != 1) {
@@ -133,6 +134,18 @@ DoneConsolidationsClass.prototype.initializetable = async function () {
                     }
                 },
                 data: 'cond_consolidated',
+            },
+            {
+                title: 'DELIVERED ON BOARD',
+                orderable: false,
+                createdCell: function (td, cellData, rowData, row, col) {
+                    if (rowData.con_group_on_board_delivery != '') {
+                        $(td).html('NO').css('color', 'red').css('font-weight', 'bold')
+                    } else {
+                        $(td).html(`${rowData.con_group_on_board_delivery}`).css('color', 'green').css('font-weight', 'bold')
+                    }
+                },
+                data: 'con_group_on_board_delivery',
             },
             {
                 title: 'ACTIONS',
@@ -151,14 +164,14 @@ DoneConsolidationsClass.prototype.initializetable = async function () {
             //Here I am changing background Color
             // $("td", row).css("background-color", data.con_group_color)
         },
-        order: [[13, 'desc']],
+        order: [[2, 'desc']],
         pageLength: 25,
     })
     $('#done_consolidations_table').on('click', 'i.select-done-jobs', function () {
         var data = doneConsTable.row($(this).parents('tr')).data()
         if (!self.Helpers.checkIfUserHasPriviledges(data.user_username)) {
             Swal.fire({
-                title: 'Unable to edit this job.',
+                title: 'Unable to select this job.',
                 text: "Unfortunately this is a job inserted by different user. You can't select it.",
                 icon: 'error',
                 showCancelButton: true,
@@ -168,23 +181,30 @@ DoneConsolidationsClass.prototype.initializetable = async function () {
         }
         if (data.cond_consolidated != null && data.cond_consolidated != 0) {
             Swal.fire({
-                title: 'Job Re-Consolidated',
-                text: 'Unfortunately the job you selected is already consolidated.',
+                title: 'Group Re Consolidated',
+                text: 'Unfortunately this group is already consolidated.',
                 icon: 'error',
                 showCancelButton: true,
                 showConfirmButton: false,
             })
             return
         }
-        if (self.selectedDoneInds.indexOf(data.cond_id) == -1) {
-            $(this).parents('tr').addClass('datatableBack')
-            self.selectedDoneInds.push(data.cond_id)
-            self.selectedDoneDestination.push(data.to_name)
+
+        self.selectedDoneInds = []
+        self.selectedDoneDestination = []
+
+        if (self.selectedDoneGroupId != data.cond_group_id) {
+            let selectedGroupJobs = tableData.filter(el => el.cond_group_id == data.cond_group_id)
+            for (let i = 0; i < selectedGroupJobs.length; i++) {
+                self.selectedDoneInds.push(selectedGroupJobs[i].cond_id)
+                self.selectedDoneDestination.push(selectedGroupJobs[i].to_name)
+                self.selectedDoneGroupId = data.cond_group_id
+            }
         } else {
-            $(this).parents('tr').removeClass('datatableBack')
-            self.selectedDoneInds.splice(self.selectedDoneInds.indexOf(data.cond_id), 1)
-            self.selectedDoneDestination.splice(self.selectedDoneDestination.indexOf(data.to_name), 1)
+            self.selectedDoneGroupId = -1
         }
+
+        self.updateSelectedTableColors(doneConsTable)
     })
     $('#done_consolidations_table').on('click', 'i.job-edit', function () {
         $('#job-modal-header').removeClass('noFloat floatMeLeft floatMeRight')
@@ -255,7 +275,7 @@ DoneConsolidationsClass.prototype.formatData = function (consolidations) {
 
 DoneConsolidationsClass.prototype.appendConsolidationGroups = async function (to_name) {
     let self = this
-
+    $('#con-group-radios').html('')
     $('#con-group-radios').append(`<label class="custom-control custom-radio dark">
         <input name="radio-stacked" class="custom-control-input con-group" type="radio" value="0" />
         <span class="custom-control-indicator"></span>
@@ -270,4 +290,19 @@ DoneConsolidationsClass.prototype.appendConsolidationGroups = async function (to
             <span class="custom-control-description" style="background-color: ${conGroup.con_group_color}">CONSOLIDATION WITH ID: ${conGroup.con_group_id} VESSEL: ${conGroup.vessel}</span>
             </label>`)
     }
+}
+
+DoneConsolidationsClass.prototype.updateSelectedTableColors = function (myTable) {
+    let self = this
+
+    myTable.rows().every(function () {
+        rowNode = this.node()
+        rowData = this.data()
+        console.log(self.selectedDoneInds)
+        if (self.selectedDoneInds.indexOf(rowData.cond_id) == -1) {
+            $(rowNode).removeClass('datatableBack')
+        } else {
+            $(rowNode).addClass('datatableBack')
+        }
+    })
 }

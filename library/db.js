@@ -500,6 +500,7 @@ DbClass.prototype.getAllIndividuals = function () {
 
             self.Helpers.initliazeModalToEditJob(self.divisions, self.products, self.vessels, self.cities, self.individualServiceTypes, data)
 
+            $('#currency').trigger('change')
             $('#job-modal-header').removeClass('noFloat floatMeLeft floatMeRight')
             $('#save-job-btn').unbind('click')
             $('#save-job-btn').on('click', function () {
@@ -552,7 +553,7 @@ DbClass.prototype.getAllIndividuals = function () {
                             ind_deadline: self.Helpers.changeDateToMysql(deadline),
                             ind_forwarder: forwarder,
                             ind_notes: $('#notes').val(),
-                            ind_estimate_cost: currency != '' ? estimatecostSelectValue / currency : estimatecostSelectValue,
+                            ind_estimate_cost: self.Helpers.applyRate(estimatecostSelectValue, currency),
                             ind_reference: reference,
                             ind_kg: kg,
                             ind_group_id: 0,
@@ -1014,6 +1015,16 @@ DbClass.prototype.getAllDoneIndividuals = function () {
                 Swal.fire({
                     title: 'Job Consolidated',
                     text: 'Unfortunately the job you selected already exists inside a consolidation group.',
+                    icon: 'error',
+                    showCancelButton: true,
+                    showConfirmButton: false,
+                })
+                return
+            }
+            if (data[4] == 'Personnel') {
+                Swal.fire({
+                    title: 'Personnel Job',
+                    text: 'Unfortunately job is marked as Personnel and cannot be consolidated.',
                     icon: 'error',
                     showCancelButton: true,
                     showConfirmButton: false,
@@ -2249,8 +2260,14 @@ DbClass.prototype.assignJobsToNewGroup = async function () {
     let conAdded = await new Promise(function (resolve, reject) {
         let sql = ''
         for (let ind of inds) {
-            sql = `INSERT INTO consolidations (con_ind_id, con_user_id, con_division_id, con_products, con_vessels, con_reference, con_kg, con_status, con_request_date, con_group_id, con_pieces, con_is_grouped, con_service_type)
-                    VALUES (${ind.ind_id}, ${self.Helpers.user_id}, ${ind.ind_division_id}, '${ind.ind_products}', '${ind.ind_vessels}', '${ind.ind_reference}', ${ind.ind_kg}, 'Pending', now(), ${newConGroup.insertId}, ${ind.ind_pieces}, ${ind.ind_is_grouped}, ${ind.ind_service_type});`
+            let typeText = ''
+            if (ind.ind_service_type == self.Helpers.LOCAL_SERVICE_TYPE_ID) {
+                typeText = self.Helpers.LOCAL_SERVICE_TYPE_TEXT
+            } else {
+                ind.ind_is_grouped == 1 ? (typeText = 'Grouped') : (typeText = 'Individual')
+            }
+            sql = `INSERT INTO consolidations (con_ind_id, con_user_id, con_division_id, con_products, con_vessels, con_reference, con_kg, con_status, con_request_date, con_group_id, con_pieces, con_is_grouped, con_type)
+                    VALUES (${ind.ind_id}, ${self.Helpers.user_id}, ${ind.ind_division_id}, '${ind.ind_products}', '${ind.ind_vessels}', '${ind.ind_reference}', ${ind.ind_kg}, 'Pending', now(), ${newConGroup.insertId}, ${ind.ind_pieces}, ${ind.ind_is_grouped}, '${typeText}');`
             connection.query(sql, (err, data) => {
                 if (err) {
                     alert('Unable to add consolidations')
@@ -2306,8 +2323,14 @@ DbClass.prototype.assignJobsToConGroup = async function (selGroup) {
     let conAdded = await new Promise(function (resolve, reject) {
         let sql = ''
         for (let ind of inds) {
-            sql = `INSERT INTO consolidations (con_ind_id, con_user_id, con_division_id, con_products, con_vessels, con_reference, con_kg, con_status, con_request_date, con_group_id, con_pieces, con_is_grouped, con_service_type)
-                    VALUES (${ind.ind_id}, ${self.Helpers.user_id}, ${ind.ind_division_id}, '${ind.ind_products}', '${ind.ind_vessels}', '${ind.ind_reference}', ${ind.ind_kg}, 'Pending', now(), ${selGroup}, ${ind.ind_pieces}, ${ind.ind_is_grouped}, ${ind.ind_service_type});`
+            let typeText = ''
+            if (ind.ind_service_type == self.Helpers.LOCAL_SERVICE_TYPE_ID) {
+                typeText = self.Helpers.LOCAL_SERVICE_TYPE_TEXT
+            } else {
+                ind.ind_is_grouped == 1 ? (typeText = 'Grouped') : (typeText = 'Individual')
+            }
+            sql = `INSERT INTO consolidations (con_ind_id, con_user_id, con_division_id, con_products, con_vessels, con_reference, con_kg, con_status, con_request_date, con_group_id, con_pieces, con_is_grouped, con_type)
+                    VALUES (${ind.ind_id}, ${self.Helpers.user_id}, ${ind.ind_division_id}, '${ind.ind_products}', '${ind.ind_vessels}', '${ind.ind_reference}', ${ind.ind_kg}, 'Pending', now(), ${selGroup}, ${ind.ind_pieces}, ${ind.ind_is_grouped}, '${typeText}');`
             connection.query(sql, (err, data) => {
                 if (err) {
                     alert('Unable to add consolidations')
@@ -2385,8 +2408,8 @@ DbClass.prototype.assignConJobsToNewGroup = async function (jobs) {
     let conAdded = await new Promise(function (resolve, reject) {
         let sql = ''
         for (let con of cons) {
-            sql = `INSERT INTO consolidations (con_ind_id, con_done_id, con_user_id, con_division_id, con_products, con_vessels, con_reference, con_kg, con_status, con_request_date, con_group_id, con_pieces)
-                    VALUES (${con.cond_ind_id}, ${con.cond_id}, ${self.Helpers.user_id}, ${con.cond_division_id}, '${con.cond_products}', '${con.cond_vessels}', '${con.cond_reference}', ${con.cond_kg}, 'Pending', now(), ${newConGroup.insertId}. ${con.cond_pieces});`
+            sql = `INSERT INTO consolidations (con_ind_id, con_done_id, con_user_id, con_division_id, con_products, con_vessels, con_reference, con_kg, con_status, con_request_date, con_group_id, con_pieces, con_type)
+                    VALUES (${con.cond_ind_id}, ${con.cond_id}, ${self.Helpers.user_id}, ${con.cond_division_id}, '${con.cond_products}', '${con.cond_vessels}', '${con.cond_reference}', ${con.cond_kg}, 'Pending', now(), ${newConGroup.insertId}, ${con.cond_pieces}, '${self.Helpers.LOCAL_SERVICE_TYPE_TEXT}');`
             connection.query(sql, (err, data) => {
                 if (err) {
                     alert('Unable to add consolidations')
@@ -2447,8 +2470,8 @@ DbClass.prototype.assignConJobsToConGroup = async function (selGroup, jobs) {
     let conAdded = await new Promise(function (resolve, reject) {
         let sql = ''
         for (let con of cons) {
-            sql = `INSERT INTO consolidations (con_ind_id, con_done_id, con_user_id, con_division_id, con_products, con_vessels, con_reference, con_kg, con_status, con_request_date, con_group_id, con_pieces)
-                    VALUES (${con.cond_ind_id}, ${con.cond_id}, ${self.Helpers.user_id}, ${con.cond_division_id}, '${con.cond_products}', '${con.cond_vessels}', '${con.cond_reference}', ${con.cond_kg}, 'Pending', now(), ${selGroup}, ${con.cond_pieces});`
+            sql = `INSERT INTO consolidations (con_ind_id, con_done_id, con_user_id, con_division_id, con_products, con_vessels, con_reference, con_kg, con_status, con_request_date, con_group_id, con_pieces, con_type)
+                    VALUES (${con.cond_ind_id}, ${con.cond_id}, ${self.Helpers.user_id}, ${con.cond_division_id}, '${con.cond_products}', '${con.cond_vessels}', '${con.cond_reference}', ${con.cond_kg}, 'Pending', now(), ${selGroup}, ${con.cond_pieces}, '${self.Helpers.LOCAL_SERVICE_TYPE_TEXT}');`
             connection.query(sql, (err, data) => {
                 if (err) {
                     alert('Unable to add consolidations')
@@ -3021,8 +3044,8 @@ DbClass.prototype.getAllConsolidations = function () {
     cg.con_group_color,
     cg.con_group_mode,
     cg.con_group_local_cost,
+    cg.con_group_service_type,
     st.service_type_description,
-    st2.service_type_description as con_service_description,
     d.division_description,
     u.user_username,
     c2.city_name as ex_name,
@@ -3034,7 +3057,6 @@ DbClass.prototype.getAllConsolidations = function () {
     LEFT JOIN cities c2 on c2.city_id = cg.con_group_ex 
     LEFT JOIN cities c3 on c3.city_id = cg.con_group_to
     LEFT JOIN service_types st on st.service_type_id = cg.con_group_service_type
-    LEFT JOIN service_types st2 on st2.service_type_id = c.con_service_type
     WHERE c.con_status = 'Pending'`
     return new Promise((resolve, reject) => {
         connection.query(sql, function (error, data) {
@@ -3171,7 +3193,7 @@ DbClass.prototype.confirmConsGroup = async function (data) {
     })
 
     const cons = await new Promise((resolve, reject) => {
-        let sql = `SELECT * FROM consolidations WHERE con_group_id = (${data.con_group_id})`
+        let sql = `SELECT c.*, cg.* FROM consolidations c JOIN consolidation_groups cg on cg.con_group_id = c.con_group_id   WHERE c.con_group_id = (${data.con_group_id})`
         connection.query(sql, (err, data) => {
             if (err) {
                 alert('Unable to get individuals done')
@@ -3187,18 +3209,19 @@ DbClass.prototype.confirmConsGroup = async function (data) {
     let conAdded = await new Promise(function (resolve, reject) {
         let sql = ''
         for (let con of cons) {
+            console.log(con)
             if (con.con_done_id == null) {
                 sql = `INSERT INTO consolidations_done (cond_ind_id, cond_con_done_id, cond_user_id, cond_division_id, cond_products, cond_vessels, cond_reference, cond_kg, cond_status, cond_request_date, cond_group_id, cond_pieces, cond_is_grouped, cond_estimate_cost, cond_service_type)
-                VALUES (${con.con_ind_id}, ${con.con_done_id}, ${self.Helpers.user_id}, ${con.con_division_id}, '${con.con_products}', '${con.con_vessels}', '${con.con_reference}', ${con.con_kg}, 'Done', '${con.con_request_date}', ${con.con_group_id}, ${con.con_pieces}, ${con.con_is_grouped}, ${con.con_estimate_cost}, ${con.con_service_type});`
+                VALUES (${con.con_ind_id}, ${con.con_done_id}, ${self.Helpers.user_id}, ${con.con_division_id}, '${con.con_products}', '${con.con_vessels}', '${con.con_reference}', ${con.con_kg}, 'Done', '${con.con_request_date}', ${con.con_group_id}, ${con.con_pieces}, ${con.con_is_grouped}, ${con.con_estimate_cost}, ${con.con_group_service_type});`
             } else {
                 sql = `INSERT INTO consolidations_done (cond_ind_id, cond_con_done_id, cond_consolidated, cond_user_id, cond_division_id, cond_products, cond_vessels, cond_reference, cond_kg, cond_status, cond_request_date, cond_group_id, cond_pieces, cond_is_grouped, cond_estimate_cost, cond_service_type)
-                VALUES (${con.con_ind_id}, ${con.con_done_id}, 1, ${self.Helpers.user_id}, ${con.con_division_id}, '${con.con_products}', '${con.con_vessels}', '${con.con_reference}', ${con.con_kg}, 'Done', '${con.con_request_date}', ${con.con_group_id}, ${con.con_pieces}, ${con.con_is_grouped}, ${con.con_estimate_cost}, ${con.con_service_type});`
+                VALUES (${con.con_ind_id}, ${con.con_done_id}, 1, ${self.Helpers.user_id}, ${con.con_division_id}, '${con.con_products}', '${con.con_vessels}', '${con.con_reference}', ${con.con_kg}, 'Done', '${con.con_request_date}', ${con.con_group_id}, ${con.con_pieces}, ${con.con_is_grouped}, ${con.con_estimate_cost}, ${con.con_group_service_type});`
             }
             connection.query(sql, (err, data) => {
                 if (err) {
                     alert('Unable to add consolidations done')
                     console.log(err)
-                    reject(err)
+                    reject(false)
                 }
             })
         }
@@ -3258,6 +3281,7 @@ DbClass.prototype.getAllDoneConsolidations = function () {
     cg.con_group_mode,
     cg.con_group_local_cost,
     cg.con_group_confirmation_date,
+    cg.con_group_on_board_delivery,
     st.service_type_description,
     d.division_description,
     u.user_username,

@@ -9,6 +9,7 @@ let HelpersClass = function () {
     this.user_id = ''
     this.user_role_id = ''
     this.LOCAL_SERVICE_TYPE_ID = 9
+    this.LOCAL_SERVICE_TYPE_TEXT = 'LOCAL'
 }
 
 HelpersClass.prototype.bindMovingEvents = function (elementID) {
@@ -475,4 +476,8 @@ HelpersClass.prototype.groupDataAreEmpty = function (groupData) {
 HelpersClass.prototype.validOutput = function (field) {
     if (typeof field == 'undefined' || field == null) return '-'
     return field
+}
+
+HelpersClass.prototype.applyRate = function (value, rate) {
+    return rate == '' ? value : value * rate
 }

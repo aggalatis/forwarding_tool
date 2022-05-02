@@ -28,6 +28,7 @@ StatisticsClass.prototype.bindEventsOnButtons = function () {
         let groupedData = await self.DB.getIndGroupedReport(mysqlFromDate, mysqlToDate)
         let consolidationData = await self.DB.getConGroupedReport(mysqlFromDate, mysqlToDate)
         self.tableData = self.formatResultsData(individualsData, personnelData, groupedData, consolidationData)
+        self.initializeChart()
         self.initializeTable()
         self.updateCards()
     })
@@ -111,55 +112,55 @@ StatisticsClass.prototype.formatResultsData = function (individuals, personnel, 
 
     let returnData = []
     for (let key in finalData) {
-        typeof finalData[key].individualEstimateCost == 'undefined'
+        typeof finalData[key].individualEstimateCost == 'undefined' || finalData[key].individualEstimateCost == null
             ? (finalData[key].individualEstimateCost = 0)
             : (finalData[key].individualEstimateCost = finalData[key].individualEstimateCost.toFixed(2))
 
-        typeof finalData[key].personnelEstimateCost == 'undefined'
+        typeof finalData[key].personnelEstimateCost == 'undefined' || finalData[key].personnelEstimateCost == null
             ? (finalData[key].personnelEstimateCost = 0)
             : (finalData[key].personnelEstimateCost = finalData[key].personnelEstimateCost.toFixed(2))
 
-        typeof finalData[key].personnelActualCost == 'undefined'
+        typeof finalData[key].personnelActualCost == 'undefined' || finalData[key].personnelActualCost == null
             ? (finalData[key].personnelActualCost = 0)
             : (finalData[key].personnelActualCost = finalData[key].personnelActualCost.toFixed(2))
 
-        typeof finalData[key].personnelSavings == 'undefined'
+        typeof finalData[key].personnelSavings == 'undefined' || finalData[key].personnelSavings == null
             ? (finalData[key].personnelSavings = 0)
             : (finalData[key].personnelSavings = finalData[key].personnelSavings.toFixed(2))
 
-        typeof finalData[key].personnelSavingsPercent == 'undefined'
+        typeof finalData[key].personnelSavingsPercent == 'undefined' || finalData[key].personnelSavingsPercent == null
             ? (finalData[key].personnelSavingsPercent = 0)
             : (finalData[key].personnelSavingsPercent = finalData[key].personnelSavingsPercent.toFixed(2))
 
-        typeof finalData[key].groupedEstimateCost == 'undefined'
+        typeof finalData[key].groupedEstimateCost == 'undefined' || finalData[key].groupedEstimateCost == null
             ? (finalData[key].groupedEstimateCost = 0)
             : (finalData[key].groupedEstimateCost = finalData[key].groupedEstimateCost.toFixed(2))
 
-        typeof finalData[key].groupedSharedCost == 'undefined'
+        typeof finalData[key].groupedSharedCost == 'undefined' || finalData[key].groupedSharedCost == null
             ? (finalData[key].groupedSharedCost = 0)
             : (finalData[key].groupedSharedCost = finalData[key].groupedSharedCost.toFixed(2))
 
-        typeof finalData[key].groupedSavings == 'undefined'
+        typeof finalData[key].groupedSavings == 'undefined' || finalData[key].groupedSavings == null
             ? (finalData[key].groupedSavings = 0)
             : (finalData[key].groupedSavings = finalData[key].groupedSavings.toFixed(2))
 
-        typeof finalData[key].groupedSavingsPercent == 'undefined'
+        typeof finalData[key].groupedSavingsPercent == 'undefined' || finalData[key].groupedSavingsPercent == null
             ? (finalData[key].groupedSavingsPercent = 0)
             : (finalData[key].groupedSavingsPercent = finalData[key].groupedSavingsPercent.toFixed(2))
 
-        typeof finalData[key].consolidatedEstimateCost == 'undefined'
+        typeof finalData[key].consolidatedEstimateCost == 'undefined' || finalData[key].consolidatedEstimateCost == null
             ? (finalData[key].consolidatedEstimateCost = 0)
             : (finalData[key].consolidatedEstimateCost = finalData[key].consolidatedEstimateCost.toFixed(2))
 
-        typeof finalData[key].consolidatedSharedCost == 'undefined'
+        typeof finalData[key].consolidatedSharedCost == 'undefined' || finalData[key].consolidatedSharedCost == null
             ? (finalData[key].consolidatedSharedCost = 0)
             : (finalData[key].consolidatedSharedCost = finalData[key].consolidatedSharedCost.toFixed(2))
 
-        typeof finalData[key].consolidatedSavings == 'undefined'
+        typeof finalData[key].consolidatedSavings == 'undefined' || finalData[key].consolidatedSavings == null
             ? (finalData[key].consolidatedSavings = 0)
             : (finalData[key].consolidatedSavings = finalData[key].consolidatedSavings.toFixed(2))
 
-        typeof finalData[key].consolidatedSavingsPercent == 'undefined'
+        typeof finalData[key].consolidatedSavingsPercent == 'undefined' || finalData[key].consolidatedSavingsPercent == null
             ? (finalData[key].consolidatedSavingsPercent = 0)
             : (finalData[key].consolidatedSavingsPercent = finalData[key].consolidatedSavingsPercent.toFixed(2))
 
@@ -198,6 +199,9 @@ StatisticsClass.prototype.initializeTable = function () {
     let self = this
 
     $('#table-div').show()
+    $('#overview-table').unbind('click')
+    $('#overview-table').DataTable().clear()
+    $('#overview-table').DataTable().destroy()
     $('#overview-table').DataTable({
         data: self.tableData,
         processing: true,
@@ -207,30 +211,6 @@ StatisticsClass.prototype.initializeTable = function () {
             { data: 'department', orderable: true },
             {
                 data: 'individualEstimateCost',
-                createdCell: function (td, cellData, rowData, row, col) {
-                    if (rowData.department == 'Total') $(td).css('font-weight', 'bold')
-                },
-            },
-            {
-                data: 'personnelEstimateCost',
-                createdCell: function (td, cellData, rowData, row, col) {
-                    if (rowData.department == 'Total') $(td).css('font-weight', 'bold')
-                },
-            },
-            {
-                data: 'personnelActualCost',
-                createdCell: function (td, cellData, rowData, row, col) {
-                    if (rowData.department == 'Total') $(td).css('font-weight', 'bold')
-                },
-            },
-            {
-                data: 'personnelSavings',
-                createdCell: function (td, cellData, rowData, row, col) {
-                    if (rowData.department == 'Total') $(td).css('font-weight', 'bold')
-                },
-            },
-            {
-                data: 'personnelSavingsPercent',
                 createdCell: function (td, cellData, rowData, row, col) {
                     if (rowData.department == 'Total') $(td).css('font-weight', 'bold')
                 },
@@ -255,6 +235,30 @@ StatisticsClass.prototype.initializeTable = function () {
             },
             {
                 data: 'groupedSavingsPercent',
+                createdCell: function (td, cellData, rowData, row, col) {
+                    if (rowData.department == 'Total') $(td).css('font-weight', 'bold')
+                },
+            },
+            {
+                data: 'personnelEstimateCost',
+                createdCell: function (td, cellData, rowData, row, col) {
+                    if (rowData.department == 'Total') $(td).css('font-weight', 'bold')
+                },
+            },
+            {
+                data: 'personnelActualCost',
+                createdCell: function (td, cellData, rowData, row, col) {
+                    if (rowData.department == 'Total') $(td).css('font-weight', 'bold')
+                },
+            },
+            {
+                data: 'personnelSavings',
+                createdCell: function (td, cellData, rowData, row, col) {
+                    if (rowData.department == 'Total') $(td).css('font-weight', 'bold')
+                },
+            },
+            {
+                data: 'personnelSavingsPercent',
                 createdCell: function (td, cellData, rowData, row, col) {
                     if (rowData.department == 'Total') $(td).css('font-weight', 'bold')
                 },
@@ -316,5 +320,51 @@ StatisticsClass.prototype.initializeTable = function () {
             },
         ],
         pageLength: 25,
+    })
+}
+
+StatisticsClass.prototype.initializeChart = function () {
+    let self = this
+    let totalData = self.tableData.find(e => e.department == 'Total')
+    let pieChart = document.getElementById('overviewchart').getContext('2d')
+    if (
+        totalData.individualEstimateCost == 0 &&
+        totalData.groupedSharedCost == 0 &&
+        totalData.personnelActualCost == 0 &&
+        totalData.consolidatedSharedCost == 0
+    ) {
+        $('#pie-div').hide(500)
+        return
+    }
+    $('#pie-div').show(500)
+    let pieData = {
+        labels: ['INDIVIDUAL', 'GROUP', 'PERSONNEL', 'CONSOLIDATED'],
+        datasets: [
+            {
+                data: [
+                    parseFloat(totalData.individualEstimateCost),
+                    parseFloat(totalData.groupedSharedCost),
+                    parseFloat(totalData.personnelActualCost),
+                    parseFloat(totalData.consolidatedSharedCost),
+                ],
+                backgroundColor: ['#F08080', '#90EE90', '#ADD8E6', '#F0E68C'],
+                hoverBackgroundColor: ['#F08080', '#90EE90', '#ADD8E6', '#F0E68C'],
+                borderWidth: 0,
+                hoverBorderWidth: 6,
+                hoverBorderColor: ['#F08080', '#90EE90', '#ADD8E6', '#F0E68C'],
+            },
+        ],
+    }
+    new Chart(pieChart, {
+        type: 'pie',
+        data: pieData,
+        options: {
+            legend: {
+                display: false,
+            },
+            animation: {
+                animateScale: true,
+            },
+        },
     })
 }

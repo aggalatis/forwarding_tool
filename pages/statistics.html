@@ -338,30 +338,58 @@
 
             </div>
             <div class="row" ID="table-div" style="display: none">
-                <div class="col-3">
-                    <div class="block counter-block mb-4 mb-lg-5">
-                        <div class="value" id="total-cost-without-grouping"></div>
-                        <p class="label">TOTAL COST WITHOUT GROUPING</p>
+                <div class="col-6 row">
+                    <div class="col-6">
+                        <div class="block counter-block mb-4 mb-lg-5">
+                            <div class="value" id="total-cost-without-grouping"></div>
+                            <p class="label">TOTAL COST WITHOUT GROUPING</p>
+                        </div>
+                    </div>
+                    <div class="col-6">
+                        <div class="block counter-block mb-4 mb-lg-5">
+                            <div class="value" id="total-cost-with-grouping"></div>
+                            <p class="label">TOTAL COST WITH GROUPING</p>
+                        </div>
+                    </div>
+                    <div class="col-6">
+                        <div class="block counter-block mb-4 mb-lg-5">
+                            <div class="value" id="total-savings"></div>
+                            <p class="label">TOTAL SAVING (€)</p>
+                        </div>
+                    </div>
+                    <div class="col-6">
+                        <div class="block counter-block mb-4 mb-lg-5">
+                            <div class="value" id="total-savings-percent"></div>
+                            <p class="label">TOTAL SAVING %</p>
+                        </div>
                     </div>
                 </div>
-                <div class="col-3">
-                    <div class="block counter-block mb-4 mb-lg-5">
-                        <div class="value" id="total-cost-with-grouping"></div>
-                        <p class="label">TOTAL COST WITH GROUPING</p>
+                <div class="col-6" id="pie-div">
+                    <div class="block chart-block mb-4">
+                        <div class="doughnut-chart mb-3">
+                            <canvas id="overviewchart" class="chart"></canvas>
+                        </div>
+                        <div class="chart-legends d-block d-md-flex justify-content-center">
+                            <div class="legend-value-w ml-0 ml-md-2 mr-0 mr-md-2">
+                                <div class="legend-pin" style="background-color: #F08080;"></div>
+                                <div class="legend-value">INDIVIDUAL</div>
+                            </div>
+                            <div class="legend-value-w ml-0 ml-md-2 mr-0 mr-md-2">
+                                <div class="legend-pin" style="background-color: #90EE90;"></div>
+                                <div class="legend-value">GROUP</div>
+                            </div>
+                            <div class="legend-value-w ml-0 ml-md-2 mr-0 mr-md-2">
+                                <div class="legend-pin" style="background-color: #ADD8E6;"></div>
+                                <div class="legend-value">PERSONNEL</div>
+                            </div>
+                            <div class="legend-value-w ml-0 ml-md-2 mr-0 mr-md-2">
+                                <div class="legend-pin" style="background-color: #F0E68C;"></div>
+                                <div class="legend-value">CONSOLIDATED</div>
+                            </div>
+                        </div>
                     </div>
                 </div>
-                <div class="col-3">
-                    <div class="block counter-block mb-4 mb-lg-5">
-                        <div class="value" id="total-savings"></div>
-                        <p class="label">TOTAL SAVING (€)</p>
-                    </div>
-                </div>
-                <div class="col-3">
-                    <div class="block counter-block mb-4 mb-lg-5">
-                        <div class="value" id="total-savings-percent"></div>
-                        <p class="label">TOTAL SAVING %</p>
-                    </div>
-                </div>
+                
                 <div class="col-12 table-responsive">
                     <table id="overview-table" class="table table-striped table-bordered" style="width: 100%">
                         <thead>

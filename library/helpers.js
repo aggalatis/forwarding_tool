@@ -451,6 +451,7 @@ HelpersClass.prototype.individualDataAreEmpty = function (indData, allowTBA = fa
         indData.sum_estimated_cost == ''
     )
         return true
+    if (indData.ind_mode == 'Personnel' && (indData.ind_actual_cost == null || indData.ind_actual_cost == '')) return true
     if (indData.ind_deadline == 'TBA' && allowTBA == false) return true
     return false
 }

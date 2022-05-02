@@ -54,6 +54,7 @@ TransfersClass.prototype.bindEventsOnButtons = function () {
         $('#pieces').val('')
         $('#notes').val('')
         $('#deadline_date').val('')
+        $('#estimate_cost_eur').val('')
         $('#ex-input').val('').trigger('chosen:updated')
         $('#to-input').val('').trigger('chosen:updated')
 

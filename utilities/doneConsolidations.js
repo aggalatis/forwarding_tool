@@ -12,14 +12,23 @@ let DoneConsolidationsClass = function () {
     this.selectedDoneInds = []
     this.selectedDoneDestination = []
     this.selectedDoneGroupId = -1
+    this.DB.getAllCities()
+    this.DB.getAllServiceTypes()
     let self = this
     setTimeout(function () {
         self.initializetable()
+        self.initialiazeCitiesSelect()
+        self.initializeServiceTypeSelect()
     }, 500)
 }
 
 DoneConsolidationsClass.prototype.bindEventsOnButtons = function () {
     let self = this
+
+    $('#group-mode-select').chosen()
+    $('#group-ex-select').chosen()
+    $('#group-to-select').chosen()
+    $('#service-type-select').chosen()
 
     $('#logout-ref').on('click', function () {
         self.Helpers.handleLogout()
@@ -130,6 +139,22 @@ DoneConsolidationsClass.prototype.initializetable = async function () {
             { title: 'REQ. DATE', orderable: false, data: 'cond_request_date' },
             { title: 'USER', orderable: false, data: 'user_username' },
             { title: 'DEPARTMENT', orderable: false, data: 'division_description' },
+            {
+                title: 'TYPE',
+                orderable: false,
+                data: 'cond_type',
+                createdCell: function (td, cellData, rowData, row, col) {
+                    if (rowData.cond_type == 'Individual') {
+                        $(td).css('color', 'blue').css('font-weight', 'bold')
+                    }
+                    if (rowData.cond_type == 'Grouped') {
+                        $(td).css('color', '#32CD32').css('font-weight', 'bold')
+                    }
+                    if (rowData.cond_type == self.Helpers.LOCAL_SERVICE_TYPE_TEXT) {
+                        $(td).css('color', 'red').css('font-weight', 'bold')
+                    }
+                },
+            },
             { title: 'PRODUCTS', orderable: false, data: 'cond_products' },
             { title: 'MODE', orderable: false, data: 'con_group_mode' },
             { title: 'SERVICE', orderable: false, data: 'service_type_description' },
@@ -179,6 +204,7 @@ DoneConsolidationsClass.prototype.initializetable = async function () {
                 },
                 defaultContent:
                     "<i class='fa fa-search job-edit action-btn' style='cursor: pointer' title='modify'></i> \
+                    <i class='fa fa-dollar costs-job action-btn' title='costs' style='cursor: pointer' ></i> \
                     <i class='select-done-jobs' style='cursor: pointer' title='select'><img src='../assets/icons/consolidations.png'/ style='width: 15px'></i> \
                     <i class='fa fa-calendar-times-o delivery-edit action-btn' style='cursor: pointer' title='delivery-on-board'></i>",
             },
@@ -247,6 +273,74 @@ DoneConsolidationsClass.prototype.initializetable = async function () {
         $('#group-delivered-on-boat').val(rowData.con_group_on_board_delivery)
         $('#delivery-on-board-modal').modal('show')
     })
+    $('#done_consolidations_table').on('click', 'i.costs-job', function () {
+        $('#total-savings-div').hide()
+        var data = doneConsTable.row($(this).closest('tr')).data()
+        if (!self.Helpers.checkIfUserHasPriviledges(data.user_username)) {
+            self.Helpers.swalUserPermissionError()
+            return
+        }
+        let groupJobs = []
+        const tableData = doneConsTable.rows().data()
+        for (let i = 0; i < tableData.length; i++) {
+            if (tableData[i].group_id == data.group_id) groupJobs.push(tableData[i])
+        }
+        let foundGroupedJobs = groupJobs.find(el => el.cond_type == 'Grouped')
+        let foundIndividualJobs = groupJobs.find(el => el.cond_type == 'Individual')
+        let foundLocalJobs = groupJobs.find(el => el.cond_type == self.Helpers.LOCAL_SERVICE_TYPE_TEXT)
+        $('#group-savings').val('')
+        $('#grouped-jobs-cost').hide()
+        $('#individual-jobs-cost').hide()
+        $('#local-jobs-costs').hide()
+        $('#calculate-group-savings').hide()
+
+        if (typeof foundLocalJobs != 'undefined') {
+            $('#local-jobs-costs').show()
+            $('#locals-cost').val(data.con_group_local_cost)
+        }
+        if (typeof foundGroupedJobs != 'undefined') {
+            $('#grouped-jobs-cost').show()
+            $('#calculate-group-savings').show()
+            $('#append-grouped-estimate-cost').html('')
+            $('#group-cost').val(data.con_group_cost)
+            let divString = ''
+            for (let job of groupJobs) {
+                if (job.cond_type == 'Grouped') {
+                    divString += `<div class="col-12"><div class="form-group"><label class="bold-label currency-label"> Job ${job.cond_ind_id} | Ref: ${job.cond_reference} (EUR)</label><input class="form-control currency-input grouped-estimate-cost-input" data-id="${job.cond_id}"  placeholder="Type Cost in EUR..." type="number" value="${job.cond_estimate_cost}" disabled/></div></div>`
+                }
+            }
+            $('#append-grouped-estimate-cost').html(divString)
+            self.calculateGroupSavings()
+            $('#total-savings-div').show()
+        }
+
+        if (typeof foundIndividualJobs != 'undefined') {
+            $('#individual-jobs-cost').show()
+            $('#append-individual-cost').html('')
+            let divString = ''
+            for (let job of groupJobs) {
+                if (job.cond_type == 'Individual') {
+                    divString += `<div class="col-12"><div class="form-group"><label class="bold-label currency-label"> Job ${job.cond_ind_id} | Ref: ${job.cond_reference} (EUR)</label><input class="form-control currency-input individual-estimate-cost-input" data-id="${job.cond_id}" data-trigger-flag="ind-trigg-${job.cond_ind_id}" placeholder="Type Cost in EUR..." type="text" value="${job.cond_estimate_cost}" disabled/></div></div>`
+                }
+            }
+            $('#append-individual-cost').html(divString)
+        }
+
+        $('#group-ex-select').val(data.con_group_ex)
+        $('#group-to-select').val(data.con_group_to)
+        $('#group-mode-select').val(data.con_group_mode)
+        $('#service-type-select').val(data.con_group_service_type)
+        $('#group-forwarder').val(data.con_group_forwarder)
+        $('#group-deadline').val(data.con_group_deadline)
+
+        $('#group-ex-select').trigger('chosen:updated')
+        $('#group-to-select').trigger('chosen:updated')
+        $('#group-mode-select').trigger('chosen:updated')
+        $('#service-type-select').trigger('chosen:updated')
+
+        $('#group-modal').modal('show')
+        $('#save-group-data').attr('disabled', null)
+    })
 
     $('#search_datatable').keyup(function () {
         doneConsTable.search('^' + $(this).val()).draw()
@@ -274,23 +368,27 @@ DoneConsolidationsClass.prototype.formatData = function (consolidations) {
         retData.push(cons)
     }
     for (let con of retData) {
-        if (con.cond_is_grouped == 1) {
-            // Job was grouped
-            con.cond_cost_per_kg = (con.con_group_cost / groupSumKG[con.group_id]).toFixed(2)
-            con.cond_shared_cost = ((con.cond_kg * con.con_group_cost) / groupSumKG[con.group_id]).toFixed(2)
-        } else {
-            if (con.cond_service_type != self.Helpers.LOCAL_SERVICE_TYPE_ID) {
+        try {
+            if (con.cond_type == 'Grouped') {
+                // Job was grouped
+                con.cond_cost_per_kg = (con.con_group_cost / groupSumKG[con.group_id]).toFixed(2)
+                con.cond_shared_cost = ((con.cond_kg * con.con_group_cost) / groupSumKG[con.group_id]).toFixed(2)
+            }
+            if (con.cond_type == 'Individual') {
                 // Job is a simple individual
                 con.cond_cost_per_kg = (con.cond_estimate_cost / con.cond_kg).toFixed(2)
                 con.cond_shared_cost = con.cond_estimate_cost.toFixed(2)
-            } else {
+            }
+            if (con.cond_type == self.Helpers.LOCAL_SERVICE_TYPE_TEXT) {
                 // Job is a local dispatch
                 con.cond_cost_per_kg = (con.con_group_local_cost / con.cond_kg).toFixed(2)
                 con.cond_shared_cost = con.con_group_local_cost.toFixed(2)
             }
+            finalData.push(con)
+        } catch (err) {
+            console.log(`Format Data Error:`, err)
+            continue
         }
-
-        finalData.push(con)
     }
 
     return finalData
@@ -338,4 +436,59 @@ DoneConsolidationsClass.prototype.refreshTable = function () {
     setTimeout(function () {
         self.initializetable()
     }, 2000)
+}
+
+DoneConsolidationsClass.prototype.findChoosenValueForCities = function (ex_city, to_city) {
+    let self = this
+    let cities = self.DB.cities
+    for (i = 0; i < cities.length; i++) {
+        if (cities[i].city_name == ex_city) {
+            $('#group-ex-select').val(cities[i].city_id)
+            $('#group-ex-select').trigger('chosen:updated')
+        }
+        if (cities[i].city_name == to_city) {
+            $('#group-to-select').val(cities[i].city_id)
+            $('#group-to-select').trigger('chosen:updated')
+        }
+    }
+}
+
+DoneConsolidationsClass.prototype.initialiazeCitiesSelect = function () {
+    let self = this
+    $('#group-ex-select').empty()
+    $('#group-to-select').empty()
+    $('#group-ex-select').append('<option></option>')
+    $('#group-to-select').append('<option></option>')
+    for (i = 0; i < self.DB.cities.length; i++) {
+        $('#group-ex-select').append(new Option(self.DB.cities[i].city_name, self.DB.cities[i].city_id))
+        $('#group-to-select').append(new Option(self.DB.cities[i].city_name, self.DB.cities[i].city_id))
+    }
+    $('#group-ex-select').trigger('chosen:updated')
+    $('#group-to-select').trigger('chosen:updated')
+}
+
+DoneConsolidationsClass.prototype.initializeServiceTypeSelect = function () {
+    let self = this
+
+    $('#service-type-select').empty()
+    $('#service-type-select').append('<option></option>')
+    for (i = 0; i < self.DB.consolidationServiceTypes.length; i++) {
+        $('#service-type-select').append(
+            new Option(self.DB.consolidationServiceTypes[i].service_type_description, self.DB.consolidationServiceTypes[i].service_type_id)
+        )
+    }
+    $('#service-type-select').trigger('chosen:updated')
+}
+
+DoneConsolidationsClass.prototype.calculateGroupSavings = async function () {
+    let self = this
+    let totalIndCount = 0
+    await new Promise((resolve, reject) => {
+        setTimeout(resolve, 500)
+    })
+    $('.grouped-estimate-cost-input').each(function () {
+        if ($(this).val() == '') return
+        totalIndCount = totalIndCount + parseFloat($(this).val())
+    })
+    $('#group-savings').val(totalIndCount - $('#group-cost').val())
 }

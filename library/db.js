@@ -3205,11 +3205,11 @@ DbClass.prototype.confirmConsGroup = async function (data) {
         for (let con of cons) {
             console.log(con)
             if (con.con_done_id == null) {
-                sql = `INSERT INTO consolidations_done (cond_ind_id, cond_con_done_id, cond_user_id, cond_division_id, cond_products, cond_vessels, cond_reference, cond_kg, cond_status, cond_request_date, cond_group_id, cond_pieces, cond_is_grouped, cond_estimate_cost, cond_service_type)
-                VALUES (${con.con_ind_id}, ${con.con_done_id}, ${self.Helpers.user_id}, ${con.con_division_id}, '${con.con_products}', '${con.con_vessels}', '${con.con_reference}', ${con.con_kg}, 'Done', '${con.con_request_date}', ${con.con_group_id}, ${con.con_pieces}, ${con.con_is_grouped}, ${con.con_estimate_cost}, ${con.con_group_service_type});`
+                sql = `INSERT INTO consolidations_done (cond_ind_id, cond_con_done_id, cond_user_id, cond_division_id, cond_products, cond_vessels, cond_reference, cond_kg, cond_status, cond_request_date, cond_group_id, cond_pieces, cond_is_grouped, cond_estimate_cost, cond_service_type, cond_type)
+                VALUES (${con.con_ind_id}, ${con.con_done_id}, ${self.Helpers.user_id}, ${con.con_division_id}, '${con.con_products}', '${con.con_vessels}', '${con.con_reference}', ${con.con_kg}, 'Done', '${con.con_request_date}', ${con.con_group_id}, ${con.con_pieces}, ${con.con_is_grouped}, ${con.con_estimate_cost}, ${con.con_group_service_type}, '${con.con_type}');`
             } else {
-                sql = `INSERT INTO consolidations_done (cond_ind_id, cond_con_done_id, cond_consolidated, cond_user_id, cond_division_id, cond_products, cond_vessels, cond_reference, cond_kg, cond_status, cond_request_date, cond_group_id, cond_pieces, cond_is_grouped, cond_estimate_cost, cond_service_type)
-                VALUES (${con.con_ind_id}, ${con.con_done_id}, 1, ${self.Helpers.user_id}, ${con.con_division_id}, '${con.con_products}', '${con.con_vessels}', '${con.con_reference}', ${con.con_kg}, 'Done', '${con.con_request_date}', ${con.con_group_id}, ${con.con_pieces}, ${con.con_is_grouped}, ${con.con_estimate_cost}, ${con.con_group_service_type});`
+                sql = `INSERT INTO consolidations_done (cond_ind_id, cond_con_done_id, cond_consolidated, cond_user_id, cond_division_id, cond_products, cond_vessels, cond_reference, cond_kg, cond_status, cond_request_date, cond_group_id, cond_pieces, cond_is_grouped, cond_estimate_cost, cond_service_type, cond_type)
+                VALUES (${con.con_ind_id}, ${con.con_done_id}, 1, ${self.Helpers.user_id}, ${con.con_division_id}, '${con.con_products}', '${con.con_vessels}', '${con.con_reference}', ${con.con_kg}, 'Done', '${con.con_request_date}', ${con.con_group_id}, ${con.con_pieces}, ${con.con_is_grouped}, ${con.con_estimate_cost}, ${con.con_group_service_type}, '${con.con_type}');`
             }
             connection.query(sql, (err, data) => {
                 if (err) {
@@ -3268,14 +3268,7 @@ DbClass.prototype.getAllDoneConsolidations = function () {
     let sql = `SELECT 
     c.*,
     cg.con_group_id as group_id,
-    cg.con_group_cost,
-    cg.con_group_deadline,
-    cg.con_group_forwarder,
-    cg.con_group_color,
-    cg.con_group_mode,
-    cg.con_group_local_cost,
-    cg.con_group_confirmation_date,
-    cg.con_group_on_board_delivery,
+    cg.*,
     st.service_type_description,
     d.division_description,
     u.user_username,

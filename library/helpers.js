@@ -255,13 +255,6 @@ HelpersClass.prototype.formatFloatValue = function (num) {
     // }
 }
 
-HelpersClass.prototype.applyRate = function (num, rate) {
-    if (num == null || num == '') return null
-    let numRate = parseFloat(rate)
-    let numNumber = parseFloat(num)
-    return this.formatFloatValue(numNumber / numRate)
-}
-
 HelpersClass.prototype.addCityAlert = function (myDB) {
     let self = this
     Swal.fire({
@@ -394,7 +387,7 @@ HelpersClass.prototype.initGlobalSearch = function (myDB) {
                 con.service_name
             )}</span> DEADLINE: <span style="color: red">${self.validOutput(con.group_deadline)}</span></li>`
         for (let cond of doneCons) {
-            if (cond.con_group_on_board_delivery == null) {
+            if (cond.con_group_on_board_delivery == null || cond.con_group_on_board_delivery == '') {
                 resultsHtml += `<li style="color: black; font-size: 15px">Ref: <span style="color: red">"${
                     cond.cond_reference
                 }"</span> found in <span style="color: red">Consolidations-Done ID: ${
@@ -403,13 +396,15 @@ HelpersClass.prototype.initGlobalSearch = function (myDB) {
                     cond.to_city
                 )}</span> SERVICE: <span style="color: red">${self.validOutput(
                     cond.service_name
-                )}</span> DEADLINE: <span style="color: red">${self.validOutput(con.group_deadline)}</span></li>`
+                )}</span> DEADLINE: <span style="color: red">${self.validOutput(cond.group_deadline)}</span></li>`
             } else {
                 resultsHtml += `<li style="color: black; font-size: 15px">Ref: <span style="color: red">"${
                     cond.cond_reference
                 }"</span> found in <span style="color: red">Consolidations-Done ID: ${
                     cond.cond_ind_id
-                }</span> was delivered on board with DEADLINE: <span style="color: red">${self.validOutput(con.group_deadline)}</span></li>`
+                }</span> was delivered on board with DEADLINE: <span style="color: red">${self.validOutput(
+                    cond.con_group_on_board_delivery
+                )}</span></li>`
             }
         }
 
@@ -479,5 +474,29 @@ HelpersClass.prototype.validOutput = function (field) {
 }
 
 HelpersClass.prototype.applyRate = function (value, rate) {
-    return rate == '' ? value : value * rate
+    return rate == '' ? this.formatFloatValue(value) : this.formatFloatValue(value * rate)
+}
+
+HelpersClass.prototype.revertRate = function (value, rate) {
+    return rate == '' ? this.formatFloatValue(value) : this.formatFloatValue(value / rate)
+}
+
+HelpersClass.prototype.swalUserPermissionError = function () {
+    Swal.fire({
+        title: 'Unable to access this job.',
+        text: "Unfortunately this is a job inserted by different user. You can't access it.",
+        icon: 'error',
+        showCancelButton: true,
+        showConfirmButton: false,
+    })
+}
+
+HelpersClass.prototype.swalFieldsMissingError = function () {
+    Swal.fire({
+        title: 'Unable to proceed.',
+        text: 'Unfortunately some mandatory fields are missing.',
+        icon: 'error',
+        showCancelButton: true,
+        showConfirmButton: false,
+    })
 }

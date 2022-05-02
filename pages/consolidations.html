@@ -231,7 +231,7 @@
                                 <div class="input-group">
                                     <span class="input-group-addon text-dark"><i class="ion-ios-calendar-outline"></i></span>
                                     <input
-                                        class="single-date-picker form-control"
+                                        class="down-date-picker form-control"
                                         type="text"
                                         placeholder="Select consol. deadline"
                                         id="group-deadline"
@@ -260,14 +260,28 @@
                                     <div class="col-12" style="text-align: center">
                                         <h8>GROUP ACTUAL COSTS</h8>
                                     </div>
-                                    <div class="col-12">
+                                    <div class="col-6">
                                         <div class="form-group">
-                                            <label> Group Consolidation Cost</label>
+                                            <label class="currency-label"> Group Cons. Cost (EUR)</label>
                                             <input
                                                 class="form-control currency-input"
                                                 id="group-cost"
                                                 placeholder="Type Cost in EUR..."
                                                 type="number"
+                                                data-trigger-flag="group-cost"
+                                            />
+                                        </div>
+                                    </div>
+                                    <div class="col-6">
+                                        <div class="form-group">
+                                            <label> Group Cons. Cost (EUR)</label>
+                                            <input
+                                                class="form-control currency-slave"
+                                                id="group-cost-eur"
+                                                placeholder="Group Cons. Cost (EUR)"
+                                                type="text"
+                                                data-trigger-flag="group-cost"
+                                                disabled
                                             />
                                         </div>
                                     </div>
@@ -290,7 +304,7 @@
                                     <div class="col-12" style="text-align: center">
                                         <h8>GROUP ESTIMATE COSTS</h8>
                                     </div>
-                                    <div class="col-12" id="append-grouped-estimate-cost" style="padding-left: 0px; padding-right: 0px"></div>
+                                    <div class="col-12 row" id="append-grouped-estimate-cost" style="padding-left: 0px; padding-right: 0px"></div>
                                 </div>
                             </div>
                         </div>
@@ -300,18 +314,31 @@
                                     <div class="col-12" style="text-align: center">
                                         <h8>INDIVIDUAL (IMPORT) COST</h8>
                                     </div>
-                                    <div class="col-12" id="append-individual-cost" style="padding-left: 0px; padding-right: 0px"></div>
+                                    <div class="col-12 row" id="append-individual-cost" style="padding-left: 15px; padding-right: 15px"></div>
                                 </div>
                             </div>
                             <div class="col-6" id="local-jobs-costs">
                                 <div class="row">
                                     <div class="col-12" style="text-align: center">
-                                        <h8>LOCAL COST</h8>
+                                        <h8>LOCAL COST </h8>
                                     </div>
-                                    <div class="col-12">
+                                    <div class="col-6">
                                         <div class="form-group">
-                                            <label> Local Jobs Costs</label>
-                                            <input class="form-control currency-input" id="locals-cost" type="text" />
+                                            <label class="currency-label"> Local Jobs Costs (EUR)</label>
+                                            <input class="form-control currency-input" data-trigger-flag="local-group" id="locals-cost" type="text" />
+                                        </div>
+                                    </div>
+                                    <div class="col-6">
+                                        <div class="form-group">
+                                            <label> Local Jobs Costs (EUR)</label>
+                                            <input
+                                                class="form-control currency-slave"
+                                                id="locals-cost"
+                                                placeholder="Locals Cost (EUR)"
+                                                type="text"
+                                                data-trigger-flag="local-group"
+                                                disabled
+                                            />
                                         </div>
                                     </div>
                                 </div>

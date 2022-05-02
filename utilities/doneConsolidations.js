@@ -6,6 +6,7 @@ let DoneConsolidationsClass = function () {
     this.Helpers.bindMovingEvents('help-modal-header')
     this.Helpers.bindMovingEvents('cost-done-cons-head')
     this.Helpers.bindMovingEvents('edit-notes-consolidation-head')
+    this.Helpers.bindMovingEvents('delivery-on-board-modal-header')
     this.Helpers.initializeUser()
     this.bindEventsOnButtons()
     this.selectedDoneInds = []
@@ -77,6 +78,27 @@ DoneConsolidationsClass.prototype.bindEventsOnButtons = function () {
             self.DB.assignConJobsToConGroup(selGroup, self.selectedDoneInds)
         }
     })
+
+    $('#save-delivery-on-board').on('click', async function () {
+        $(this).attr('disabled', 'disabled')
+        let dateSelected = $('#group-delivered-on-boat').val()
+        let groupId = $('#done-con-group-id').val()
+        if (dateSelected == '' || dateSelected == null) {
+            self.Helpers.toastr('error', 'Some required fields are empty.')
+            $(this).attr('disabled', false)
+            return
+        }
+        let resp = await self.DB.updateGroupOnBoardDelivery(groupId, dateSelected)
+        if (resp.affectedRows != 1) {
+            $(this).attr('disabled', false)
+            self.Helpers.toastr('error', 'Cannot update delivery on board')
+            return
+        }
+        self.Helpers.toastr('success', 'Delivery date updated!')
+        $(this).attr('disabled', false)
+        $('#delivery-on-board-modal').modal('hide')
+        self.refreshTable()
+    })
 }
 
 DoneConsolidationsClass.prototype.initializetable = async function () {
@@ -139,7 +161,7 @@ DoneConsolidationsClass.prototype.initializetable = async function () {
                 title: 'DELIVERED ON BOARD',
                 orderable: false,
                 createdCell: function (td, cellData, rowData, row, col) {
-                    if (rowData.con_group_on_board_delivery != '') {
+                    if (rowData.con_group_on_board_delivery == '' || rowData.con_group_on_board_delivery == null) {
                         $(td).html('NO').css('color', 'red').css('font-weight', 'bold')
                     } else {
                         $(td).html(`${rowData.con_group_on_board_delivery}`).css('color', 'green').css('font-weight', 'bold')
@@ -157,7 +179,8 @@ DoneConsolidationsClass.prototype.initializetable = async function () {
                 },
                 defaultContent:
                     "<i class='fa fa-search job-edit action-btn' style='cursor: pointer' title='modify'></i> \
-                    <i class='select-done-jobs' style='cursor: pointer' title='select'><img src='../assets/icons/consolidations.png'/ style='width: 15px'></i>",
+                    <i class='select-done-jobs' style='cursor: pointer' title='select'><img src='../assets/icons/consolidations.png'/ style='width: 15px'></i> \
+                    <i class='fa fa-calendar-times-o delivery-edit action-btn' style='cursor: pointer' title='delivery-on-board'></i>",
             },
         ],
         rowCallback: function (row, data, index, cells) {
@@ -209,20 +232,20 @@ DoneConsolidationsClass.prototype.initializetable = async function () {
     $('#done_consolidations_table').on('click', 'i.job-edit', function () {
         $('#job-modal-header').removeClass('noFloat floatMeLeft floatMeRight')
         var data = doneConsTable.row($(this).parents('tr')).data()
-
         if (!self.Helpers.checkIfUserHasPriviledges(data.user_username)) {
-            Swal.fire({
-                title: 'Unable to edit this job.',
-                text: "Unfortunately this is a job inserted by different user. You can't modify it.",
-                icon: 'error',
-                showCancelButton: true,
-                showConfirmButton: false,
-            })
+            self.Helpers.swalUserPermissionError()
             return
         }
         $('#done_consolidation_id').val(data.cond_id)
         $('#notes').val(data.cond_notes)
         $('#consol-notes-modal').modal('show')
+    })
+    $('#done_consolidations_table').on('click', 'i.delivery-edit', function () {
+        console.log(`Delivery on board..`)
+        var rowData = doneConsTable.row($(this).parents('tr')).data()
+        $('#done-con-group-id').val(rowData.group_id)
+        $('#group-delivered-on-boat').val(rowData.con_group_on_board_delivery)
+        $('#delivery-on-board-modal').modal('show')
     })
 
     $('#search_datatable').keyup(function () {
@@ -305,4 +328,14 @@ DoneConsolidationsClass.prototype.updateSelectedTableColors = function (myTable)
             $(rowNode).addClass('datatableBack')
         }
     })
+}
+
+DoneConsolidationsClass.prototype.refreshTable = function () {
+    let self = this
+    $('#done_consolidations_table').unbind('click')
+    $('#done_consolidations_table').DataTable().clear()
+    $('#done_consolidations_table').DataTable().destroy()
+    setTimeout(function () {
+        self.initializetable()
+    }, 2000)
 }

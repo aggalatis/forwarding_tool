@@ -2242,8 +2242,8 @@ DbClass.prototype.assignJobsToNewGroup = async function () {
     })
     let randomNumber = Math.floor(Math.random() * (self.colors.length - 1))
     const newConGroup = await new Promise(function (resolve, reject) {
-        let sql = `INSERT INTO consolidation_groups (con_group_color, con_group_ex, con_group_active) 
-                    VALUES ('${self.colors[randomNumber].color_code}', ${inds[0].ind_to}, 1)`
+        let sql = `INSERT INTO consolidation_groups (con_group_color, con_group_ex, con_group_active, con_group_currency, con_group_rate) 
+                    VALUES ('${self.colors[randomNumber].color_code}', ${inds[0].ind_to}, 1, 'EUR', 1)`
         connection.query(sql, (err, data) => {
             if (err) {
                 alert('Unable to get individuals done')
@@ -2390,8 +2390,8 @@ DbClass.prototype.assignConJobsToNewGroup = async function (jobs) {
     })
     let randomNumber = Math.floor(Math.random() * (self.colors.length - 1))
     const newConGroup = await new Promise(function (resolve, reject) {
-        let sql = `INSERT INTO consolidation_groups (con_group_color, con_group_ex, con_group_active) 
-                    VALUES ('${self.colors[randomNumber].color_code}', ${cons[0].group_to}, 1)`
+        let sql = `INSERT INTO consolidation_groups (con_group_color, con_group_ex, con_group_active, con_group_currency, con_group_rate) 
+                    VALUES ('${self.colors[randomNumber].color_code}', ${cons[0].group_to}, 1 , 'EUR', 1)`
         connection.query(sql, (err, data) => {
             if (err) {
                 alert('Unable to add consolidations done')
@@ -3037,14 +3037,8 @@ DbClass.prototype.getAllConsolidations = function () {
     connection.connect()
     let sql = `SELECT 
     c.*,
+    cg.*,
     cg.con_group_id as group_id,
-    cg.con_group_cost,
-    cg.con_group_deadline,
-    cg.con_group_forwarder,
-    cg.con_group_color,
-    cg.con_group_mode,
-    cg.con_group_local_cost,
-    cg.con_group_service_type,
     st.service_type_description,
     d.division_description,
     u.user_username,
@@ -3166,8 +3160,8 @@ DbClass.prototype.updateConGroupData = function (groupData) {
     if (groupData.groupEx == '') groupData.groupEx = null
     if (groupData.groupServiceType == '') groupData.groupServiceType = null
 
-    let sql = `UPDATE consolidation_groups SET con_group_ex = ${groupData.groupEx}, con_group_to = ${groupData.groupTo}, con_group_cost = ${groupData.groupCost}, con_group_forwarder = '${groupData.groupForwarder}',
-        con_group_deadline = '${groupData.groupDeadline}', con_group_mode = '${groupData.groupMode}', con_group_service_type = ${groupData.groupServiceType}, con_group_local_cost = ${groupData.groupLocalCost} WHERE con_group_id = ${groupData.groupId}`
+    let sql = `UPDATE consolidation_groups SET con_group_ex = ${groupData.groupEx}, con_group_to = ${groupData.groupTo}, con_group_cost = ${groupData.groupCost}, con_group_forwarder = '${groupData.groupForwarder}', con_group_rate = ${groupData.groupRate},
+        con_group_deadline = '${groupData.groupDeadline}', con_group_mode = '${groupData.groupMode}', con_group_service_type = ${groupData.groupServiceType}, con_group_local_cost = ${groupData.groupLocalCost}, con_group_currency = '${groupData.groupCurrency}' WHERE con_group_id = ${groupData.groupId}`
     return new Promise((resolve, reject) => {
         connection.query(sql, function (error, data) {
             connection.end()
@@ -3587,6 +3581,7 @@ DbClass.prototype.getConsolidationDoneByReference = async function (reference) {
     return new Promise(function (resolve, reject) {
         let sql = `SELECT con.*,
         cg.con_group_deadline as group_deadline, 
+        cg.con_group_on_board_delivery, 
         c.city_name as ex_city,
         c2.city_name as to_city,
         st.service_type_description as service_name
@@ -3596,6 +3591,33 @@ DbClass.prototype.getConsolidationDoneByReference = async function (reference) {
         left join cities c2 ON c.city_id = cg.con_group_to
         left join service_types st on st.service_type_id = cg.con_group_service_type
         where cond_reference like '%${reference}%';`
+        connection.query(sql, (err, data) => {
+            if (err) {
+                alert('Unable to find cond by reference')
+                console.log(err)
+                reject(err)
+            }
+            resolve(data)
+        })
+    })
+}
+
+DbClass.prototype.updateGroupOnBoardDelivery = async function (groupId, datetime) {
+    let self = this
+    var mysql = require('mysql')
+
+    var connection = mysql.createConnection({
+        host: self.serverIP,
+        user: self.user,
+        password: self.dbpass,
+        database: self.database,
+        port: self.port,
+        dateStrings: true,
+    })
+
+    connection.connect()
+    return new Promise(function (resolve, reject) {
+        let sql = `UPDATE consolidation_groups SET con_group_on_board_delivery = '${datetime}' WHERE con_group_id = ${groupId};`
         connection.query(sql, (err, data) => {
             if (err) {
                 alert('Unable to find cond by reference')

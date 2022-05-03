@@ -19,6 +19,7 @@
     "datetime-js": "^4.0.0",
     "md5": "^2.2.1",
     "mysql": "^2.18.1",
+    "node-html-to-image": "^3.2.4",
     "regedit": "^3.0.3"
   }
 }

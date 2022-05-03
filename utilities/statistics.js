@@ -34,7 +34,10 @@ StatisticsClass.prototype.bindEventsOnButtons = function () {
     })
 
     $('#print-data').on('click', function () {
-        window.print()
+        $('.page-container').printThis({
+            importCSS: true,
+            importStyle: false,
+        })
     })
 }
 

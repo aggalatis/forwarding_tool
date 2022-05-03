@@ -43,6 +43,8 @@
     <link rel="stylesheet" href="../assets/css/normalize.css">
     <!--Main Css-->
     <link rel="stylesheet" href="../assets/css/main.css">
+    <!--Print Css-->
+    <link rel="stylesheet" href="../assets/css/print.css">
 
     <style>
         @media print {
@@ -142,7 +144,7 @@
         </div>
     </div>
     <!-- End Help modal -->
-
+    <div class="print-placeholder" style="display: none"></div>
 
 <nav class="fixed-header">
 
@@ -440,6 +442,7 @@
     </footer>
 
 </section>
+<section id="print-placeholder" style="display: none"></section>
 <script>if (typeof module === 'object') {
     window.module = module;
     module = undefined;
@@ -481,6 +484,7 @@
 <!--Full Calendar JS-->
 <script type="text/javascript" src="../assets/plugins/full-calendar/fullcalendar.min.js"></script>
 <script type="text/javascript" src="../assets/js/toastr.js"></script>
+<script type="text/javascript" src="../assets/js/printThis/printThis.js"></script>
 
 <!--- Main JS -->
 <script src="../assets/js/main.js"></script>

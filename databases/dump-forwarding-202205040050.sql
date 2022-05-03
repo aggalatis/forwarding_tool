@@ -16,80 +16,6 @@
 /*!40111 SET @OLD_SQL_NOTES=@@SQL_NOTES, SQL_NOTES=0 */;
 
 --
--- Table structure for table `products`
---
-
-DROP TABLE IF EXISTS `products`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8 */;
-CREATE TABLE `products` (
-  `product_id` int(11) NOT NULL AUTO_INCREMENT,
-  `product_description` text COLLATE utf8_bin NOT NULL,
-  `product_division_id` tinyint(4) NOT NULL,
-  PRIMARY KEY (`product_id`)
-) ENGINE=InnoDB AUTO_INCREMENT=36 DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
-/*!40101 SET character_set_client = @saved_cs_client */;
-
---
--- Dumping data for table `products`
---
-
-LOCK TABLES `products` WRITE;
-/*!40000 ALTER TABLE `products` DISABLE KEYS */;
-INSERT INTO `products` VALUES (1,'Certificate',1),(2,'Crew Mail',1),(3,'Endorsement',1),(4,'Stamp',1),(5,'Helmepa Material (Posters, Picture Frames, Etc.)',2),(6,'Metalic & Plastic Environmental Seals',2),(7,'Various Posters (Open Reporting System, Garbage ,etc.)',2),(8,'Flags',3),(9,'IMO Signs',3),(10,'Overalls',3),(11,'Publications - Log Book',3),(12,'Gas meters',4),(13,'Manuals',4),(14,'Normal Mail & Stationary',4),(15,'Publications',4),(16,'Computers / Servers',5),(17,'Satellite Equipment (Antenna, Cables, Terminal)',5),(18,'UPS System',5),(19,'Whole Infinity System (Racks,Servers,Cables)',5),(20,'CD For Charts - Publications Corrections',6),(21,'EPIRB - Radar Magnetrons - VHF',6),(22,'Mooring Ropes',6),(23,'Navigational Equipment',6),(24,'Paints',6),(25,'Bottles For Lub Oil Analysis',7),(26,'Spare Parts',7),(27,'Cabin Stores',8),(28,'Chemicals',8),(29,'Deck Stores',8),(30,'Engine Stores (Including Gasses)',8),(31,'Provisions',8),(32,'Documents',9),(33,'Fuel Additives',9),(34,'Items For Repair / Recondition',9),(35,'Materials For Labatory Analysis',9);
-/*!40000 ALTER TABLE `products` ENABLE KEYS */;
-UNLOCK TABLES;
-
---
--- Table structure for table `colors`
---
-
-DROP TABLE IF EXISTS `colors`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8 */;
-CREATE TABLE `colors` (
-  `color_id` int(11) NOT NULL AUTO_INCREMENT,
-  `color_code` varchar(45) NOT NULL,
-  PRIMARY KEY (`color_id`)
-) ENGINE=InnoDB AUTO_INCREMENT=60 DEFAULT CHARSET=utf8;
-/*!40101 SET character_set_client = @saved_cs_client */;
-
---
--- Dumping data for table `colors`
---
-
-LOCK TABLES `colors` WRITE;
-/*!40000 ALTER TABLE `colors` DISABLE KEYS */;
-INSERT INTO `colors` VALUES (32,'#00FFFF'),(33,'#7FFFD4'),(34,'#DEB887'),(35,'#5F9EA0'),(36,'#D2691E'),(37,'#FF7F50'),(38,'#6495ED'),(39,'#DC143C'),(40,'#BDB76B'),(41,'#8FBC8F'),(42,'#FF00FF'),(43,'#808080'),(44,'#ADFF2F'),(45,'#CD5C5C'),(46,'#FFFACD'),(47,'#90EE90'),(48,'#FFA07A'),(49,'#87CEFA'),(50,'#B0C4DE'),(51,'#9370DB'),(52,'#FFA500'),(53,'#FF4500'),(54,'#DDA0DD'),(55,'#BC8F8F'),(56,'#8B4513'),(57,'#2E8B57'),(58,'#C0C0C0'),(59,'#FFFF00');
-/*!40000 ALTER TABLE `colors` ENABLE KEYS */;
-UNLOCK TABLES;
-
---
--- Table structure for table `vessels`
---
-
-DROP TABLE IF EXISTS `vessels`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8 */;
-CREATE TABLE `vessels` (
-  `vessel_id` int(11) NOT NULL AUTO_INCREMENT,
-  `vessel_description` varchar(45) NOT NULL,
-  `vessel_deleted` int(1) NOT NULL DEFAULT '0',
-  PRIMARY KEY (`vessel_id`)
-) ENGINE=InnoDB AUTO_INCREMENT=37 DEFAULT CHARSET=utf8;
-/*!40101 SET character_set_client = @saved_cs_client */;
-
---
--- Dumping data for table `vessels`
---
-
-LOCK TABLES `vessels` WRITE;
-/*!40000 ALTER TABLE `vessels` DISABLE KEYS */;
-INSERT INTO `vessels` VALUES (1,'Aliki',1),(2,'Amphitrite',0),(3,'Arethusa',0),(4,'Artemis',0),(5,'Astarte',0),(6,'Atalandi',0),(7,'Baltimore',0),(8,'Boston',0),(9,'Coronis',0),(10,'Crystalia',0),(11,'Electra',0),(12,'G.P. Zafirakis',0),(13,'Houston',0),(14,'Ismene',0),(15,'Leto',0),(16,'Los Angeles',0),(17,'Maera',0),(18,'Maia',0),(19,'Medusa',0),(20,'Melia',0),(21,'Myrsini',0),(22,'Myrto',0),(23,'New Orleans',0),(24,'New York',0),(25,'New Port News',0),(26,'Oceanis',0),(27,'P.S. Palios',0),(28,'Phaidra',0),(29,'Philadelphia',0),(30,'Polymnia',0),(31,'San Fransisco',0),(32,'Santa Barbara',0),(33,'Seattle',0),(34,'Selina',0),(35,'MY vessel!!!',1),(36,'Test vessel',1);
-/*!40000 ALTER TABLE `vessels` ENABLE KEYS */;
-UNLOCK TABLES;
-
---
 -- Table structure for table `personnel`
 --
 
@@ -131,6 +57,31 @@ LOCK TABLES `personnel` WRITE;
 UNLOCK TABLES;
 
 --
+-- Table structure for table `products`
+--
+
+DROP TABLE IF EXISTS `products`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `products` (
+  `product_id` int(11) NOT NULL AUTO_INCREMENT,
+  `product_description` text COLLATE utf8_bin NOT NULL,
+  `product_division_id` tinyint(4) NOT NULL,
+  PRIMARY KEY (`product_id`)
+) ENGINE=InnoDB AUTO_INCREMENT=36 DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `products`
+--
+
+LOCK TABLES `products` WRITE;
+/*!40000 ALTER TABLE `products` DISABLE KEYS */;
+INSERT INTO `products` VALUES (1,'Certificate',1),(2,'Crew Mail',1),(3,'Endorsement',1),(4,'Stamp',1),(5,'Helmepa Material (Posters, Picture Frames, Etc.)',2),(6,'Metalic & Plastic Environmental Seals',2),(7,'Various Posters (Open Reporting System, Garbage ,etc.)',2),(8,'Flags',3),(9,'IMO Signs',3),(10,'Overalls',3),(11,'Publications - Log Book',3),(12,'Gas meters',4),(13,'Manuals',4),(14,'Normal Mail & Stationary',4),(15,'Publications',4),(16,'Computers / Servers',5),(17,'Satellite Equipment (Antenna, Cables, Terminal)',5),(18,'UPS System',5),(19,'Whole Infinity System (Racks,Servers,Cables)',5),(20,'CD For Charts - Publications Corrections',6),(21,'EPIRB - Radar Magnetrons - VHF',6),(22,'Mooring Ropes',6),(23,'Navigational Equipment',6),(24,'Paints',6),(25,'Bottles For Lub Oil Analysis',7),(26,'Spare Parts',7),(27,'Cabin Stores',8),(28,'Chemicals',8),(29,'Deck Stores',8),(30,'Engine Stores (Including Gasses)',8),(31,'Provisions',8),(32,'Documents',9),(33,'Fuel Additives',9),(34,'Items For Repair / Recondition',9),(35,'Materials For Labatory Analysis',9);
+/*!40000 ALTER TABLE `products` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
 -- Table structure for table `cities`
 --
 
@@ -156,38 +107,65 @@ INSERT INTO `cities` VALUES (1,'Kabul',0),(2,'Tirana (Tirane)',0),(3,'Algiers',0
 UNLOCK TABLES;
 
 --
--- Table structure for table `consolidation_groups`
+-- Table structure for table `consolidations`
 --
 
-DROP TABLE IF EXISTS `consolidation_groups`;
+DROP TABLE IF EXISTS `consolidations`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
-CREATE TABLE `consolidation_groups` (
-  `con_group_id` int(11) NOT NULL AUTO_INCREMENT,
-  `con_group_color` varchar(45) DEFAULT NULL,
-  `con_group_ex` int(11) DEFAULT NULL,
-  `con_group_to` int(11) DEFAULT NULL,
-  `con_group_active` tinyint(4) DEFAULT NULL,
-  `con_group_confirmation_date` datetime DEFAULT NULL,
-  `con_group_cost` double DEFAULT NULL,
-  `con_group_local_cost` double DEFAULT NULL,
-  `con_group_savings` double DEFAULT NULL,
-  `con_group_forwarder` varchar(155) DEFAULT NULL,
-  `con_group_deadline` varchar(45) DEFAULT NULL,
-  `con_group_mode` varchar(45) DEFAULT NULL,
-  `con_group_service_type` int(11) DEFAULT NULL,
-  PRIMARY KEY (`con_group_id`)
-) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8;
+CREATE TABLE `consolidations` (
+  `con_id` int(11) NOT NULL AUTO_INCREMENT,
+  `con_user_id` int(11) NOT NULL,
+  `con_division_id` int(11) DEFAULT NULL,
+  `con_products` text CHARACTER SET utf8,
+  `con_reference` varchar(45) CHARACTER SET utf8 DEFAULT NULL,
+  `con_kg` double DEFAULT NULL,
+  `con_estimate_cost` double DEFAULT NULL,
+  `con_vessels` text CHARACTER SET utf8,
+  `con_request_date` datetime DEFAULT NULL,
+  `con_notes` text CHARACTER SET utf8,
+  `con_group_id` int(11) DEFAULT NULL,
+  `con_status` varchar(55) CHARACTER SET utf8 DEFAULT NULL,
+  `con_ind_id` int(11) DEFAULT NULL,
+  `con_done_id` int(11) DEFAULT NULL,
+  `con_pieces` int(4) DEFAULT NULL,
+  `con_is_grouped` int(4) DEFAULT NULL,
+  `con_type` varchar(45) DEFAULT NULL,
+  PRIMARY KEY (`con_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf16;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
--- Dumping data for table `consolidation_groups`
+-- Dumping data for table `consolidations`
 --
 
-LOCK TABLES `consolidation_groups` WRITE;
-/*!40000 ALTER TABLE `consolidation_groups` DISABLE KEYS */;
-INSERT INTO `consolidation_groups` VALUES (1,'#7FFFD4',129,53,0,'2022-03-13 14:41:39',150,150,NULL,'dhl','31/03/2022','Courier',11),(2,'#DDA0DD',3,NULL,1,NULL,NULL,100,NULL,'','','',NULL);
-/*!40000 ALTER TABLE `consolidation_groups` ENABLE KEYS */;
+LOCK TABLES `consolidations` WRITE;
+/*!40000 ALTER TABLE `consolidations` DISABLE KEYS */;
+/*!40000 ALTER TABLE `consolidations` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `colors`
+--
+
+DROP TABLE IF EXISTS `colors`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `colors` (
+  `color_id` int(11) NOT NULL AUTO_INCREMENT,
+  `color_code` varchar(45) NOT NULL,
+  PRIMARY KEY (`color_id`)
+) ENGINE=InnoDB AUTO_INCREMENT=60 DEFAULT CHARSET=utf8;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `colors`
+--
+
+LOCK TABLES `colors` WRITE;
+/*!40000 ALTER TABLE `colors` DISABLE KEYS */;
+INSERT INTO `colors` VALUES (32,'#00FFFF'),(33,'#7FFFD4'),(34,'#DEB887'),(35,'#5F9EA0'),(36,'#D2691E'),(37,'#FF7F50'),(38,'#6495ED'),(39,'#DC143C'),(40,'#BDB76B'),(41,'#8FBC8F'),(42,'#FF00FF'),(43,'#808080'),(44,'#ADFF2F'),(45,'#CD5C5C'),(46,'#FFFACD'),(47,'#90EE90'),(48,'#FFA07A'),(49,'#87CEFA'),(50,'#B0C4DE'),(51,'#9370DB'),(52,'#FFA500'),(53,'#FF4500'),(54,'#DDA0DD'),(55,'#BC8F8F'),(56,'#8B4513'),(57,'#2E8B57'),(58,'#C0C0C0'),(59,'#FFFF00');
+/*!40000 ALTER TABLE `colors` ENABLE KEYS */;
 UNLOCK TABLES;
 
 --
@@ -207,8 +185,10 @@ CREATE TABLE `individual_groups` (
   `ind_group_confirmation_date` datetime DEFAULT NULL,
   `ind_group_cost` double DEFAULT NULL,
   `ind_group_forwarder` varchar(155) DEFAULT NULL,
+  `ind_group_currency` varchar(45) DEFAULT NULL,
+  `ind_group_rate` double DEFAULT NULL,
   PRIMARY KEY (`ind_group_id`)
-) ENGINE=InnoDB AUTO_INCREMENT=5 DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -217,32 +197,7 @@ CREATE TABLE `individual_groups` (
 
 LOCK TABLES `individual_groups` WRITE;
 /*!40000 ALTER TABLE `individual_groups` DISABLE KEYS */;
-INSERT INTO `individual_groups` VALUES (1,'#DC143C',188,129,'2022-03-31',0,'2022-03-09 22:39:04',2500,'dhl'),(2,'empty',188,129,'2022-03-16',0,'2022-03-09 22:40:43',NULL,NULL),(3,'empty',188,3,'2022-03-31',1,NULL,NULL,NULL),(4,'#D2691E',188,129,'2022-03-31',0,NULL,2000,'');
 /*!40000 ALTER TABLE `individual_groups` ENABLE KEYS */;
-UNLOCK TABLES;
-
---
--- Table structure for table `divisions`
---
-
-DROP TABLE IF EXISTS `divisions`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8 */;
-CREATE TABLE `divisions` (
-  `division_id` int(11) NOT NULL AUTO_INCREMENT,
-  `division_description` varchar(45) NOT NULL,
-  PRIMARY KEY (`division_id`)
-) ENGINE=InnoDB AUTO_INCREMENT=10 DEFAULT CHARSET=utf8;
-/*!40101 SET character_set_client = @saved_cs_client */;
-
---
--- Dumping data for table `divisions`
---
-
-LOCK TABLES `divisions` WRITE;
-/*!40000 ALTER TABLE `divisions` DISABLE KEYS */;
-INSERT INTO `divisions` VALUES (1,'Crew'),(2,'Environmental'),(3,'Forwarding'),(4,'HSQ'),(5,'IT'),(6,'Operations'),(7,'Purchasing'),(8,'Supply'),(9,'Technical');
-/*!40000 ALTER TABLE `divisions` ENABLE KEYS */;
 UNLOCK TABLES;
 
 --
@@ -278,8 +233,10 @@ CREATE TABLE `individuals` (
   `ind_date_deleted` datetime DEFAULT NULL,
   `ind_service_type` int(11) DEFAULT NULL,
   `ind_pieces` int(4) DEFAULT NULL,
+  `ind_currency` varchar(45) DEFAULT NULL,
+  `ind_rate` double DEFAULT NULL,
   PRIMARY KEY (`ind_id`)
-) ENGINE=InnoDB AUTO_INCREMENT=10 DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -288,99 +245,32 @@ CREATE TABLE `individuals` (
 
 LOCK TABLES `individuals` WRITE;
 /*!40000 ALTER TABLE `individuals` DISABLE KEYS */;
-INSERT INTO `individuals` VALUES (1,2,'Metalic & Plastic Environmental Seals',2,'Arethusa',188,129,'2022-03-09 22:36:50','2022-03-31','Done','dhl',1367.6847103790858,NULL,'','Courier',100,'myReference','2022-03-09 22:39:04',1,1,0,0,NULL,8,2),(2,5,'UPS System;Whole Infinity System (Racks,Servers,Cables)',2,'Atalandi;Medusa',188,129,'2022-03-09 22:37:09','2022-03-31','Done','test',300,NULL,'','Courier',NULL,'lalala','2022-03-09 22:39:04',1,1,0,1,NULL,0,NULL),(3,9,'Fuel Additives',2,'Boston',188,129,'2022-03-09 22:37:55','2022-03-31','Done','dhl',1500,NULL,'','Road',4,'test','2022-03-09 22:39:04',1,1,0,1,NULL,7,6),(4,3,'Overalls',2,'Astarte',188,129,'2022-03-09 22:39:38','2022-03-28','Done','1',50,30,'','Personnel',1,'1','2022-03-09 22:40:07',0,0,0,1,NULL,7,1),(5,8,'Deck Stores',2,'Artemis',188,129,'2022-03-09 22:40:38','2022-03-16','Done','1',45.58949034596953,NULL,'','Sea',1,'1','2022-03-09 22:40:43',2,0,0,1,NULL,9,11),(6,3,'IMO Signs',2,'Electra',188,3,'2022-03-12 18:46:31','2022-03-31','Done','1',100,20,'','Personnel',1,'1','2022-03-12 18:46:47',0,0,0,1,NULL,9,1),(7,3,'Overalls',2,'Leto',7,200,'2022-03-13 17:20:05','2022-03-23','Pending','dhl',1000,150,'','Personnel',10,'ref',NULL,0,0,0,0,NULL,8,5),(8,3,'IMO Signs',2,'Amphitrite',188,129,'2022-03-13 17:31:06','2022-03-31','Pending','for',1000,NULL,'','Courier',20,'red',NULL,4,1,0,0,NULL,8,5),(9,7,'Spare Parts',2,'Artemis',188,129,'2022-03-13 17:31:32','2022-03-31','Pending','rca',2500,NULL,'','Courier',14,'refre',NULL,4,1,0,0,NULL,13,10);
 /*!40000 ALTER TABLE `individuals` ENABLE KEYS */;
 UNLOCK TABLES;
 
 --
--- Table structure for table `consolidations`
+-- Table structure for table `vessels`
 --
 
-DROP TABLE IF EXISTS `consolidations`;
+DROP TABLE IF EXISTS `vessels`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
-CREATE TABLE `consolidations` (
-  `con_id` int(11) NOT NULL AUTO_INCREMENT,
-  `con_user_id` int(11) NOT NULL,
-  `con_division_id` int(11) DEFAULT NULL,
-  `con_products` text CHARACTER SET utf8,
-  `con_reference` varchar(45) CHARACTER SET utf8 DEFAULT NULL,
-  `con_kg` double DEFAULT NULL,
-  `con_estimate_cost` double DEFAULT NULL,
-  `con_vessels` text CHARACTER SET utf8,
-  `con_request_date` datetime DEFAULT NULL,
-  `con_notes` text CHARACTER SET utf8,
-  `con_group_id` int(11) DEFAULT NULL,
-  `con_status` varchar(55) CHARACTER SET utf8 DEFAULT NULL,
-  `con_ind_id` int(11) DEFAULT NULL,
-  `con_done_id` int(11) DEFAULT NULL,
-  `con_pieces` int(4) DEFAULT NULL,
-  `con_is_grouped` int(4) DEFAULT NULL,
-  `con_service_type` int(11) DEFAULT NULL,
-  PRIMARY KEY (`con_id`)
-) ENGINE=InnoDB AUTO_INCREMENT=6 DEFAULT CHARSET=utf16;
+CREATE TABLE `vessels` (
+  `vessel_id` int(11) NOT NULL AUTO_INCREMENT,
+  `vessel_description` varchar(45) NOT NULL,
+  `vessel_deleted` int(1) NOT NULL DEFAULT '0',
+  PRIMARY KEY (`vessel_id`)
+) ENGINE=InnoDB AUTO_INCREMENT=37 DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
--- Dumping data for table `consolidations`
+-- Dumping data for table `vessels`
 --
 
-LOCK TABLES `consolidations` WRITE;
-/*!40000 ALTER TABLE `consolidations` DISABLE KEYS */;
-INSERT INTO `consolidations` VALUES (5,2,3,'IMO Signs','1',1,NULL,'Electra','2022-03-12 16:47:16',NULL,2,'Pending',6,NULL,1,0,9);
-/*!40000 ALTER TABLE `consolidations` ENABLE KEYS */;
-UNLOCK TABLES;
-
---
--- Table structure for table `users`
---
-
-DROP TABLE IF EXISTS `users`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8 */;
-CREATE TABLE `users` (
-  `user_id` int(11) NOT NULL AUTO_INCREMENT,
-  `user_username` varchar(155) NOT NULL,
-  `user_password` varchar(155) NOT NULL,
-  `user_fullname` varchar(155) DEFAULT NULL,
-  `user_last_login` datetime DEFAULT NULL,
-  `user_role_id` tinyint(4) NOT NULL,
-  PRIMARY KEY (`user_id`)
-) ENGINE=InnoDB AUTO_INCREMENT=5 DEFAULT CHARSET=utf8;
-/*!40101 SET character_set_client = @saved_cs_client */;
-
---
--- Dumping data for table `users`
---
-
-LOCK TABLES `users` WRITE;
-/*!40000 ALTER TABLE `users` DISABLE KEYS */;
-INSERT INTO `users` VALUES (1,'aggalatis','5416d7cd6ef195a0f7622a9c56b55e84','Aggelos Galatis','2020-05-19 18:22:00',1),(2,'manager','ccbee73cd81c7f42405e1920409247ec','My manager','2020-05-19 18:22:00',2),(3,'paris','ccbee73cd81c7f42405e1920409247ec','Paris Anania',NULL,1),(4,'george','ccbee73cd81c7f42405e1920409247ec','George George',NULL,1);
-/*!40000 ALTER TABLE `users` ENABLE KEYS */;
-UNLOCK TABLES;
-
---
--- Table structure for table `users_roles`
---
-
-DROP TABLE IF EXISTS `users_roles`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8 */;
-CREATE TABLE `users_roles` (
-  `users_role_id` int(11) NOT NULL AUTO_INCREMENT,
-  `users_role_description` varchar(45) NOT NULL,
-  PRIMARY KEY (`users_role_id`)
-) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8;
-/*!40101 SET character_set_client = @saved_cs_client */;
-
---
--- Dumping data for table `users_roles`
---
-
-LOCK TABLES `users_roles` WRITE;
-/*!40000 ALTER TABLE `users_roles` DISABLE KEYS */;
-INSERT INTO `users_roles` VALUES (1,'USERS'),(2,'MANAGERS');
-/*!40000 ALTER TABLE `users_roles` ENABLE KEYS */;
+LOCK TABLES `vessels` WRITE;
+/*!40000 ALTER TABLE `vessels` DISABLE KEYS */;
+INSERT INTO `vessels` VALUES (1,'Aliki',1),(2,'Amphitrite',0),(3,'Arethusa',0),(4,'Artemis',0),(5,'Astarte',0),(6,'Atalandi',0),(7,'Baltimore',0),(8,'Boston',0),(9,'Coronis',0),(10,'Crystalia',0),(11,'Electra',0),(12,'G.P. Zafirakis',0),(13,'Houston',0),(14,'Ismene',0),(15,'Leto',0),(16,'Los Angeles',0),(17,'Maera',0),(18,'Maia',0),(19,'Medusa',0),(20,'Melia',0),(21,'Myrsini',0),(22,'Myrto',0),(23,'New Orleans',0),(24,'New York',0),(25,'New Port News',0),(26,'Oceanis',0),(27,'P.S. Palios',0),(28,'Phaidra',0),(29,'Philadelphia',0),(30,'Polymnia',0),(31,'San Fransisco',0),(32,'Santa Barbara',0),(33,'Seattle',0),(34,'Selina',0),(35,'MY vessel!!!',1),(36,'Test vessel',1);
+/*!40000 ALTER TABLE `vessels` ENABLE KEYS */;
 UNLOCK TABLES;
 
 --
@@ -409,8 +299,9 @@ CREATE TABLE `consolidations_done` (
   `cond_pieces` int(4) DEFAULT NULL,
   `cond_is_grouped` tinyint(4) DEFAULT NULL,
   `cond_service_type` int(11) DEFAULT NULL,
+  `cond_type` varchar(45) DEFAULT NULL,
   PRIMARY KEY (`cond_id`)
-) ENGINE=InnoDB AUTO_INCREMENT=5 DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -419,8 +310,68 @@ CREATE TABLE `consolidations_done` (
 
 LOCK TABLES `consolidations_done` WRITE;
 /*!40000 ALTER TABLE `consolidations_done` DISABLE KEYS */;
-INSERT INTO `consolidations_done` VALUES (1,2,5,'UPS System;Whole Infinity System (Racks,Servers,Cables)','lalala',2,100,'Atalandi;Medusa','2022-03-09 20:41:05',NULL,1,'Done',NULL,2,NULL,NULL,0,1),(2,2,9,'Fuel Additives','test',4,100,'Boston','2022-03-09 20:41:05',NULL,1,'Done',NULL,3,NULL,6,0,1),(3,2,3,'Overalls','1',1,100,'Astarte','2022-03-09 20:41:05',NULL,1,'Done',NULL,4,NULL,1,1,1),(4,2,8,'Deck Stores','1',1,120,'Artemis','2022-03-09 20:41:05',NULL,1,'Done',NULL,5,NULL,11,1,1);
 /*!40000 ALTER TABLE `consolidations_done` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `users_roles`
+--
+
+DROP TABLE IF EXISTS `users_roles`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `users_roles` (
+  `users_role_id` int(11) NOT NULL AUTO_INCREMENT,
+  `users_role_description` varchar(45) NOT NULL,
+  PRIMARY KEY (`users_role_id`)
+) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `users_roles`
+--
+
+LOCK TABLES `users_roles` WRITE;
+/*!40000 ALTER TABLE `users_roles` DISABLE KEYS */;
+INSERT INTO `users_roles` VALUES (1,'USERS'),(2,'MANAGERS');
+/*!40000 ALTER TABLE `users_roles` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `consolidation_groups`
+--
+
+DROP TABLE IF EXISTS `consolidation_groups`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `consolidation_groups` (
+  `con_group_id` int(11) NOT NULL AUTO_INCREMENT,
+  `con_group_color` varchar(45) DEFAULT NULL,
+  `con_group_ex` int(11) DEFAULT NULL,
+  `con_group_to` int(11) DEFAULT NULL,
+  `con_group_active` tinyint(4) DEFAULT NULL,
+  `con_group_confirmation_date` datetime DEFAULT NULL,
+  `con_group_cost` double DEFAULT NULL,
+  `con_group_local_cost` double DEFAULT NULL,
+  `con_group_savings` double DEFAULT NULL,
+  `con_group_forwarder` varchar(155) DEFAULT NULL,
+  `con_group_deadline` varchar(45) DEFAULT NULL,
+  `con_group_mode` varchar(45) DEFAULT NULL,
+  `con_group_service_type` int(11) DEFAULT NULL,
+  `con_group_on_board_delivery` varchar(45) DEFAULT NULL,
+  `con_group_currency` varchar(45) DEFAULT NULL,
+  `con_group_rate` double DEFAULT NULL,
+  PRIMARY KEY (`con_group_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `consolidation_groups`
+--
+
+LOCK TABLES `consolidation_groups` WRITE;
+/*!40000 ALTER TABLE `consolidation_groups` DISABLE KEYS */;
+/*!40000 ALTER TABLE `consolidation_groups` ENABLE KEYS */;
 UNLOCK TABLES;
 
 --
@@ -450,6 +401,30 @@ INSERT INTO `instruction_files` VALUES (1,'instructions','https://drive.google.c
 UNLOCK TABLES;
 
 --
+-- Table structure for table `divisions`
+--
+
+DROP TABLE IF EXISTS `divisions`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `divisions` (
+  `division_id` int(11) NOT NULL AUTO_INCREMENT,
+  `division_description` varchar(45) NOT NULL,
+  PRIMARY KEY (`division_id`)
+) ENGINE=InnoDB AUTO_INCREMENT=10 DEFAULT CHARSET=utf8;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `divisions`
+--
+
+LOCK TABLES `divisions` WRITE;
+/*!40000 ALTER TABLE `divisions` DISABLE KEYS */;
+INSERT INTO `divisions` VALUES (1,'Crew'),(2,'Environmental'),(3,'Forwarding'),(4,'HSQ'),(5,'IT'),(6,'Operations'),(7,'Purchasing'),(8,'Supply'),(9,'Technical');
+/*!40000 ALTER TABLE `divisions` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
 -- Dumping events for database 'forwarding'
 --
 /*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
@@ -462,4 +437,4 @@ UNLOCK TABLES;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2022-03-13 23:24:13
+-- Dump completed on 2022-05-04  0:50:34

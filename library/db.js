@@ -14,6 +14,7 @@ let DbClass = function () {
     this.selectedDoneInd = []
     this.selectedDoneDestination = []
     this.pieCreated = false
+    this.mysqlConn = null
     this.getServerDataFromRegistry()
 }
 
@@ -31,26 +32,31 @@ DbClass.prototype.getServerDataFromRegistry = function () {
     self.serverIP = dbFileData[2]
     self.user = dbFileData[3]
     self.dbpass = dbFileData[4]
+    self.connectToDatabase()
 }
 
-DbClass.prototype.verifyLogin = function (username, password) {
+DbClass.prototype.connectToDatabase = function () {
     let self = this
+    const mysql = require('mysql')
 
-    var mysql = require('mysql')
-    var md5 = require('md5')
-
-    var connection = mysql.createConnection({
+    self.mysqlConn = mysql.createConnection({
         host: self.serverIP,
         user: self.user,
         password: self.dbpass,
         database: self.database,
         port: self.port,
+        multipleStatements: true,
+        dateStrings: true,
     })
+    self.mysqlConn.connect()
+}
 
-    connection.connect()
+DbClass.prototype.verifyLogin = function (username, password) {
+    let self = this
+    var md5 = require('md5')
 
     password = md5(password)
-    connection.query(
+    self.mysqlConn.query(
         'SELECT * FROM users WHERE user_username = "' + username + '" AND user_password = "' + password + '" LIMIT 1',
         function (error, user) {
             if (error) throw error
@@ -69,25 +75,13 @@ DbClass.prototype.verifyLogin = function (username, password) {
             }
         }
     )
-
-    connection.end()
 }
 
 DbClass.prototype.getInstructionFiles = async function () {
     let self = this
-    var mysql = require('mysql')
-    var connection = mysql.createConnection({
-        host: self.serverIP,
-        user: self.user,
-        password: self.dbpass,
-        database: self.database,
-        port: self.port,
-        dateStrings: true,
-    })
-
     const instrFiles = await new Promise((resolve, reject) => {
         let sql = `SELECT * FROM instruction_files`
-        connection.query(sql, (err, data) => {
+        self.mysqlConn.query(sql, (err, data) => {
             if (err) {
                 alert('Unable to get individuals done')
                 resolve(null)
@@ -101,132 +95,47 @@ DbClass.prototype.getInstructionFiles = async function () {
 
 DbClass.prototype.getAllDivisions = function () {
     let self = this
-
-    var mysql = require('mysql')
-
-    var connection = mysql.createConnection({
-        host: self.serverIP,
-        user: self.user,
-        password: self.dbpass,
-        database: self.database,
-        port: self.port,
-        dateStrings: true,
-    })
-
-    connection.connect()
-
-    var sql = 'SELECT * FROM divisions'
-
-    connection.query(sql, function (error, divisions) {
+    const sql = 'SELECT * FROM divisions'
+    self.mysqlConn.query(sql, function (error, divisions) {
         if (error) throw error
-
         self.divisions = divisions
     })
-
-    connection.end()
 }
 
 DbClass.prototype.getAllProducts = function () {
     let self = this
-
-    var mysql = require('mysql')
-
-    var connection = mysql.createConnection({
-        host: self.serverIP,
-        user: self.user,
-        password: self.dbpass,
-        database: self.database,
-        port: self.port,
-        dateStrings: true,
-    })
-
-    connection.connect()
-
-    var sql = 'SELECT * FROM products'
-
-    connection.query(sql, function (error, products) {
+    const sql = 'SELECT * FROM products'
+    self.mysqlConn.query(sql, function (error, products) {
         if (error) throw error
-
         self.products = products
     })
-
-    connection.end()
 }
 
 DbClass.prototype.getAllVessels = function () {
     let self = this
-
-    var mysql = require('mysql')
-
-    var connection = mysql.createConnection({
-        host: self.serverIP,
-        user: self.user,
-        password: self.dbpass,
-        database: self.database,
-        port: self.port,
-        dateStrings: true,
-    })
-
-    connection.connect()
-
-    var sql = 'SELECT * FROM vessels WHERE vessel_deleted = 0 ORDER BY vessel_description'
-
-    connection.query(sql, function (error, vessels) {
+    const sql = 'SELECT * FROM vessels WHERE vessel_deleted = 0 ORDER BY vessel_description'
+    self.mysqlConn.query(sql, function (error, vessels) {
         if (error) throw error
-
         self.vessels = vessels
     })
-
-    connection.end()
 }
 
 DbClass.prototype.getAllColors = function () {
     let self = this
-
-    var mysql = require('mysql')
-
-    var connection = mysql.createConnection({
-        host: self.serverIP,
-        user: self.user,
-        password: self.dbpass,
-        database: self.database,
-        port: self.port,
-        dateStrings: true,
-    })
-
-    connection.connect()
-
-    var sql =
+    const sql =
         'Select * FROM colors WHERE color_code NOT IN (Select ind_group_color FROM individual_groups WHERE ind_group_confirmation_date is null);'
 
-    connection.query(sql, function (error, colors) {
+    self.mysqlConn.query(sql, function (error, colors) {
         if (error) throw error
-
         self.colors = colors
     })
-
-    connection.end()
 }
 
 DbClass.prototype.getAllServiceTypes = function () {
     let self = this
 
-    var mysql = require('mysql')
-
-    var connection = mysql.createConnection({
-        host: self.serverIP,
-        user: self.user,
-        password: self.dbpass,
-        database: self.database,
-        port: self.port,
-        dateStrings: true,
-    })
-
-    connection.connect()
-
-    var sql = 'SELECT * FROM service_types WHERE service_type_deleted = 0 order by service_type_description ASC;'
-
-    connection.query(sql, function (error, serviceTypes) {
+    const sql = 'SELECT * FROM service_types WHERE service_type_deleted = 0 order by service_type_description ASC;'
+    self.mysqlConn.query(sql, function (error, serviceTypes) {
         if (error) throw error
         for (let serviceType of serviceTypes) {
             if (serviceType.service_type_group == 'Individuals') {
@@ -238,35 +147,16 @@ DbClass.prototype.getAllServiceTypes = function () {
         }
         self.serviceTypes = self.individualServiceTypes.concat(self.consolidationServiceTypes)
     })
-
-    connection.end()
 }
 
 DbClass.prototype.getAllCities = function () {
     let self = this
 
-    var mysql = require('mysql')
-
-    var connection = mysql.createConnection({
-        host: self.serverIP,
-        user: self.user,
-        password: self.dbpass,
-        database: self.database,
-        port: self.port,
-        dateStrings: true,
-    })
-
-    connection.connect()
-
-    var sql = 'SELECT * FROM cities WHERE city_deleted = 0 order by city_name'
-
-    connection.query(sql, function (error, cities) {
+    const sql = 'SELECT * FROM cities WHERE city_deleted = 0 order by city_name'
+    self.mysqlConn.query(sql, function (error, cities) {
         if (error) throw error
-
         self.cities = cities
     })
-
-    connection.end()
 }
 
 DbClass.prototype.initializeGroupCitySelect = function (exCityName, toCityName) {
@@ -301,19 +191,6 @@ DbClass.prototype.initializeGroupCitySelect = function (exCityName, toCityName) 
 DbClass.prototype.getAllIndividuals = function () {
     let self = this
 
-    var mysql = require('mysql')
-
-    var connection = mysql.createConnection({
-        host: self.serverIP,
-        user: self.user,
-        password: self.dbpass,
-        database: self.database,
-        port: self.port,
-        dateStrings: true,
-    })
-
-    connection.connect()
-
     var sql =
         'SELECT ' +
         ' ind_jobs.ind_id,' +
@@ -345,7 +222,11 @@ DbClass.prototype.getAllIndividuals = function () {
         ' ind_jobs.ind_actual_cost,' +
         ' service_types.service_type_description,' +
         ' UNIX_TIMESTAMP(ind_jobs.ind_request_date) as ind_timestamp,' +
-        ' ind_jobs.ind_pieces' +
+        ' ind_jobs.ind_pieces,' +
+        ' ind_jobs.ind_currency,' +
+        ' ind_jobs.ind_rate,' +
+        ' individual_groups.ind_group_rate,' +
+        ' individual_groups.ind_group_currency' +
         ' FROM individuals as ind_jobs' +
         ' LEFT JOIN divisions on divisions.division_id = ind_jobs.ind_division_id' +
         ' LEFT JOIN users on users.user_id = ind_jobs.ind_user_id' +
@@ -356,7 +237,7 @@ DbClass.prototype.getAllIndividuals = function () {
         ' WHERE ind_jobs.ind_status = "Pending" AND ind_deleted = 0' +
         ' ;'
 
-    connection.query(sql, function (error, data) {
+    self.mysqlConn.query(sql, function (error, data) {
         if (error) throw error
         var jobs_table = $('#jobs_table').DataTable({
             data: data,
@@ -500,7 +381,6 @@ DbClass.prototype.getAllIndividuals = function () {
 
             self.Helpers.initliazeModalToEditJob(self.divisions, self.products, self.vessels, self.cities, self.individualServiceTypes, data)
 
-            $('#currency').trigger('change')
             $('#job-modal-header').removeClass('noFloat floatMeLeft floatMeRight')
             $('#save-job-btn').unbind('click')
             $('#save-job-btn').on('click', function () {
@@ -513,7 +393,9 @@ DbClass.prototype.getAllIndividuals = function () {
                 var forwarder = $('#forwarder').val()
                 var ind_ex = $('#ex-input').val()
                 var ind_to = $('#to-input').val()
-                var currency = $('#currency').val()
+                let currency = $('#currency').val()
+                let rate = 1 / currency
+                let currencyText = $('#currency option:selected').text()
                 var reference = $('#reference').val()
                 var kg = self.Helpers.formatFloatValue($('#kg').val())
                 var deadline = $('#deadline_date').val()
@@ -553,12 +435,14 @@ DbClass.prototype.getAllIndividuals = function () {
                             ind_deadline: self.Helpers.changeDateToMysql(deadline),
                             ind_forwarder: forwarder,
                             ind_notes: $('#notes').val(),
-                            ind_estimate_cost: self.Helpers.applyRate(estimatecostSelectValue, currency),
+                            ind_estimate_cost: self.Helpers.applyRate(estimatecostSelectValue, 1 / currency),
                             ind_reference: reference,
                             ind_kg: kg,
                             ind_group_id: 0,
                             ind_pieces: pieces,
                             ind_service_type: serviceType == '' ? 0 : serviceType,
+                            ind_rate: rate,
+                            ind_currency: currencyText,
                             old_group_id: data.ind_group_id,
                         }
 
@@ -684,13 +568,7 @@ DbClass.prototype.getAllIndividuals = function () {
         $('#jobs_table').on('click', 'i.costs-job', function () {
             var data = jobs_table.row($(this).closest('tr')).data()
             if (!self.Helpers.checkIfUserHasPriviledges(data.user_username)) {
-                Swal.fire({
-                    title: 'Unable to manage costs in this job.',
-                    text: "Unfortunately this is a job inserted by different user. You can't modify it.",
-                    icon: 'error',
-                    showCancelButton: true,
-                    showConfirmButton: false,
-                })
+                self.Helpers.swalUserPermissionError()
                 return
             }
 
@@ -730,17 +608,12 @@ DbClass.prototype.getAllIndividuals = function () {
                     $('#group-cost-div').hide()
                     $('#save-costs').hide()
                 } else {
+                    console.log(data)
                     var allData = jobs_table.rows().data()
                     for (var i = 0; i < allData.length; i++) {
                         if (allData[i].ind_group_id == data.ind_group_id) {
                             if (self.Helpers.individualDataAreEmpty(allData[i], true)) {
-                                Swal.fire({
-                                    title: 'Unable to manage group costs.',
-                                    text: `Some data are empty. You cannot manage this group.`,
-                                    icon: 'error',
-                                    showCancelButton: true,
-                                    showConfirmButton: false,
-                                })
+                                self.Helpers.swalFieldsMissingError()
                                 return
                             }
                         }
@@ -768,16 +641,15 @@ DbClass.prototype.getAllIndividuals = function () {
                     if (data.ind_group_cost == null) {
                         $('#group_cost').val('')
                     } else {
-                        $('#group_cost').val(self.Helpers.formatFloatValue(String(group_cost)))
+                        $('#group_cost').val(self.Helpers.revertRate(group_cost, data.ind_group_rate))
                     }
 
                     $('#group_id').val(data.ind_group_id)
                     $('#saving_amount').val(savings_amount)
                     $('#saving_percent').val(savings_percent)
                     $('#shared_cost').val(shared_cost)
+                    self.Helpers.initCurrencyInput(data.ind_group_currency, 'group-currency')
                     $('#group_forwarder').val(data.ind_group_forwarder)
-                    $('#group-currency').val('1')
-                    $('#group-currency').trigger('chosen:updated')
                     $('#group-cost-div').show()
                     $('#save-costs').show()
                 }
@@ -822,27 +694,11 @@ DbClass.prototype.getAllIndividuals = function () {
             }
         })
     })
-
-    connection.end()
 }
 
 DbClass.prototype.getAllDoneIndividuals = function () {
     let self = this
-
-    var mysql = require('mysql')
-
-    var connection = mysql.createConnection({
-        host: self.serverIP,
-        user: self.user,
-        password: self.dbpass,
-        database: self.database,
-        port: self.port,
-        dateStrings: true,
-    })
-
-    connection.connect()
-
-    var sql =
+    const sql =
         'SELECT ' +
         ' ind_jobs.ind_id,' +
         ' DATE_FORMAT(ind_jobs.ind_request_date, "%d/%m/%Y %H:%i:%s" ) as ind_request_date,' +
@@ -882,7 +738,7 @@ DbClass.prototype.getAllDoneIndividuals = function () {
         ' WHERE ind_jobs.ind_status = "Done" AND ind_deleted = 0' +
         ' ;'
 
-    connection.query(sql, function (error, data) {
+    self.mysqlConn.query(sql, function (error, data) {
         if (error) throw error
         var dataset = []
         for (i = 0; i < data.length; i++) {
@@ -895,10 +751,14 @@ DbClass.prototype.getAllDoneIndividuals = function () {
                         if (values[7] == 'Personnel') {
                             dataset[i].push('Personnel')
                         } else {
-                            if (values[j] == 0) {
-                                dataset[i].push('Individual')
+                            if (values[8] == self.Helpers.LOCAL_SERVICE_FULL_TEXT) {
+                                dataset[i].push(self.Helpers.LOCAL_SERVICE_TYPE_TEXT)
                             } else {
-                                dataset[i].push('Grouped')
+                                if (values[j] == 0) {
+                                    dataset[i].push('Individual')
+                                } else {
+                                    dataset[i].push('Grouped')
+                                }
                             }
                         }
                     }
@@ -938,6 +798,7 @@ DbClass.prototype.getAllDoneIndividuals = function () {
                     title: 'TYPE',
                     orderable: false,
                     createdCell: function (td, cellData, rowData, row, col) {
+                        console.log()
                         if (rowData[4] == 'Individual') {
                             $(td).css('color', '#DC143C').css('font-weight', 'bold')
                         }
@@ -946,6 +807,9 @@ DbClass.prototype.getAllDoneIndividuals = function () {
                         }
                         if (rowData[7] == 'Personnel') {
                             $(td).css('color', 'blue').css('font-weight', 'bold')
+                        }
+                        if (rowData[4] == self.Helpers.LOCAL_SERVICE_TYPE_TEXT) {
+                            $(td).css('color', '#808080').css('font-weight', 'bold')
                         }
                     },
                 },
@@ -993,6 +857,7 @@ DbClass.prototype.getAllDoneIndividuals = function () {
                 },
             ],
             order: [
+                [3, 'desc'],
                 [4, 'asc'],
                 [27, 'desc'],
             ],
@@ -1071,8 +936,6 @@ DbClass.prototype.getAllDoneIndividuals = function () {
 
             if (data[4] != 'Grouped') {
                 if (data[4] == 'Personnel') {
-                    console.log('I am personnel...')
-
                     $('#personnel-estimate-cost').val(data[18])
                     $('#personnel-actual-cost').val(data[25])
                     var savings = data[17] - data[25]
@@ -1113,27 +976,12 @@ DbClass.prototype.getAllDoneIndividuals = function () {
             }
         })
     })
-
-    connection.end()
 }
 
 DbClass.prototype.getAllDeletedIndividuals = function () {
     let self = this
 
-    var mysql = require('mysql')
-
-    var connection = mysql.createConnection({
-        host: self.serverIP,
-        user: self.user,
-        password: self.dbpass,
-        database: self.database,
-        port: self.port,
-        dateStrings: true,
-    })
-
-    connection.connect()
-
-    var sql =
+    const sql =
         'SELECT ' +
         ' ind_jobs.ind_id,' +
         ' DATE_FORMAT(ind_jobs.ind_request_date, "%d/%m/%Y %H:%i:%s" ) as ind_request_date,' +
@@ -1170,7 +1018,7 @@ DbClass.prototype.getAllDeletedIndividuals = function () {
         ' WHERE ind_deleted = 1' +
         ' ORDER BY ind_jobs.ind_group_id DESC;'
 
-    connection.query(sql, function (error, data) {
+    self.mysqlConn.query(sql, function (error, data) {
         if (error) throw error
         var dataset = []
         for (i = 0; i < data.length; i++) {
@@ -1233,75 +1081,17 @@ DbClass.prototype.getAllDeletedIndividuals = function () {
             }
         })
     })
-
-    connection.end()
 }
 
 DbClass.prototype.updateJob = function (jobObject) {
     let self = this
 
-    var sql =
-        'UPDATE individuals SET ' +
-        'ind_division_id = ' +
-        jobObject.ind_division_id +
-        ', ' +
-        'ind_service_type = ' +
-        jobObject.ind_service_type +
-        ', ' +
-        'ind_products = "' +
-        jobObject.ind_products +
-        '", ' +
-        'ind_mode = "' +
-        jobObject.ind_mode +
-        '", ' +
-        'ind_vessels = "' +
-        jobObject.ind_vessels +
-        '", ' +
-        'ind_ex = ' +
-        jobObject.ind_ex +
-        ', ' +
-        'ind_to = ' +
-        jobObject.ind_to +
-        ', ' +
-        'ind_deadline = "' +
-        jobObject.ind_deadline +
-        '", ' +
-        'ind_forwarder = "' +
-        jobObject.ind_forwarder +
-        '", ' +
-        'ind_reference = "' +
-        jobObject.ind_reference +
-        '", ' +
-        'ind_kg = ' +
-        jobObject.ind_kg +
-        ', ' +
-        'ind_pieces = ' +
-        jobObject.ind_pieces +
-        ', ' +
-        'ind_estimate_cost = ' +
-        jobObject.ind_estimate_cost +
-        ', ' +
-        'ind_notes = "' +
-        jobObject.ind_notes +
-        '",' +
-        'ind_group_id = 0' +
-        ' WHERE ind_id = ' +
-        jobObject.ind_id
+    let sql =
+        `UPDATE individuals SET ind_division_id = ${jobObject.ind_division_id}, ind_service_type = ${jobObject.ind_service_type}, ind_products='${jobObject.ind_products}', ind_mode='${jobObject.ind_mode}', ind_vessels='${jobObject.ind_vessels}', ind_notes = '${jobObject.ind_notes}', ind_rate = ${jobObject.ind_rate}, ind_currency = '${jobObject.ind_currency}',` +
+        ` ind_ex=${jobObject.ind_ex}, ind_to=${jobObject.ind_to}, ind_deadline='${jobObject.ind_deadline}', ind_forwarder='${jobObject.ind_forwarder}', ind_reference='${jobObject.ind_reference}', ind_kg = ${jobObject.ind_kg}, ind_pieces = ${jobObject.ind_pieces}, ind_estimate_cost = ${jobObject.ind_estimate_cost},` +
+        ` ind_group_id = 0 WHERE ind_id = ${jobObject.ind_id};`
 
-    var mysql = require('mysql')
-
-    var connection = mysql.createConnection({
-        host: self.serverIP,
-        user: self.user,
-        password: self.dbpass,
-        database: self.database,
-        port: self.port,
-        dateStrings: true,
-    })
-
-    connection.connect()
-
-    connection.query(sql, function (error, result) {
+    self.mysqlConn.query(sql, function (error, result) {
         if (error) {
             $('#save-job-btn').attr('disabled', null)
             alert('Unable to modify job.')
@@ -1315,8 +1105,6 @@ DbClass.prototype.updateJob = function (jobObject) {
             }
         }
     })
-
-    connection.end()
 }
 
 DbClass.prototype.deleteIndividual = function (individualData) {
@@ -1324,20 +1112,7 @@ DbClass.prototype.deleteIndividual = function (individualData) {
 
     var sql = 'UPDATE individuals set ind_deleted = 1, ind_date_deleted = now() WHERE ind_id = ' + individualData.ind_id + ';'
 
-    var mysql = require('mysql')
-
-    var connection = mysql.createConnection({
-        host: self.serverIP,
-        user: self.user,
-        password: self.dbpass,
-        database: self.database,
-        port: self.port,
-        dateStrings: true,
-    })
-
-    connection.connect()
-
-    connection.query(sql, function (error) {
+    self.mysqlConn.query(sql, function (error) {
         if (error) {
             throw error
         }
@@ -1353,96 +1128,35 @@ DbClass.prototype.deleteIndividual = function (individualData) {
             self.getAllIndividuals()
         }
     })
-    connection.end()
 }
 
-DbClass.prototype.addIndividual = function (indiavidualObject) {
+DbClass.prototype.addIndividual = function (indObj) {
     let self = this
-    var sql =
-        'INSERT INTO individuals (' +
-        'ind_user_id, ' +
-        'ind_division_id, ' +
-        'ind_products, ' +
-        'ind_mode, ' +
-        'ind_vessels, ' +
-        'ind_ex, ' +
-        'ind_to, ' +
-        'ind_request_date, ' +
-        'ind_deadline, ' +
-        'ind_forwarder, ' +
-        'ind_status, ' +
-        'ind_reference, ' +
-        'ind_kg, ' +
-        'ind_estimate_cost, ' +
-        'ind_notes, ' +
-        'ind_service_type, ' +
-        'ind_pieces, ' +
-        'ind_deleted' +
-        ') VALUES (' +
-        indiavidualObject.ind_user_id +
-        ', ' +
-        indiavidualObject.ind_division_id +
-        ', "' +
-        indiavidualObject.ind_products +
-        '", "' +
-        indiavidualObject.ind_mode +
-        '", "' +
-        indiavidualObject.ind_vessels +
-        '", ' +
-        indiavidualObject.ind_ex +
-        ', ' +
-        indiavidualObject.ind_to +
-        ', "' +
-        self.Helpers.getDateTimeNow() +
-        '", "' +
-        indiavidualObject.ind_deadline +
-        '", "' +
-        indiavidualObject.ind_forwarder +
-        '", "' +
-        'Pending' +
-        '", "' +
-        indiavidualObject.ind_reference +
-        '", ' +
-        indiavidualObject.ind_kg +
-        ', ' +
-        indiavidualObject.ind_estimate_cost +
-        ', "' +
-        indiavidualObject.ind_notes +
-        '",' +
-        indiavidualObject.ind_service_type +
-        ',' +
-        indiavidualObject.ind_pieces +
-        ', 0)'
 
-    var mysql = require('mysql')
+    let sql =
+        `INSERT INTO individuals (ind_user_id, ind_division_id, ind_products, ind_mode, ind_vessels, ind_ex, ind_to, ind_request_date, ind_deadline, ind_forwarder, ind_status, ind_reference, ind_kg, ind_estimate_cost, ind_notes, ind_service_type, ind_pieces, ind_deleted, ind_rate, ind_currency)` +
+        ` VALUES (${indObj.ind_user_id}, ${indObj.ind_division_id}, '${indObj.ind_products}', '${indObj.ind_mode}', '${indObj.ind_vessels}', '${
+            indObj.ind_ex
+        }', '${indObj.ind_to}', '${self.Helpers.getDateTimeNow()}', '${indObj.ind_deadline}', '${indObj.ind_forwarder}', 'Pending', '${
+            indObj.ind_reference
+        }', ${indObj.ind_kg}, ${indObj.ind_estimate_cost}, '${indObj.ind_notes}', ${indObj.ind_service_type}, ${indObj.ind_pieces}, 0, ${
+            indObj.ind_rate
+        }, '${indObj.ind_currency}');`
 
-    var connection = mysql.createConnection({
-        host: self.serverIP,
-        user: self.user,
-        password: self.dbpass,
-        database: self.database,
-        port: self.port,
-        dateStrings: true,
-    })
-
-    connection.connect()
-
-    connection.query(sql, function (error, result) {
+    self.mysqlConn.query(sql, function (error, result) {
         if (error) {
             $('#save-job-btn').attr('disabled', null)
             self.Helpers.toastr('error', 'Unable to add this job.')
             throw error
         } else {
             $('#add-job-modal').modal('hide')
-            if (indiavidualObject.ind_mode == 'Personnel') {
+            if (indObj.ind_mode == 'Personnel') {
                 self.handleGroupForPersonnel(result.insertId)
             } else {
-                self.handleIndividualGroups(indiavidualObject, result.insertId)
+                self.handleIndividualGroups(indObj, result.insertId)
             }
         }
     })
-
-    connection.end()
 }
 
 DbClass.prototype.confirmIndividualGroup = function (groupID) {
@@ -1461,21 +1175,7 @@ DbClass.prototype.confirmIndividualGroup = function (groupID) {
         '" WHERE ind_group_id = ' +
         groupID
 
-    var mysql = require('mysql')
-
-    var connection = mysql.createConnection({
-        host: self.serverIP,
-        user: self.user,
-        password: self.dbpass,
-        database: self.database,
-        port: self.port,
-        dateStrings: true,
-        multipleStatements: true,
-    })
-
-    connection.connect()
-
-    connection.query(sql, function (error, result) {
+    self.mysqlConn.query(sql, function (error, result) {
         if (error) {
             alert('Unable to confirm job.')
             throw error
@@ -1487,8 +1187,6 @@ DbClass.prototype.confirmIndividualGroup = function (groupID) {
             self.getAllIndividuals()
         }
     })
-
-    connection.end()
 }
 
 DbClass.prototype.confirmPersonnel = function (personnelID) {
@@ -1978,121 +1676,83 @@ DbClass.prototype.checkIfThereIsOneJobAloneGrouped = function () {
 DbClass.prototype.updateGroupCost = function (groupCostData) {
     let self = this
 
-    var sql =
-        'UPDATE individual_groups SET ind_group_cost = ' +
-        groupCostData.ind_group_cost +
-        ', ind_group_deadline = "' +
-        groupCostData.ind_group_deadline +
-        '"' +
-        ', ind_group_forwarder = "' +
-        groupCostData.ind_group_forwarder +
-        '" ' +
-        ', ind_group_to = ' +
-        groupCostData.ind_group_to +
-        ', ind_group_active = ' +
-        groupCostData.ind_group_active +
-        ' WHERE ind_group_id = ' +
-        groupCostData.ind_group_id +
-        ';' +
-        ' UPDATE individuals SET ind_ex = ' +
-        groupCostData.ind_group_ex +
-        ', ind_to = ' +
-        groupCostData.ind_group_to +
-        ', ind_deadline = "' +
-        groupCostData.ind_group_deadline +
-        '" WHERE ind_group_id = ' +
-        groupCostData.ind_group_id +
-        ';'
+    const sql =
+        `UPDATE individual_groups SET ind_group_cost= ${groupCostData.ind_group_cost}, ind_group_deadline='${groupCostData.ind_group_deadline}', ind_group_forwarder='${groupCostData.ind_group_forwarder}', ind_group_to = ${groupCostData.ind_group_to}, ind_group_active = ${groupCostData.ind_group_active},` +
+        ` ind_group_rate = ${groupCostData.ind_group_rate}, ind_group_currency = '${groupCostData.ind_group_currency}' WHERE ind_group_id = ${groupCostData.ind_group_id};` +
+        `UPDATE individuals SET ind_ex = ${groupCostData.ind_group_ex}, ind_to = ${groupCostData.ind_group_to}, ind_deadline = '${groupCostData.ind_group_deadline}' WHERE ind_group_id = ${groupCostData.ind_group_id};`
 
-    var mysql = require('mysql')
-
-    var connection = mysql.createConnection({
-        host: self.serverIP,
-        user: self.user,
-        password: self.dbpass,
-        database: self.database,
-        port: self.port,
-        dateStrings: true,
-        multipleStatements: true,
-    })
-
-    connection.connect()
-
-    connection.query(sql, function (error) {
+    self.mysqlConn.query(sql, function (error) {
         if (error) {
             alert('Unable to update job cost')
             throw error
-        } else {
-            var searchIndSql =
-                'Select * from individuals WHERE ind_ex = ' +
-                groupCostData.ind_group_ex +
-                ' AND ind_to = ' +
-                groupCostData.ind_group_to +
-                ' AND ind_deadline = "' +
-                groupCostData.ind_group_deadline +
-                '" AND ind_group_id != ' +
-                groupCostData.ind_group_id +
-                ' AND ind_deleted = 0 AND ind_status = "Pending" AND ind_estimate_cost != 0 AND ind_mode != "Personnel"'
-
-            var mysql = require('mysql')
-
-            var indConnection = mysql.createConnection({
-                host: self.serverIP,
-                user: self.user,
-                password: self.dbpass,
-                database: self.database,
-                port: self.port,
-                dateStrings: true,
-            })
-
-            indConnection.connect()
-            indConnection.query(searchIndSql, function (error, indToChangeGroup) {
-                if (error) {
-                    alert('Unable to update job cost')
-                    throw error
-                } else {
-                    for (let i = 0; i < indToChangeGroup.length; i++) {
-                        var changeIndividualSql =
-                            'UPDATE individuals SET ind_is_grouped = 1, ind_group_id = ' +
-                            groupCostData.ind_group_id +
-                            ' WHERE ind_id = ' +
-                            indToChangeGroup[i].ind_id +
-                            ';' +
-                            ' DELETE FROM individual_groups WHERE ind_group_id = ' +
-                            indToChangeGroup[i].ind_group_id
-
-                        var mysql = require('mysql')
-
-                        var indGrpConn = mysql.createConnection({
-                            host: self.serverIP,
-                            user: self.user,
-                            password: self.dbpass,
-                            database: self.database,
-                            port: self.port,
-                            dateStrings: true,
-                            multipleStatements: true,
-                        })
-                        indGrpConn.connect()
-                        indGrpConn.query(changeIndividualSql, function (error) {
-                            if (error) {
-                                alert('Unable to update job cost')
-                                throw error
-                            }
-                        })
-                    }
-                    $('#costs-modal').modal('hide')
-                    $('#jobs_table').unbind('click')
-                    $('#jobs_table').DataTable().clear()
-                    $('#jobs_table').DataTable().destroy()
-                    self.Helpers.toastr('success', 'Costs updated successfully.')
-                    self.getAllIndividuals()
-                }
-            })
-            indConnection.end()
         }
-    })
+        var searchIndSql =
+            'Select * from individuals WHERE ind_ex = ' +
+            groupCostData.ind_group_ex +
+            ' AND ind_to = ' +
+            groupCostData.ind_group_to +
+            ' AND ind_deadline = "' +
+            groupCostData.ind_group_deadline +
+            '" AND ind_group_id != ' +
+            groupCostData.ind_group_id +
+            ' AND ind_deleted = 0 AND ind_status = "Pending" AND ind_estimate_cost != 0 AND ind_mode != "Personnel"'
 
-    connection.end()
+        var mysql = require('mysql')
+
+        var indConnection = mysql.createConnection({
+            host: self.serverIP,
+            user: self.user,
+            password: self.dbpass,
+            database: self.database,
+            port: self.port,
+            dateStrings: true,
+        })
+
+        indConnection.connect()
+        indConnection.query(searchIndSql, function (error, indToChangeGroup) {
+            if (error) {
+                alert('Unable to update job cost')
+                throw error
+            } else {
+                for (let i = 0; i < indToChangeGroup.length; i++) {
+                    var changeIndividualSql =
+                        'UPDATE individuals SET ind_is_grouped = 1, ind_group_id = ' +
+                        groupCostData.ind_group_id +
+                        ' WHERE ind_id = ' +
+                        indToChangeGroup[i].ind_id +
+                        ';' +
+                        ' DELETE FROM individual_groups WHERE ind_group_id = ' +
+                        indToChangeGroup[i].ind_group_id
+
+                    var mysql = require('mysql')
+
+                    var indGrpConn = mysql.createConnection({
+                        host: self.serverIP,
+                        user: self.user,
+                        password: self.dbpass,
+                        database: self.database,
+                        port: self.port,
+                        dateStrings: true,
+                        multipleStatements: true,
+                    })
+                    indGrpConn.connect()
+                    indGrpConn.query(changeIndividualSql, function (error) {
+                        if (error) {
+                            alert('Unable to update job cost')
+                            throw error
+                        }
+                    })
+                }
+                $('#costs-modal').modal('hide')
+                $('#jobs_table').unbind('click')
+                $('#jobs_table').DataTable().clear()
+                $('#jobs_table').DataTable().destroy()
+                self.Helpers.toastr('success', 'Costs updated successfully.')
+                self.getAllIndividuals()
+            }
+        })
+        indConnection.end()
+    })
 }
 
 DbClass.prototype.emptyDeletedIndividuals = function () {
@@ -3066,22 +2726,10 @@ DbClass.prototype.getAllConsolidations = function () {
 
 DbClass.prototype.updateConsolidationCost = function (consolidationJob) {
     let self = this
-    var mysql = require('mysql')
 
-    var connection = mysql.createConnection({
-        host: self.serverIP,
-        user: self.user,
-        password: self.dbpass,
-        database: self.database,
-        port: self.port,
-        dateStrings: true,
-    })
-
-    connection.connect()
-    let sql = `UPDATE consolidations set con_estimate_cost = ${consolidationJob.cost} WHERE con_id = ${consolidationJob.id} LIMIT 1;`
+    const sql = `UPDATE consolidations set con_estimate_cost = ${consolidationJob.cost} WHERE con_id = ${consolidationJob.id} LIMIT 1;`
     return new Promise((resolve, reject) => {
-        connection.query(sql, function (error, data) {
-            connection.end()
+        self.mysqlConn.query(sql, function (error, data) {
             if (error) {
                 alert('Unable to update consolidation cost')
                 reject(error)
@@ -3092,20 +2740,10 @@ DbClass.prototype.updateConsolidationCost = function (consolidationJob) {
 }
 
 DbClass.prototype.deleteConsolidation = function (conData) {
-    var mysql = require('mysql')
     let self = this
-    var connection = mysql.createConnection({
-        host: self.serverIP,
-        user: self.user,
-        password: self.dbpass,
-        database: self.database,
-        port: self.port,
-        dateStrings: true,
-    })
 
-    connection.connect()
     let sql = `DELETE FROM consolidations WHERE con_id = ${conData.con_id}`
-    connection.query(sql, function (error, data) {
+    self.mysqlConn.query(sql, function (error, data) {
         if (error) {
             alert('Unable to delete consolidation.')
             console.log(error)
@@ -3114,7 +2752,7 @@ DbClass.prototype.deleteConsolidation = function (conData) {
     })
     if (conData.con_done_id == null) {
         let updateSql = `UPDATE individuals SET ind_consolidated = 0 WHERE ind_id = ${conData.con_ind_id} LIMIT 1`
-        connection.query(updateSql, function (error, data) {
+        self.mysqlConn.query(updateSql, function (error, data) {
             if (error) {
                 alert('Unable to update individual.')
                 console.log(err)
@@ -3123,7 +2761,7 @@ DbClass.prototype.deleteConsolidation = function (conData) {
         })
     } else {
         let updateSql = `UPDATE consolidations_done SET cond_consolidated = 0 WHERE cond_id = ${conData.con_done_id} LIMIT 1`
-        connection.query(updateSql, function (error, data) {
+        self.mysqlConn.query(updateSql, function (error, data) {
             if (error) {
                 alert('Unable to update consolidations done.')
                 console.log(err)
@@ -3133,38 +2771,27 @@ DbClass.prototype.deleteConsolidation = function (conData) {
     }
 
     let delConGroups = `DELETE FROM consolidation_groups WHERE con_group_id NOT IN (SELECT  DISTINCT(con_group_id) from consolidations) AND con_group_active = 1`
-    connection.query(delConGroups, function (error, data) {
+    self.mysqlConn.query(delConGroups, function (error, data) {
         if (error) {
             alert('Unable to delete consolidation Groups.')
             console.log(err)
         }
         console.log(data)
     })
-    connection.end()
 }
 
 DbClass.prototype.updateConGroupData = function (groupData) {
-    var mysql = require('mysql')
     let self = this
-    var connection = mysql.createConnection({
-        host: self.serverIP,
-        user: self.user,
-        password: self.dbpass,
-        database: self.database,
-        port: self.port,
-        dateStrings: true,
-    })
-    connection.connect()
+
     if (groupData.groupCost == '') groupData.groupCost = null
     if (groupData.groupTo == '') groupData.groupTo = null
     if (groupData.groupEx == '') groupData.groupEx = null
     if (groupData.groupServiceType == '') groupData.groupServiceType = null
 
-    let sql = `UPDATE consolidation_groups SET con_group_ex = ${groupData.groupEx}, con_group_to = ${groupData.groupTo}, con_group_cost = ${groupData.groupCost}, con_group_forwarder = '${groupData.groupForwarder}', con_group_rate = ${groupData.groupRate},
+    const sql = `UPDATE consolidation_groups SET con_group_ex = ${groupData.groupEx}, con_group_to = ${groupData.groupTo}, con_group_cost = ${groupData.groupCost}, con_group_forwarder = '${groupData.groupForwarder}', con_group_rate = ${groupData.groupRate},
         con_group_deadline = '${groupData.groupDeadline}', con_group_mode = '${groupData.groupMode}', con_group_service_type = ${groupData.groupServiceType}, con_group_local_cost = ${groupData.groupLocalCost}, con_group_currency = '${groupData.groupCurrency}' WHERE con_group_id = ${groupData.groupId}`
     return new Promise((resolve, reject) => {
-        connection.query(sql, function (error, data) {
-            connection.end()
+        self.mysqlConn.query(sql, function (error, data) {
             if (error) {
                 alert('Unable to update consolidation group')
                 reject(error)
@@ -3175,20 +2802,11 @@ DbClass.prototype.updateConGroupData = function (groupData) {
 }
 
 DbClass.prototype.confirmConsGroup = async function (data) {
-    var mysql = require('mysql')
     let self = this
-    var connection = mysql.createConnection({
-        host: self.serverIP,
-        user: self.user,
-        password: self.dbpass,
-        database: self.database,
-        port: self.port,
-        dateStrings: true,
-    })
 
     const cons = await new Promise((resolve, reject) => {
         let sql = `SELECT c.*, cg.* FROM consolidations c JOIN consolidation_groups cg on cg.con_group_id = c.con_group_id   WHERE c.con_group_id = (${data.con_group_id})`
-        connection.query(sql, (err, data) => {
+        self.mysqlConn.query(sql, (err, data) => {
             if (err) {
                 alert('Unable to get individuals done')
                 reject(err)
@@ -3203,7 +2821,6 @@ DbClass.prototype.confirmConsGroup = async function (data) {
     let conAdded = await new Promise(function (resolve, reject) {
         let sql = ''
         for (let con of cons) {
-            console.log(con)
             if (con.con_done_id == null) {
                 sql = `INSERT INTO consolidations_done (cond_ind_id, cond_con_done_id, cond_user_id, cond_division_id, cond_products, cond_vessels, cond_reference, cond_kg, cond_status, cond_request_date, cond_group_id, cond_pieces, cond_is_grouped, cond_estimate_cost, cond_service_type, cond_type)
                 VALUES (${con.con_ind_id}, ${con.con_done_id}, ${self.Helpers.user_id}, ${con.con_division_id}, '${con.con_products}', '${con.con_vessels}', '${con.con_reference}', ${con.con_kg}, 'Done', '${con.con_request_date}', ${con.con_group_id}, ${con.con_pieces}, ${con.con_is_grouped}, ${con.con_estimate_cost}, ${con.con_group_service_type}, '${con.con_type}');`
@@ -3211,7 +2828,7 @@ DbClass.prototype.confirmConsGroup = async function (data) {
                 sql = `INSERT INTO consolidations_done (cond_ind_id, cond_con_done_id, cond_consolidated, cond_user_id, cond_division_id, cond_products, cond_vessels, cond_reference, cond_kg, cond_status, cond_request_date, cond_group_id, cond_pieces, cond_is_grouped, cond_estimate_cost, cond_service_type, cond_type)
                 VALUES (${con.con_ind_id}, ${con.con_done_id}, 1, ${self.Helpers.user_id}, ${con.con_division_id}, '${con.con_products}', '${con.con_vessels}', '${con.con_reference}', ${con.con_kg}, 'Done', '${con.con_request_date}', ${con.con_group_id}, ${con.con_pieces}, ${con.con_is_grouped}, ${con.con_estimate_cost}, ${con.con_group_service_type}, '${con.con_type}');`
             }
-            connection.query(sql, (err, data) => {
+            self.mysqlConn.query(sql, (err, data) => {
                 if (err) {
                     alert('Unable to add consolidations done')
                     console.log(err)
@@ -3227,7 +2844,7 @@ DbClass.prototype.confirmConsGroup = async function (data) {
     }
     await new Promise(function (resolve, reject) {
         let sql = `UPDATE consolidation_groups set con_group_confirmation_date = now(), con_group_active = 0 WHERE con_group_id =  ${data.con_group_id}`
-        connection.query(sql, (err, data) => {
+        self.mysqlConn.query(sql, (err, data) => {
             if (err) {
                 alert('Unable to get individuals done')
                 console.log(err)
@@ -3238,7 +2855,7 @@ DbClass.prototype.confirmConsGroup = async function (data) {
     })
     await new Promise(function (resolve, reject) {
         let sql = `DELETE FROM consolidations WHERE con_group_id =  ${data.con_group_id}`
-        connection.query(sql, (err, data) => {
+        self.mysqlConn.query(sql, (err, data) => {
             if (err) {
                 alert('Unable to delete consolidaitons')
                 console.log(err)
@@ -3247,25 +2864,13 @@ DbClass.prototype.confirmConsGroup = async function (data) {
             resolve(data)
         })
     })
-    connection.end()
     return true
 }
 
 DbClass.prototype.getAllDoneConsolidations = function () {
     let self = this
-    var mysql = require('mysql')
 
-    var connection = mysql.createConnection({
-        host: self.serverIP,
-        user: self.user,
-        password: self.dbpass,
-        database: self.database,
-        port: self.port,
-        dateStrings: true,
-    })
-
-    connection.connect()
-    let sql = `SELECT 
+    const sql = `SELECT 
     c.*,
     cg.con_group_id as group_id,
     cg.*,
@@ -3283,8 +2888,7 @@ DbClass.prototype.getAllDoneConsolidations = function () {
     LEFT JOIN service_types st on st.service_type_id = cg.con_group_service_type
     `
     return new Promise((resolve, reject) => {
-        connection.query(sql, function (error, data) {
-            connection.end()
+        self.mysqlConn.query(sql, function (error, data) {
             if (error) {
                 alert('Unable to get done consolidations.')
                 reject(error)
@@ -3296,21 +2900,10 @@ DbClass.prototype.getAllDoneConsolidations = function () {
 
 DbClass.prototype.saveConsolidationNotes = async function (conID, notes) {
     let self = this
-    var mysql = require('mysql')
 
-    var connection = mysql.createConnection({
-        host: self.serverIP,
-        user: self.user,
-        password: self.dbpass,
-        database: self.database,
-        port: self.port,
-        dateStrings: true,
-    })
-
-    connection.connect()
     return new Promise(function (resolve, reject) {
         let sql = `UPDATE consolidations_done set cond_notes = "${notes}" WHERE cond_id = ${conID};`
-        connection.query(sql, (err, data) => {
+        self.mysqlConn.query(sql, (err, data) => {
             if (err) {
                 alert('Unable to update consolidaiton notes')
                 console.log(err)
@@ -3327,18 +2920,7 @@ DbClass.prototype.saveConsolidationNotes = async function (conID, notes) {
 
 DbClass.prototype.getIndividualReport = async function (fromDate, toDate) {
     let self = this
-    var mysql = require('mysql')
 
-    var connection = mysql.createConnection({
-        host: self.serverIP,
-        user: self.user,
-        password: self.dbpass,
-        database: self.database,
-        port: self.port,
-        dateStrings: true,
-    })
-
-    connection.connect()
     return new Promise(function (resolve, reject) {
         let sql = `SELECT 
         d.division_description, 
@@ -3352,7 +2934,7 @@ DbClass.prototype.getIndividualReport = async function (fromDate, toDate) {
         AND ind_confirmation_date BETWEEN '${fromDate}' AND '${toDate}'
         GROUP BY ind_division_id
         ORDER BY d.division_description;`
-        connection.query(sql, (err, data) => {
+        self.mysqlConn.query(sql, (err, data) => {
             if (err) {
                 alert('Unable to get individual report')
                 console.log(err)
@@ -3365,18 +2947,7 @@ DbClass.prototype.getIndividualReport = async function (fromDate, toDate) {
 
 DbClass.prototype.getPersonnelReport = async function (fromDate, toDate) {
     let self = this
-    var mysql = require('mysql')
 
-    var connection = mysql.createConnection({
-        host: self.serverIP,
-        user: self.user,
-        password: self.dbpass,
-        database: self.database,
-        port: self.port,
-        dateStrings: true,
-    })
-
-    connection.connect()
     return new Promise(function (resolve, reject) {
         let sql = `SELECT 
         d.division_description, 
@@ -3393,7 +2964,7 @@ DbClass.prototype.getPersonnelReport = async function (fromDate, toDate) {
         AND ind_confirmation_date BETWEEN '${fromDate}' AND '${toDate}'
         GROUP BY ind_division_id
         ORDER BY d.division_description;`
-        connection.query(sql, (err, data) => {
+        self.mysqlConn.query(sql, (err, data) => {
             if (err) {
                 alert('Unable to get personnel report')
                 console.log(err)
@@ -3406,18 +2977,7 @@ DbClass.prototype.getPersonnelReport = async function (fromDate, toDate) {
 
 DbClass.prototype.getIndGroupedReport = async function (fromDate, toDate) {
     let self = this
-    var mysql = require('mysql')
 
-    var connection = mysql.createConnection({
-        host: self.serverIP,
-        user: self.user,
-        password: self.dbpass,
-        database: self.database,
-        port: self.port,
-        dateStrings: true,
-    })
-
-    connection.connect()
     return new Promise(function (resolve, reject) {
         let sql = `SELECT 
         d.division_description,
@@ -3434,7 +2994,7 @@ DbClass.prototype.getIndGroupedReport = async function (fromDate, toDate) {
         AND ind_confirmation_date BETWEEN '${fromDate}' AND '${toDate}'
         GROUP BY i.ind_division_id
         ORDER BY d.division_description;`
-        connection.query(sql, (err, data) => {
+        self.mysqlConn.query(sql, (err, data) => {
             if (err) {
                 alert('Unable to get Grouped report')
                 console.log(err)
@@ -3447,18 +3007,7 @@ DbClass.prototype.getIndGroupedReport = async function (fromDate, toDate) {
 
 DbClass.prototype.getConGroupedReport = async function (fromDate, toDate) {
     let self = this
-    var mysql = require('mysql')
 
-    var connection = mysql.createConnection({
-        host: self.serverIP,
-        user: self.user,
-        password: self.dbpass,
-        database: self.database,
-        port: self.port,
-        dateStrings: true,
-    })
-
-    connection.connect()
     return new Promise(function (resolve, reject) {
         let sql = `SELECT 
         d.division_description,
@@ -3473,7 +3022,7 @@ DbClass.prototype.getConGroupedReport = async function (fromDate, toDate) {
         AND cg.con_group_confirmation_date BETWEEN '${fromDate}' AND '${toDate}'
         GROUP BY cd.cond_division_id
         ORDER BY d.division_description;`
-        connection.query(sql, (err, data) => {
+        self.mysqlConn.query(sql, (err, data) => {
             if (err) {
                 alert('Unable to get Consolidation report')
                 console.log(err)
@@ -3487,18 +3036,7 @@ DbClass.prototype.getConGroupedReport = async function (fromDate, toDate) {
 
 DbClass.prototype.getIndividualsByReference = async function (reference) {
     let self = this
-    var mysql = require('mysql')
 
-    var connection = mysql.createConnection({
-        host: self.serverIP,
-        user: self.user,
-        password: self.dbpass,
-        database: self.database,
-        port: self.port,
-        dateStrings: true,
-    })
-
-    connection.connect()
     return new Promise(function (resolve, reject) {
         let sql = `SELECT ind.*,
         c.city_name as ex_city,
@@ -3509,7 +3047,7 @@ DbClass.prototype.getIndividualsByReference = async function (reference) {
         left join cities c2 ON c2.city_id = ind.ind_to
         left join service_types st on st.service_type_id = ind.ind_service_type 
         where ind_reference like '%${reference}%';`
-        connection.query(sql, (err, data) => {
+        self.mysqlConn.query(sql, (err, data) => {
             if (err) {
                 alert('Unable to find ind by reference')
                 console.log(err)
@@ -3522,18 +3060,7 @@ DbClass.prototype.getIndividualsByReference = async function (reference) {
 
 DbClass.prototype.getConsolidationsByReference = async function (reference) {
     let self = this
-    var mysql = require('mysql')
 
-    var connection = mysql.createConnection({
-        host: self.serverIP,
-        user: self.user,
-        password: self.dbpass,
-        database: self.database,
-        port: self.port,
-        dateStrings: true,
-    })
-
-    connection.connect()
     return new Promise(function (resolve, reject) {
         let sql = `SELECT con.*,
         c.city_name as ex_city,
@@ -3543,10 +3070,10 @@ DbClass.prototype.getConsolidationsByReference = async function (reference) {
         FROM consolidations con
         left join consolidation_groups cg ON cg.con_group_id  = con.con_group_id 
         left join cities c ON c.city_id = cg.con_group_ex 
-        left join cities c2 ON c.city_id = cg.con_group_to
+        left join cities c2 ON c2.city_id = cg.con_group_to
         left join service_types st on st.service_type_id = cg.con_group_service_type
         where con_reference like '%${reference}%';`
-        connection.query(sql, (err, data) => {
+        self.mysqlConn.query(sql, (err, data) => {
             if (err) {
                 alert('Unable to find con by reference')
                 console.log(err)
@@ -3559,18 +3086,7 @@ DbClass.prototype.getConsolidationsByReference = async function (reference) {
 
 DbClass.prototype.getConsolidationDoneByReference = async function (reference) {
     let self = this
-    var mysql = require('mysql')
 
-    var connection = mysql.createConnection({
-        host: self.serverIP,
-        user: self.user,
-        password: self.dbpass,
-        database: self.database,
-        port: self.port,
-        dateStrings: true,
-    })
-
-    connection.connect()
     return new Promise(function (resolve, reject) {
         let sql = `SELECT con.*,
         cg.con_group_deadline as group_deadline, 
@@ -3584,7 +3100,7 @@ DbClass.prototype.getConsolidationDoneByReference = async function (reference) {
         left join cities c2 ON c.city_id = cg.con_group_to
         left join service_types st on st.service_type_id = cg.con_group_service_type
         where cond_reference like '%${reference}%';`
-        connection.query(sql, (err, data) => {
+        self.mysqlConn.query(sql, (err, data) => {
             if (err) {
                 alert('Unable to find cond by reference')
                 console.log(err)
@@ -3597,21 +3113,9 @@ DbClass.prototype.getConsolidationDoneByReference = async function (reference) {
 
 DbClass.prototype.updateGroupOnBoardDelivery = async function (groupId, datetime) {
     let self = this
-    var mysql = require('mysql')
-
-    var connection = mysql.createConnection({
-        host: self.serverIP,
-        user: self.user,
-        password: self.dbpass,
-        database: self.database,
-        port: self.port,
-        dateStrings: true,
-    })
-
-    connection.connect()
     return new Promise(function (resolve, reject) {
         let sql = `UPDATE consolidation_groups SET con_group_on_board_delivery = '${datetime}' WHERE con_group_id = ${groupId};`
-        connection.query(sql, (err, data) => {
+        self.mysqlConn.query(sql, (err, data) => {
             if (err) {
                 alert('Unable to find cond by reference')
                 console.log(err)

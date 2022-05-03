@@ -10,6 +10,7 @@ let HelpersClass = function () {
     this.user_role_id = ''
     this.LOCAL_SERVICE_TYPE_ID = 9
     this.LOCAL_SERVICE_TYPE_TEXT = 'LOCAL'
+    this.LOCAL_SERVICE_FULL_TEXT = 'LOCAL SUPPLIER DISPATCH'
 }
 
 HelpersClass.prototype.bindMovingEvents = function (elementID) {
@@ -140,8 +141,13 @@ HelpersClass.prototype.initliazeModalToEditJob = function (divisions, products, 
     self.findChoosenValueForCities(cities, jobData.ex_city, jobData.to_city)
     myTransfers.initialiazeServiceTypeSelect()
     self.findChoosenValueForServiceType(serviceTypes, jobData.service_type_description)
-    $('#currency').val('1')
-    $('#currency').trigger('chosen:updated')
+    if (jobData.ind_estimate_cost == '0') {
+        $('#estimate_cost').val('')
+    } else {
+        $('#estimate_cost').val(self.revertRate(jobData.ind_estimate_cost, jobData.ind_rate))
+    }
+
+    self.initCurrencyInput(jobData.ind_currency)
 
     $('#modal-title-text').html('Edit Job')
     $('#mode-select').val(jobData.ind_mode)
@@ -158,11 +164,6 @@ HelpersClass.prototype.initliazeModalToEditJob = function (divisions, products, 
         $('#kg').val(jobData.ind_kg)
     }
 
-    if (jobData.ind_estimate_cost == '0') {
-        $('#estimate_cost').val('')
-    } else {
-        $('#estimate_cost').val(jobData.ind_estimate_cost)
-    }
     $('#notes').val(jobData.ind_notes)
 
     $('#save-job-btn').attr('disabled', null)
@@ -500,4 +501,15 @@ HelpersClass.prototype.swalFieldsMissingError = function () {
         showCancelButton: true,
         showConfirmButton: false,
     })
+}
+
+HelpersClass.prototype.initCurrencyInput = function (curr, currInput = 'currency') {
+    $(`#${currInput} option`).each(function () {
+        $(this).attr('selected', false)
+        if ($(this).text() == curr) {
+            $(this).attr('selected', 'selected')
+        }
+    })
+    $(`#${currInput}`).trigger('chosen:updated')
+    $(`#${currInput}`).trigger('change')
 }

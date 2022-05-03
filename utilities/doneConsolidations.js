@@ -201,6 +201,9 @@ DoneConsolidationsClass.prototype.initializetable = async function () {
                     if (rowData.cond_status != 'Done') {
                         $(td).children('.select-done-jobs').hide()
                     }
+                    if (rowData.con_group_on_board_delivery != '' && rowData.con_group_on_board_delivery != null) {
+                        $(td).children('.select-done-jobs').hide()
+                    }
                 },
                 defaultContent:
                     "<i class='fa fa-search job-edit action-btn' style='cursor: pointer' title='modify'></i> \
@@ -490,5 +493,5 @@ DoneConsolidationsClass.prototype.calculateGroupSavings = async function () {
         if ($(this).val() == '') return
         totalIndCount = totalIndCount + parseFloat($(this).val())
     })
-    $('#group-savings').val(totalIndCount - $('#group-cost').val())
+    $('#group-savings').val(self.Helpers.formatFloatValue(totalIndCount - $('#group-cost').val()))
 }

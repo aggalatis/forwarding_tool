@@ -167,10 +167,8 @@ ConsolidationsClass.prototype.initializetable = async function () {
             if (tableData[i].group_id == self.selectedGroupID) groupJobs.push(tableData[i])
         }
         let foundGroupedJobs = groupJobs.find(el => el.con_type == 'Grouped')
-        let foundIndividualJobs = groupJobs.find(el => el.con_is_grouped == 0 && el.con_service_type != self.Helpers.LOCAL_SERVICE_TYPE_ID)
-        let foundLocalJobs = groupJobs.find(
-            el => el.con_service_type == self.Helpers.LOCAL_SERVICE_TYPE_ID || el.con_type == self.Helpers.LOCAL_SERVICE_TYPE_TEXT
-        )
+        let foundIndividualJobs = groupJobs.find(el => el.con_type == 'Individual')
+        let foundLocalJobs = groupJobs.find(el => el.con_type == self.Helpers.LOCAL_SERVICE_TYPE_TEXT)
         $('#group-savings').val('')
         $('#grouped-jobs-cost').hide()
         $('#individual-jobs-cost').hide()
@@ -211,7 +209,7 @@ ConsolidationsClass.prototype.initializetable = async function () {
             $('#append-individual-cost').html('')
             let divString = ''
             for (let job of groupJobs) {
-                if (job.con_is_grouped == 0 && job.con_service_type !== self.Helpers.LOCAL_SERVICE_TYPE_ID) {
+                if (job.con_type == 'Individual') {
                     divString += `<div class="col-6"><div class="form-group"><label class="bold-label currency-label"> Job ${job.con_ind_id} | Ref: ${
                         job.con_reference
                     } (EUR)</label><input class="form-control currency-input individual-estimate-cost-input" data-id="${
@@ -228,14 +226,7 @@ ConsolidationsClass.prototype.initializetable = async function () {
             $('#append-individual-cost').html(divString)
         }
 
-        $('#currency option').each(function () {
-            if ($(this).text() == data.con_group_currency) {
-                $(this).attr('selected', 'selected')
-                return
-            }
-        })
-        $('#currency').trigger('chosen:updated')
-        $('#currency').trigger('change')
+        self.Helpers.initCurrencyInput(data.con_group_currency)
 
         self.rebindEventsOnCurrencies()
         self.findChoosenValueForCities(data.ex_name, data.to_name)

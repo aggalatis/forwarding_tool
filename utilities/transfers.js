@@ -72,20 +72,22 @@ TransfersClass.prototype.bindEventsOnButtons = function () {
     })
 
     $('#save-costs').on('click', function () {
-        var groupCost = $('#group_cost').val()
-        var groupActive = 0
-        var groupDeadline = $('#group_cut_off_date').val()
-        var groupForwarder = $('#group_forwarder').val()
-        var groupTo = $('#group-to-select').val()
-        var groupEx = $('#group-ex-select').val()
-        var groupCurrency = $('#group-currency').val()
+        let groupCost = $('#group_cost').val()
+        let groupActive = 0
+        let groupDeadline = $('#group_cut_off_date').val()
+        let groupForwarder = $('#group_forwarder').val()
+        let groupTo = $('#group-to-select').val()
+        let groupEx = $('#group-ex-select').val()
+        let groupCurrency = $('#group-currency').val()
+        let groupCurrencyText = $('#group-currency option:selected').text()
+        let groupRate = 1 / groupCurrency
 
         if (groupDeadline != '' && groupTo != '' && groupEx != '') {
             if (groupCost == '') {
                 groupCost = null
                 groupActive = 1
             } else {
-                groupCost = groupCost / groupCurrency
+                groupCost = self.Helpers.applyRate(groupCost, groupRate)
             }
             var jobCostData = {
                 ind_group_id: $('#group_id').val(),
@@ -95,6 +97,8 @@ TransfersClass.prototype.bindEventsOnButtons = function () {
                 ind_group_to: groupTo,
                 ind_group_ex: groupEx,
                 ind_group_active: groupActive,
+                ind_group_currency: groupCurrencyText,
+                ind_group_rate: groupRate,
             }
 
             self.DB.updateGroupCost(jobCostData)
@@ -202,7 +206,9 @@ TransfersClass.prototype.bindSaveEventOnSaveJobButton = function () {
         var forwarder = $('#forwarder').val()
         var ind_ex = $('#ex-input').val()
         var ind_to = $('#to-input').val()
-        var currency = $('#currency').val()
+        let currency = $('#currency').val()
+        let rate = 1 / currency
+        let currencyText = $('#currency option:selected').text()
         var reference = $('#reference').val()
         var kg = self.Helpers.formatFloatValue($('#kg').val())
         var deadline = $('#deadline_date').val()
@@ -250,12 +256,14 @@ TransfersClass.prototype.bindSaveEventOnSaveJobButton = function () {
             ind_deadline: self.Helpers.changeDateToMysql(deadline),
             ind_forwarder: forwarder,
             ind_notes: $('#notes').val(),
-            ind_estimate_cost: self.Helpers.applyRate(estimatecostSelectValue, currency),
+            ind_estimate_cost: self.Helpers.applyRate(estimatecostSelectValue, 1 / currency),
             ind_group_id: 0,
             ind_reference: reference,
             ind_kg: kg,
             ind_service_type: serviceType == '' ? 0 : serviceType,
             ind_pieces: pieces,
+            ind_rate: rate,
+            ind_currency: currencyText,
         }
         console.log(individualData)
         self.DB.addIndividual(individualData)

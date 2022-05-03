@@ -347,16 +347,13 @@ HelpersClass.prototype.initCurrencies = function (currencyInputs) {
             }
         },
         error: function (jqXHR, textStatus, error) {
-            console.log('Request failed: ' + textStatus)
+            console.log('Request failed: ' + error)
+            for (let currency of currencyInputs) {
+                $(`#${currency}`).append(new Option('EUR', '1'))
+                $(`#${currency}`).trigger('chosen:updated')
+            }
         },
     })
-
-    // for (i = 0; i < self.DB.cities.length; i++) {
-    //     $('#ex-input').append(new Option(self.DB.cities[i].city_name, self.DB.cities[i].city_id))
-    //     $('#to-input').append(new Option(self.DB.cities[i].city_name, self.DB.cities[i].city_id))
-    // }
-    // $('#ex-input').trigger('chosen:updated')
-    // $('#to-input').trigger('chosen:updated')
 }
 
 HelpersClass.prototype.initGlobalSearch = function (myDB) {

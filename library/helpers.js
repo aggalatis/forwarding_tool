@@ -8,9 +8,16 @@ let HelpersClass = function () {
     this.user_fullname = ''
     this.user_id = ''
     this.user_role_id = ''
-    this.LOCAL_SERVICE_TYPE_ID = 9
-    this.LOCAL_SERVICE_TYPE_TEXT = 'LOCAL'
-    this.LOCAL_SERVICE_FULL_TEXT = 'LOCAL SUPPLIER DISPATCH'
+    this.LOCAL_SERVICE_TYPE_ID = 0
+    this.LOCAL_SERVICE_TYPE_TEXT = ''
+    this.LOCAL_SERVICE_FULL_TEXT = ''
+    this.GROUPED_TEXT = ''
+    this.GROUPED_COLOR = ''
+    this.INDIVIDUAL_TEXT = ''
+    this.INDIVIDUAL_COLOR = ''
+    this.PERSONNEL_TEXT = ''
+    this.PERSONNEL_COLOR = ''
+    this.initializeTypes()
 }
 
 HelpersClass.prototype.bindMovingEvents = function (elementID) {
@@ -80,6 +87,28 @@ HelpersClass.prototype.initializeUser = function () {
     }
 }
 
+HelpersClass.prototype.initializeTypes = function () {
+    let self = this
+
+    let fs = require('fs')
+    console.log('Initialiazing Types Text.....')
+    var typesFile = fs.readFileSync('C:\\ForwardTool\\types.agcfg', 'utf8')
+
+    let typesLines = typesFile.split('\n')
+    self.LOCAL_SERVICE_TYPE_ID = typesLines[0].split(';')[0]
+    self.LOCAL_SERVICE_TYPE_TEXT = typesLines[0].split(';')[1]
+    self.LOCAL_SERVICE_FULL_TEXT = typesLines[0].split(';')[1]
+    self.LOCAL_SERVICE_COLOR = typesLines[0].split(';')[2]
+
+    self.GROUPED_TEXT = typesLines[1].split(';')[1]
+    self.GROUPED_COLOR = typesLines[1].split(';')[2]
+
+    self.INDIVIDUAL_TEXT = typesLines[2].split(';')[1]
+    self.INDIVIDUAL_COLOR = typesLines[2].split(';')[2]
+
+    self.PERSONNEL_TEXT = typesLines[3].split(';')[1]
+    self.PERSONNEL_COLOR = typesLines[3].split(';')[2]
+}
 HelpersClass.prototype.initializeHelp = function () {
     let self = this
 
@@ -378,18 +407,18 @@ HelpersClass.prototype.initGlobalSearch = function (myDB) {
             resultsHtml += `<li style="color: black; font-size: 15px">Ref: <span style="color: red">"${self.validOutput(
                 con.con_reference
             )}"</span> found in <span style="color: red">Consolidations-Pending ID: ${
-                con.con_ind_id
+                con.con_group_id
             }</span> EX: <span style="color: red">${self.validOutput(con.ex_city)}</span> TO: <span style="color: red">${self.validOutput(
                 con.to_city
             )}</span> SERVICE: <span style="color: red">${self.validOutput(
                 con.service_name
             )}</span> DEADLINE: <span style="color: red">${self.validOutput(con.group_deadline)}</span></li>`
         for (let cond of doneCons) {
-            if (cond.con_group_on_board_delivery == null || cond.con_group_on_board_delivery == '') {
+            if (cond.cond_delivered_on_board == null || cond.cond_delivered_on_board == '') {
                 resultsHtml += `<li style="color: black; font-size: 15px">Ref: <span style="color: red">"${
                     cond.cond_reference
                 }"</span> found in <span style="color: red">Consolidations-Done ID: ${
-                    cond.cond_ind_id
+                    cond.cond_group_id
                 }</span> EX: <span style="color: red">${self.validOutput(cond.ex_city)}</span> TO: <span style="color: red">${self.validOutput(
                     cond.to_city
                 )}</span> SERVICE: <span style="color: red">${self.validOutput(
@@ -399,10 +428,10 @@ HelpersClass.prototype.initGlobalSearch = function (myDB) {
                 resultsHtml += `<li style="color: black; font-size: 15px">Ref: <span style="color: red">"${
                     cond.cond_reference
                 }"</span> found in <span style="color: red">Consolidations-Done ID: ${
-                    cond.cond_ind_id
-                }</span> was delivered on board with DEADLINE: <span style="color: red">${self.validOutput(
-                    cond.con_group_on_board_delivery
-                )}</span></li>`
+                    cond.cond_group_id
+                }</span> SERVICE: <span style="color: red">${self.validOutput(
+                    cond.service_name
+                )}</span> was delivered on board with DEADLINE: <span style="color: red">${self.validOutput(cond.group_deadline)}</span></li>`
             }
         }
 
@@ -418,6 +447,7 @@ HelpersClass.prototype.initGlobalSearch = function (myDB) {
 }
 
 HelpersClass.prototype.individualDataAreEmpty = function (indData, allowTBA = false) {
+    let self = this
     if (
         indData.division_description == '' ||
         indData.division_description == null ||
@@ -449,7 +479,7 @@ HelpersClass.prototype.individualDataAreEmpty = function (indData, allowTBA = fa
         indData.sum_estimated_cost == ''
     )
         return true
-    if (indData.ind_mode == 'Personnel' && (indData.ind_actual_cost == null || indData.ind_actual_cost == '')) return true
+    if (indData.ind_mode == self.PERSONNEL_TEXT && indData.ind_actual_cost == null) return true
     if (indData.ind_deadline == 'TBA' && allowTBA == false) return true
     return false
 }
@@ -509,4 +539,39 @@ HelpersClass.prototype.initCurrencyInput = function (curr, currInput = 'currency
     })
     $(`#${currInput}`).trigger('chosen:updated')
     $(`#${currInput}`).trigger('change')
+}
+
+HelpersClass.prototype.initCurrencyInfo = function () {
+    $('.currency-info').on('click', function () {
+        Swal.fire({
+            title: 'Rate info',
+            text: `Currency rate should be used for estimate use only not for invoicing purposes.`,
+            icon: 'warning',
+            showCancelButton: true,
+            showConfirmButton: false,
+        })
+        return
+    })
+}
+
+HelpersClass.prototype.bindCloseBtnsAlerts = function () {
+    let self = this
+
+    $('.close-btn').on('click', function () {
+        let modalId = $(this).data('modal-referer')
+        Swal.fire({
+            title: 'Close Window?',
+            text: `Are you sure you want to close this window? Changes made will not be saved.`,
+            icon: 'warning',
+            showCancelButton: true,
+            cancelButtonText: 'Cancel',
+            confirmButtonColor: '#dc3545',
+            confirmButtonText: 'Confirm',
+        }).then(result => {
+            if (result.isConfirmed) {
+                $(`#${modalId}`).modal('hide')
+            }
+        })
+        return
+    })
 }

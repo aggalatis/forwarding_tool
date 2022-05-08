@@ -6,6 +6,8 @@ let ConsolidationsClass = function () {
     this.Helpers.bindMovingEvents('help-modal-header')
     this.Helpers.bindMovingEvents('cost-modal-header')
     this.Helpers.initializeUser()
+    this.Helpers.initCurrencyInfo()
+    this.Helpers.bindCloseBtnsAlerts()
     this.Helpers.initCurrencies(['currency'])
     this.bindEventsOnButtons()
     this.DB.getAllCities()
@@ -186,7 +188,7 @@ ConsolidationsClass.prototype.initializetable = async function () {
             $('#group-cost').val(self.Helpers.revertRate(data.con_group_cost, data.con_group_rate))
             let divString = ''
             for (let job of groupJobs) {
-                if (job.con_type == 'Grouped') {
+                if (job.con_type == self.Helpers.GROUPED_TEXT) {
                     divString += `<div class="col-6"><div class="form-group"><label class="bold-label currency-label"> Job ${job.con_ind_id} | Ref: ${
                         job.con_reference
                     } (EUR)</label><input class="form-control currency-input grouped-estimate-cost-input" data-id="${
@@ -327,7 +329,6 @@ ConsolidationsClass.prototype.bindEventsOnButtons = function () {
     })
 
     $('#calculate-group-savings').on('click', function () {
-        $('#total-savings-div').show()
         self.calculateGroupSavings()
     })
 }
@@ -507,11 +508,21 @@ ConsolidationsClass.prototype.calculateGroupSavings = async function () {
         setTimeout(resolve, 500)
     })
     let rate = $('#currency_rate').val()
+    let shouldShowSavings = true
     $('.grouped-estimate-cost-input').each(function () {
-        if ($(this).val() == '') return
+        if ($(this).val() == '') {
+            shouldShowSavings = false
+            return
+        }
         totalIndCount = totalIndCount + parseFloat($(this).val())
     })
-    $('#group-savings').val(self.Helpers.applyRate(totalIndCount - $('#group-cost').val(), rate))
+    if (shouldShowSavings) {
+        $('#group-savings').val(self.Helpers.applyRate(totalIndCount - $('#group-cost').val(), rate))
+        $('#total-savings-div').show()
+    } else {
+        $('#group-savings').val('')
+        $('#total-savings-div').hide()
+    }
 }
 
 ConsolidationsClass.prototype.validGroupData = function (tableData, groupId) {
@@ -557,7 +568,7 @@ ConsolidationsClass.prototype.handleCurrencyInputChange = function (e) {
     let triggerInputFlag = e.data('trigger-flag')
     let inputVal = e.val()
     let currencyRate = $('#currency_rate').val()
-    if (currencyRate == '' || currencyRate == null || inputVal == '') return
+    if (currencyRate == '' || currencyRate == null) return
     $('.currency-slave').each(function () {
         let myTriggerFlag = $(this).data('trigger-flag')
         if (myTriggerFlag == triggerInputFlag) {

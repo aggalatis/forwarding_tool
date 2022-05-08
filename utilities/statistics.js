@@ -3,6 +3,7 @@ let StatisticsClass = function () {
     this.Helpers = new HelpersClass()
     this.Helpers.initGlobalSearch(this.DB)
     this.Helpers.initializeUser()
+    this.Helpers.initCurrencyInfo()
     this.tableData = []
     this.bindEventsOnButtons()
 }

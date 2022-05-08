@@ -3,8 +3,9 @@ let TransfersClass = function () {
     this.Helpers = new HelpersClass()
     // this.Helpers.initInstructionFiles(this.DB)
     this.Helpers.initGlobalSearch(this.DB)
-
+    this.Helpers.initCurrencyInfo()
     this.Helpers.initializeUser()
+    this.Helpers.bindCloseBtnsAlerts()
     this.Helpers.bindMovingEvents('help-modal-header')
     this.Helpers.bindMovingEvents('job-modal-header')
     this.Helpers.bindMovingEvents('cost-modal-header')

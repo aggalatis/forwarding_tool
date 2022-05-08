@@ -3090,14 +3090,13 @@ DbClass.prototype.getConsolidationDoneByReference = async function (reference) {
     return new Promise(function (resolve, reject) {
         let sql = `SELECT con.*,
         cg.con_group_deadline as group_deadline, 
-        cg.con_group_on_board_delivery, 
         c.city_name as ex_city,
         c2.city_name as to_city,
         st.service_type_description as service_name
         FROM consolidations_done con
         left join consolidation_groups cg ON cg.con_group_id  = con.cond_group_id 
         left join cities c ON c.city_id = cg.con_group_ex 
-        left join cities c2 ON c.city_id = cg.con_group_to
+        left join cities c2 ON c2.city_id = cg.con_group_to
         left join service_types st on st.service_type_id = cg.con_group_service_type
         where cond_reference like '%${reference}%';`
         self.mysqlConn.query(sql, (err, data) => {
@@ -3111,13 +3110,43 @@ DbClass.prototype.getConsolidationDoneByReference = async function (reference) {
     })
 }
 
-DbClass.prototype.updateGroupOnBoardDelivery = async function (groupId, datetime) {
+DbClass.prototype.updateGroupOnBoardDelivery = async function (groupId) {
     let self = this
     return new Promise(function (resolve, reject) {
-        let sql = `UPDATE consolidation_groups SET con_group_on_board_delivery = '${datetime}' WHERE con_group_id = ${groupId};`
+        let sql = `UPDATE consolidations_done SET cond_delivered_on_board = 1 WHERE cond_group_id = ${groupId};`
         self.mysqlConn.query(sql, (err, data) => {
             if (err) {
                 alert('Unable to find cond by reference')
+                console.log(err)
+                reject(err)
+            }
+            resolve(data)
+        })
+    })
+}
+
+DbClass.prototype.updateGroupHighlight = async function (jobId, status) {
+    let self = this
+    return new Promise(function (resolve, reject) {
+        let sql = `UPDATE consolidations_done SET cond_highlight = ${status} WHERE cond_id = ${jobId};`
+        self.mysqlConn.query(sql, (err, data) => {
+            if (err) {
+                alert('Unable to update group highlight')
+                console.log(err)
+                reject(err)
+            }
+            resolve(data)
+        })
+    })
+}
+
+DbClass.prototype.revertOnBoardDelivery = async function (jobId) {
+    let self = this
+    return new Promise(function (resolve, reject) {
+        let sql = `UPDATE consolidations_done SET cond_consolidated = 0, cond_delivered_on_board = 0 WHERE cond_id = ${jobId};`
+        self.mysqlConn.query(sql, (err, data) => {
+            if (err) {
+                alert('Unable to update revert delivery on board')
                 console.log(err)
                 reject(err)
             }

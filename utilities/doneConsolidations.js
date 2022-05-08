@@ -8,6 +8,7 @@ let DoneConsolidationsClass = function () {
     this.Helpers.bindMovingEvents('edit-notes-consolidation-head')
     this.Helpers.bindMovingEvents('delivery-on-board-modal-header')
     this.Helpers.initializeUser()
+    this.Helpers.initCurrencyInfo()
     this.bindEventsOnButtons()
     this.selectedDoneInds = []
     this.selectedDoneDestination = []
@@ -186,35 +187,36 @@ DoneConsolidationsClass.prototype.initializetable = async function () {
                 title: 'DELIVERED ON BOARD',
                 orderable: false,
                 createdCell: function (td, cellData, rowData, row, col) {
-                    if (rowData.con_group_on_board_delivery == '' || rowData.con_group_on_board_delivery == null) {
+                    if (rowData.cond_delivered_on_board == '' || rowData.cond_delivered_on_board == null) {
                         $(td).html('NO').css('color', 'red').css('font-weight', 'bold')
                     } else {
-                        $(td).html(`${rowData.con_group_on_board_delivery}`).css('color', 'green').css('font-weight', 'bold')
+                        $(td).html(`YES`).css('color', 'green').css('font-weight', 'bold')
                     }
                 },
-                data: 'con_group_on_board_delivery',
+                data: 'cond_delivered_on_board',
             },
             {
                 title: 'ACTIONS',
                 orderable: false,
                 createdCell: function (td, cellData, rowData, row, col) {
-                    if (rowData.cond_status != 'Done') {
-                        $(td).children('.select-done-jobs').hide()
-                    }
-                    if (rowData.con_group_on_board_delivery != '' && rowData.con_group_on_board_delivery != null) {
-                        $(td).children('.select-done-jobs').hide()
-                    }
+                    if (rowData.cond_status != 'Done') $(td).children('.select-done-jobs').hide()
+                    if (rowData.cond_delivered_on_board != '' && rowData.cond_delivered_on_board != null) $(td).children('.select-done-jobs').hide()
+                    if (rowData.cond_consolidated == 1) $(td).children('.select-done-jobs').hide()
                 },
                 defaultContent:
                     "<i class='fa fa-search job-edit action-btn' style='cursor: pointer' title='modify'></i> \
                     <i class='fa fa-dollar costs-job action-btn' title='costs' style='cursor: pointer' ></i> \
                     <i class='select-done-jobs' style='cursor: pointer' title='select'><img src='../assets/icons/consolidations.png'/ style='width: 15px'></i> \
-                    <i class='fa fa-calendar-times-o delivery-edit action-btn' style='cursor: pointer' title='delivery-on-board'></i>",
+                    <i class='fa fa-ship delivery-edit action-btn' style='cursor: pointer' title='delivery-on-board'></i> \
+                    <i class='fa fa-flag flag-job action-btn' style='cursor: pointer' title='flag-job'></i>",
             },
         ],
-        rowCallback: function (row, data, index, cells) {
-            //Here I am changing background Color
-            // $("td", row).css("background-color", data.con_group_color)
+        createdRow: function (row, data, index, cells) {
+            if (data.cond_highlight == 1) {
+                $('td', row).css('border-top', '2px solid red').css('border-bottom', '2px solid red')
+                $('td:eq(0)', row).css('border-left', '2px solid red')
+                $('td:eq(23)', row).css('border-right', '2px solid red')
+            }
         },
         order: [[2, 'desc']],
         pageLength: 25,
@@ -246,7 +248,7 @@ DoneConsolidationsClass.prototype.initializetable = async function () {
         self.selectedDoneDestination = []
 
         if (self.selectedDoneGroupId != data.cond_group_id) {
-            let selectedGroupJobs = tableData.filter(el => el.cond_group_id == data.cond_group_id)
+            let selectedGroupJobs = tableData.filter(el => el.cond_group_id == data.cond_group_id && el.cond_consolidated == 0)
             for (let i = 0; i < selectedGroupJobs.length; i++) {
                 self.selectedDoneInds.push(selectedGroupJobs[i].cond_id)
                 self.selectedDoneDestination.push(selectedGroupJobs[i].to_name)
@@ -270,11 +272,38 @@ DoneConsolidationsClass.prototype.initializetable = async function () {
         $('#consol-notes-modal').modal('show')
     })
     $('#done_consolidations_table').on('click', 'i.delivery-edit', function () {
-        console.log(`Delivery on board..`)
-        var rowData = doneConsTable.row($(this).parents('tr')).data()
-        $('#done-con-group-id').val(rowData.group_id)
-        $('#group-delivered-on-boat').val(rowData.con_group_on_board_delivery)
-        $('#delivery-on-board-modal').modal('show')
+        const data = doneConsTable.row($(this).parents('tr')).data()
+        if (data.cond_delivered_on_board == 1) {
+            Swal.fire({
+                title: 'Revert Delivery?',
+                text: `Undo delivery on board for this job. Once you apply the job will be available for reconsolidation.`,
+                icon: 'warning',
+                showCancelButton: true,
+                cancelButtonText: 'Cancel',
+                confirmButtonColor: '#dc3545',
+                confirmButtonText: 'Confirm',
+            }).then(async function (result) {
+                if (result.isConfirmed) {
+                    await self.DB.revertOnBoardDelivery(data.cond_id)
+                    self.refreshTable()
+                }
+            })
+        } else {
+            Swal.fire({
+                title: 'Deliver group?',
+                text: `Group delivered on board? Once you confirm delivery you wan't be able to revert it.`,
+                icon: 'warning',
+                showCancelButton: true,
+                cancelButtonText: 'Cancel',
+                confirmButtonColor: '#dc3545',
+                confirmButtonText: 'Confirm',
+            }).then(async function (result) {
+                if (result.isConfirmed) {
+                    await self.DB.updateGroupOnBoardDelivery(data.group_id)
+                    self.refreshTable()
+                }
+            })
+        }
     })
     $('#done_consolidations_table').on('click', 'i.costs-job', function () {
         $('#total-savings-div').hide()
@@ -343,6 +372,29 @@ DoneConsolidationsClass.prototype.initializetable = async function () {
 
         $('#group-modal').modal('show')
         $('#save-group-data').attr('disabled', null)
+    })
+    $('#done_consolidations_table').on('click', 'i.flag-job', function () {
+        const data = doneConsTable.row($(this).parents('tr')).data()
+        Swal.fire({
+            title: 'Highlight Job?',
+            icon: 'warning',
+            showCancelButton: true,
+            showDenyButton: true,
+            cancelButtonText: 'Cancel',
+            confirmButtonColor: '#68bb69',
+            confirmButtonText: 'Yes',
+            denyButtonText: 'No',
+            denyButtonColor: '#dc3545',
+        }).then(async function (result) {
+            if (result.isConfirmed) {
+                await self.DB.updateGroupHighlight(data.cond_id, 1)
+                self.refreshTable()
+            }
+            if (result.isDenied) {
+                await self.DB.updateGroupHighlight(data.cond_id, 0)
+                self.refreshTable()
+            }
+        })
     })
 
     $('#search_datatable').keyup(function () {
@@ -422,7 +474,6 @@ DoneConsolidationsClass.prototype.updateSelectedTableColors = function (myTable)
     myTable.rows().every(function () {
         rowNode = this.node()
         rowData = this.data()
-        console.log(self.selectedDoneInds)
         if (self.selectedDoneInds.indexOf(rowData.cond_id) == -1) {
             $(rowNode).removeClass('datatableBack')
         } else {

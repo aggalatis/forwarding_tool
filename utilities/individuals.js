@@ -5,6 +5,8 @@ let IndividualsClass = function () {
     this.Helpers.initGlobalSearch(this.DB)
     this.Helpers.bindMovingEvents('help-modal-header')
     this.Helpers.initializeUser()
+    this.Helpers.initCurrencyInfo()
+    this.Helpers.bindCloseBtnsAlerts()
     this.Helpers.bindMovingEvents('edit-notes-modal-header')
     this.Helpers.bindMovingEvents('cost-data-modal-header')
     this.Helpers.bindMovingEvents('done-personnel-modal-header')

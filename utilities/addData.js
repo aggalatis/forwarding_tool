@@ -6,7 +6,7 @@ let addDataClass = function () {
     this.Helpers.bindMovingEvents('vessel-modal-header')
     this.Helpers.bindMovingEvents('service-type-modal-header')
     this.Helpers.initializeUser()
-
+    this.Helpers.initCurrencyInfo()
     this.addEventsOnButtons()
     this.DB.getAllCities()
     this.DB.getAllVessels()

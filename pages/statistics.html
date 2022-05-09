@@ -430,7 +430,6 @@
     </footer>
 
 </section>
-<section id="print-placeholder" style="display: none"></section>
 <script>if (typeof module === 'object') {
     window.module = module;
     module = undefined;
@@ -481,11 +480,8 @@
 <script src="../library/db.js"></script>
 <script>
 
-    const {remote} = require('electron')
     const electron = require('electron')
-    const {session} = require('electron')
-    const {app, BrowserWindow} = require('electron').remote;
-    const {ipcRenderer} = electron;
+    const { ipcRenderer } = electron
 
     let statistics = new StatisticsClass();
 

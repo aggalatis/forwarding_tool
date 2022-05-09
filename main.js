@@ -19,6 +19,7 @@ app.on('ready', () => {
         //frame: false, makes the application to have no frame at all
         webPreferences: {
             nodeIntegration: true,
+            contextIsolation: false,
         },
         icon: __dirname + '/assets/icons/efglobal_logo_transparent.png',
     })
@@ -59,6 +60,7 @@ app.on('ready', () => {
             //frame: false, makes the application to have no frame at all
             webPreferences: {
                 nodeIntegration: true,
+                contextIsolation: false,
             },
             icon: __dirname + '/assets/icons/efglobal_logo_transparent.png',
         })

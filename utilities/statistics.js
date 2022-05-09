@@ -1,3 +1,5 @@
+const { fsyncSync } = require('original-fs')
+
 let StatisticsClass = function () {
     this.DB = new DbClass()
     this.Helpers = new HelpersClass()
@@ -35,10 +37,7 @@ StatisticsClass.prototype.bindEventsOnButtons = function () {
     })
 
     $('#print-data').on('click', function () {
-        $('.page-container').printThis({
-            importCSS: true,
-            importStyle: false,
-        })
+        self.takeScreenShot()
     })
 }
 
@@ -370,5 +369,13 @@ StatisticsClass.prototype.initializeChart = function () {
                 animateScale: true,
             },
         },
+    })
+}
+
+StatisticsClass.prototype.takeScreenShot = async function () {
+    $('.page-container').printThis({
+        importCSS: true,
+        importStyle: true,
+        canvas: true,
     })
 }

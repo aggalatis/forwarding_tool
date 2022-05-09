@@ -1,25 +1,23 @@
 {
-  "name": "Forwarding-app",
-  "version": "1.0.0",
-  "description": "Forwarding tool For Paris Anania",
-  "main": "main.js",
-  "scripts": {
-    "start": "electron .",
-    "install": "electron-rebuild",
-    "dist": "build",
-    "package-win": "electron-packager . FORWARDING --overwrite --asar=true --platform=win32 --arch=ia32 --icon=assets/icons/efglobal_logo_transparent.ico --prune=true --out=release-builds --version-string.CompanyName=CE --version-string.FileDescription=CE --version-string.ProductName=\"Forwarding Tool\""
-  },
-  "author": "AG",
-  "license": "ISC",
-  "devDependencies": {
-    "electron": "^5.0.13",
-    "electron-packager": "^15.0.0"
-  },
-  "dependencies": {
-    "datetime-js": "^4.0.0",
-    "md5": "^2.2.1",
-    "mysql": "^2.18.1",
-    "node-html-to-image": "^3.2.4",
-    "regedit": "^3.0.3"
-  }
+    "name": "Forwarding-app",
+    "version": "1.0.0",
+    "description": "Forwarding tool For Paris Anania",
+    "main": "main.js",
+    "scripts": {
+        "start": "electron .",
+        "install": "electron-rebuild",
+        "dist": "build",
+        "package-win": "electron-packager . FORWARDING --overwrite --asar=true --platform=win32 --arch=ia32 --icon=assets/icons/efglobal_logo_transparent.ico --prune=true --out=release-builds --version-string.CompanyName=CE --version-string.FileDescription=CE --version-string.ProductName=\"Forwarding Tool\""
+    },
+    "author": "AG",
+    "license": "ISC",
+    "dependencies": {
+        "datetime-js": "^4.0.0",
+        "electron": "^18.2.0",
+        "electron-packager": "^15.5.1",
+        "md5": "^2.2.1",
+        "mysql": "^2.18.1",
+        "node-html-to-image": "^3.2.4",
+        "regedit": "^3.0.3"
+    }
 }

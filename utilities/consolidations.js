@@ -1,7 +1,6 @@
 let ConsolidationsClass = function () {
     this.DB = new DbClass()
     this.Helpers = new HelpersClass()
-    this.Helpers.initInstructionFiles(this.DB)
     this.Helpers.initGlobalSearch(this.DB)
     this.Helpers.bindMovingEvents('help-modal-header')
     this.Helpers.bindMovingEvents('cost-modal-header')

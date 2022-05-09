@@ -1,7 +1,6 @@
 let TransfersClass = function () {
     this.DB = new DbClass()
     this.Helpers = new HelpersClass()
-    // this.Helpers.initInstructionFiles(this.DB)
     this.Helpers.initGlobalSearch(this.DB)
     this.Helpers.initCurrencyInfo()
     this.Helpers.initializeUser()

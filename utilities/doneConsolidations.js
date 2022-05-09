@@ -1,7 +1,6 @@
 let DoneConsolidationsClass = function () {
     this.DB = new DbClass()
     this.Helpers = new HelpersClass()
-    this.Helpers.initInstructionFiles(this.DB)
     this.Helpers.initGlobalSearch(this.DB)
     this.Helpers.bindMovingEvents('help-modal-header')
     this.Helpers.bindMovingEvents('cost-done-cons-head')
@@ -243,7 +242,7 @@ DoneConsolidationsClass.prototype.initializetable = async function () {
             })
             return
         }
-
+        console.log('I am here...')
         self.selectedDoneInds = []
         self.selectedDoneDestination = []
 
@@ -257,7 +256,6 @@ DoneConsolidationsClass.prototype.initializetable = async function () {
         } else {
             self.selectedDoneGroupId = -1
         }
-
         self.updateSelectedTableColors(doneConsTable)
     })
     $('#done_consolidations_table').on('click', 'i.job-edit', function () {

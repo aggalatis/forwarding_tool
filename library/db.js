@@ -11,8 +11,6 @@ let DbClass = function () {
     this.colors = []
     this.individualServiceTypes = []
     this.consolidationServiceTypes = []
-    this.selectedDoneInd = []
-    this.selectedDoneDestination = []
     this.pieCreated = false
     this.mysqlConn = null
     this.getServerDataFromRegistry()
@@ -75,22 +73,6 @@ DbClass.prototype.verifyLogin = function (username, password) {
             }
         }
     )
-}
-
-DbClass.prototype.getInstructionFiles = async function () {
-    let self = this
-    const instrFiles = await new Promise((resolve, reject) => {
-        let sql = `SELECT * FROM instruction_files`
-        self.mysqlConn.query(sql, (err, data) => {
-            if (err) {
-                alert('Unable to get individuals done')
-                resolve(null)
-            }
-            resolve(data)
-        })
-    })
-    if (instrFiles == null) return []
-    return instrFiles
 }
 
 DbClass.prototype.getAllDivisions = function () {
@@ -608,13 +590,14 @@ DbClass.prototype.getAllIndividuals = function () {
                     $('#group-cost-div').hide()
                     $('#save-costs').hide()
                 } else {
-                    console.log(data)
                     var allData = jobs_table.rows().data()
                     for (var i = 0; i < allData.length; i++) {
                         if (allData[i].ind_group_id == data.ind_group_id) {
                             if (self.Helpers.individualDataAreEmpty(allData[i], true)) {
-                                self.Helpers.swalFieldsMissingError()
-                                return
+                                if (self.Helpers.user_role_id != 2) {
+                                    self.Helpers.swalFieldsMissingError()
+                                    return
+                                }
                             }
                         }
                     }
@@ -696,7 +679,7 @@ DbClass.prototype.getAllIndividuals = function () {
     })
 }
 
-DbClass.prototype.getAllDoneIndividuals = function () {
+DbClass.prototype.getAllDoneIndividuals = async function () {
     let self = this
     const sql =
         'SELECT ' +
@@ -704,6 +687,14 @@ DbClass.prototype.getAllDoneIndividuals = function () {
         ' DATE_FORMAT(ind_jobs.ind_request_date, "%d/%m/%Y %H:%i:%s" ) as ind_request_date,' +
         ' users.user_username,' +
         ' ind_jobs.ind_group_id,' +
+        ' ind_jobs.ind_division_id,' +
+        ' ind_jobs.ind_user_id,' +
+        ' ind_jobs.ind_request_date as original_request_date,' +
+        ' ind_jobs.ind_confirmation_date as original_confirmation_date,' +
+        ' ind_jobs.ind_deadline as original_deadline,' +
+        ' ind_jobs.ind_ex,' +
+        ' ind_jobs.ind_to,' +
+        ' ind_jobs.ind_service_type,' +
         ' ind_jobs.ind_is_grouped,' +
         ' divisions.division_description,' +
         ' ind_jobs.ind_products,' +
@@ -727,6 +718,8 @@ DbClass.prototype.getAllDoneIndividuals = function () {
         ' (SELECT Round(sum(individuals.ind_estimate_cost),2) FROM individuals WHERE ind_group_id = ind_jobs.ind_group_id AND ind_deleted = 0) as sum_estimated_cost,' +
         ' ind_jobs.ind_actual_cost,' +
         ' ind_jobs.ind_consolidated,' +
+        ' ind_jobs.ind_splitted,' +
+        ' ind_jobs.ind_parent,' +
         ' UNIX_TIMESTAMP(ind_jobs.ind_confirmation_date) as ind_timestamp' +
         ' FROM individuals as ind_jobs' +
         ' LEFT JOIN divisions on divisions.division_id = ind_jobs.ind_division_id' +
@@ -738,242 +731,13 @@ DbClass.prototype.getAllDoneIndividuals = function () {
         ' WHERE ind_jobs.ind_status = "Done" AND ind_deleted = 0' +
         ' ;'
 
-    self.mysqlConn.query(sql, function (error, data) {
-        if (error) throw error
-        var dataset = []
-        for (i = 0; i < data.length; i++) {
-            let values = Object.values(data[i])
-            dataset[i] = []
-
-            for (j = 0; j < values.length; j++) {
-                if (j == 4 || j == 3) {
-                    if (j == 4) {
-                        if (values[7] == 'Personnel') {
-                            dataset[i].push('Personnel')
-                        } else {
-                            if (values[8] == self.Helpers.LOCAL_SERVICE_FULL_TEXT) {
-                                dataset[i].push(self.Helpers.LOCAL_SERVICE_TYPE_TEXT)
-                            } else {
-                                if (values[j] == 0) {
-                                    dataset[i].push('Individual')
-                                } else {
-                                    dataset[i].push('Grouped')
-                                }
-                            }
-                        }
-                    }
-
-                    if (j == 3) {
-                        if (values[4] == 0) {
-                            dataset[i].push(0)
-                        } else {
-                            dataset[i].push(values[j])
-                        }
-                    }
-                } else {
-                    dataset[i].push(values[j])
-                }
+    return new Promise((resolve, reject) => {
+        self.mysqlConn.query(sql, function (error, data) {
+            if (error) {
+                alert('Unable to get done individuals')
+                reject(error)
             }
-        }
-        var jobs_table = $('#done_individuals_table').DataTable({
-            data: dataset,
-            fixedHeader: {
-                headerOffset: 100,
-                header: true,
-                footer: false,
-            },
-            bLengthChange: false,
-            columns: [
-                { title: 'JOB ID', orderable: false },
-                { title: 'REQ. DATE', orderable: false },
-                { title: 'USER', orderable: false },
-                {
-                    title: 'GROUP ID',
-                    orderable: false,
-                    createdCell: function (td, cellData, rowData, row, col) {
-                        $(td).css('background-color', rowData[20])
-                    },
-                },
-                {
-                    title: 'TYPE',
-                    orderable: false,
-                    createdCell: function (td, cellData, rowData, row, col) {
-                        console.log()
-                        if (rowData[4] == 'Individual') {
-                            $(td).css('color', '#DC143C').css('font-weight', 'bold')
-                        }
-                        if (rowData[4] == 'Grouped') {
-                            $(td).css('color', '#32CD32').css('font-weight', 'bold')
-                        }
-                        if (rowData[7] == 'Personnel') {
-                            $(td).css('color', 'blue').css('font-weight', 'bold')
-                        }
-                        if (rowData[4] == self.Helpers.LOCAL_SERVICE_TYPE_TEXT) {
-                            $(td).css('color', '#808080').css('font-weight', 'bold')
-                        }
-                    },
-                },
-                { title: 'DEPARTMENT', orderable: false },
-                { title: 'PRODUCT', orderable: false },
-                { title: 'MODE', orderable: false },
-                { title: 'SERVICE', orderable: false },
-                { title: 'VESSEL', orderable: false },
-                { title: 'EX', orderable: false, className: 'danger-header' },
-                { title: 'TO', orderable: false, className: 'danger-header' },
-                { title: 'DEADLINE', orderable: false, className: 'danger-header' },
-                { title: 'CONFIRMATION DATE', orderable: false },
-                { title: 'FORWARDER', orderable: false },
-                { title: 'REFERENCE', orderable: false },
-                { title: 'PIECES', orderable: false },
-                { title: 'KG', orderable: false },
-                { title: 'ESTIMATE COST (€)', orderable: false },
-                { title: 'NOTES', visible: false },
-                { title: 'Group Color', visible: false },
-                { title: 'Group Cost', visible: false },
-                { title: 'GROUP DEADLINE', orderable: false },
-                { title: 'GROUP FORWARDER', orderable: false },
-                { title: 'Sum estimate cost', visible: false },
-                { title: 'Actual cost', visible: false },
-                {
-                    title: 'CONSOLIDATED',
-                    orderable: false,
-                    createdCell: function (td, cellData, rowData, row, col) {
-                        if (rowData[26] == 0) {
-                            $(td).html('NO').css('color', 'red').css('font-weight', 'bold')
-                        }
-                        if (rowData[26] == 1) {
-                            $(td).html('YES').css('color', 'green').css('font-weight', 'bold')
-                        }
-                    },
-                },
-                { title: 'Timestamp', visible: false },
-                {
-                    title: 'ACTIONS',
-                    orderable: false,
-                    defaultContent:
-                        "<i class='fa fa-search job-edit action-btn' style='cursor: pointer' title='modify'></i> \
-                        <i class='fa fa-dollar done-job-cost action-btn' style='cursor: pointer' title='costs'></i> \
-                        <i class='select-done-jobs' style='cursor: pointer' title='select'><img src='../assets/icons/consolidations.png'/ style='width: 15px'></i> ",
-                },
-            ],
-            order: [
-                [3, 'desc'],
-                [4, 'asc'],
-                [27, 'desc'],
-            ],
-            pageLength: 25,
-        })
-
-        $('#done_individuals_table').on('click', 'i.select-done-jobs', function () {
-            var data = jobs_table.row($(this).parents('tr')).data()
-            if (!self.Helpers.checkIfUserHasPriviledges(data[2])) {
-                Swal.fire({
-                    title: 'Unable to edit this job.',
-                    text: "Unfortunately this is a job inserted by different user. You can't select it.",
-                    icon: 'error',
-                    showCancelButton: true,
-                    showConfirmButton: false,
-                })
-                return
-            }
-            if (data[26] == 1) {
-                Swal.fire({
-                    title: 'Job Consolidated',
-                    text: 'Unfortunately the job you selected already exists inside a consolidation group.',
-                    icon: 'error',
-                    showCancelButton: true,
-                    showConfirmButton: false,
-                })
-                return
-            }
-            if (data[4] == 'Personnel') {
-                Swal.fire({
-                    title: 'Personnel Job',
-                    text: 'Unfortunately job is marked as Personnel and cannot be consolidated.',
-                    icon: 'error',
-                    showCancelButton: true,
-                    showConfirmButton: false,
-                })
-                return
-            }
-            if (self.selectedDoneInd.indexOf(data[0]) == -1) {
-                $(this).parents('tr').addClass('datatableBack')
-                self.selectedDoneInd.push(data[0])
-                self.selectedDoneDestination.push(data[11])
-            } else {
-                $(this).parents('tr').removeClass('datatableBack')
-                self.selectedDoneInd.splice(self.selectedDoneInd.indexOf(data[0]), 1)
-                self.selectedDoneDestination.splice(self.selectedDoneDestination.indexOf(data[11]), 1)
-            }
-        })
-
-        $('#done_individuals_table').on('click', 'i.job-edit', function () {
-            $('#job-modal-header').removeClass('noFloat floatMeLeft floatMeRight')
-            var data = jobs_table.row($(this).parents('tr')).data()
-
-            if (!self.Helpers.checkIfUserHasPriviledges(data[2])) {
-                Swal.fire({
-                    title: 'Unable to edit this job.',
-                    text: "Unfortunately this is a job inserted by different user. You can't modify it.",
-                    icon: 'error',
-                    showCancelButton: true,
-                    showConfirmButton: false,
-                })
-                return
-            }
-            $('#done_ind_id').val(data[0])
-            $('#notes').val(data[19])
-            $('#notes-modal').modal('show')
-        })
-
-        $('#done_individuals_table').on('click', 'i.done-job-cost', function () {
-            $('#cost-data-modal-header').removeClass('noFloat floatMeLeft floatMeRight')
-            $('#done-personnel-modal-header').removeClass('noFloat floatMeLeft floatMeRight')
-            var data = jobs_table.row($(this).closest('tr')).data()
-
-            $('#job_estimate_costs').val(data[18])
-            $('#department').val(data[5])
-
-            if (data[4] != 'Grouped') {
-                if (data[4] == 'Personnel') {
-                    $('#personnel-estimate-cost').val(data[18])
-                    $('#personnel-actual-cost').val(data[25])
-                    var savings = data[17] - data[25]
-                    $('#personnel-savings').val(savings)
-                    $('#personnel-savings-percent').val((savings / data[18]) * 100)
-                    $('#done-personnel-costs-modal').modal('show')
-                } else {
-                    $('#group-cost-div').hide()
-                    $('#done-costs-modal').modal('show')
-                }
-            } else {
-                var sum_estimate_cost = data[24]
-                var group_cost = data[21]
-
-                var savings_percent = ((1 - group_cost / sum_estimate_cost) * 100).toFixed(2)
-
-                var savings_amount = ((data[18] * savings_percent) / 100).toFixed(2)
-                var shared_cost = ((group_cost / sum_estimate_cost) * data[18]).toFixed(2)
-
-                $('#group_cost').val(self.Helpers.formatFloatValue(String(group_cost)))
-                $('#group_id').val(data[3])
-                $('#saving_amount').val(savings_amount)
-                $('#saving_percent').val(savings_percent)
-                $('#shared_cost').val(shared_cost)
-                $('#group_forwarder').val(data[23])
-                $('#group-cost-div').show()
-                $('#save-costs').show()
-                $('#done-costs-modal').modal('show')
-            }
-        })
-
-        $('#search_datatable').keyup(function () {
-            if ($(this).val() != '') {
-                let regexp = `\\b${$(this).val()}`
-                jobs_table.search(regexp, true, false).draw()
-            } else {
-                jobs_table.search('').draw()
-            }
+            resolve(data)
         })
     })
 }
@@ -1877,7 +1641,7 @@ DbClass.prototype.getConGroups = function () {
     })
 }
 
-DbClass.prototype.assignJobsToNewGroup = async function () {
+DbClass.prototype.assignJobsToNewGroup = async function (selectedIds) {
     var mysql = require('mysql')
     let self = this
     var connection = mysql.createConnection({
@@ -1891,10 +1655,10 @@ DbClass.prototype.assignJobsToNewGroup = async function () {
     })
 
     const inds = await new Promise((resolve, reject) => {
-        let sql = `SELECT * FROM individuals WHERE ind_id IN (${self.selectedDoneInd.join(',')})`
+        let sql = `SELECT * FROM individuals WHERE ind_id IN (${selectedIds.join(',')})`
         connection.query(sql, (err, data) => {
             if (err) {
-                alert('Unable to get individuals done')
+                alert('Error on SELECT individuals')
                 reject(err)
             }
             resolve(data)
@@ -1906,7 +1670,7 @@ DbClass.prototype.assignJobsToNewGroup = async function () {
                     VALUES ('${self.colors[randomNumber].color_code}', ${inds[0].ind_to}, 1, 'EUR', 1)`
         connection.query(sql, (err, data) => {
             if (err) {
-                alert('Unable to get individuals done')
+                alert('Error on INSERT consolidation_groups')
                 console.log(err)
                 reject(err)
             }
@@ -1943,10 +1707,10 @@ DbClass.prototype.assignJobsToNewGroup = async function () {
         return
     }
     await new Promise(function (resolve, reject) {
-        let sql = `UPDATE individuals set ind_consolidated = 1 WHERE ind_id IN (${self.selectedDoneInd.join(',')})`
+        let sql = `UPDATE individuals set ind_consolidated = 1 WHERE ind_id IN (${selectedIds.join(',')})`
         connection.query(sql, (err, data) => {
             if (err) {
-                alert('Unable to get individuals done')
+                alert('ERROR on UPDATE individuals')
                 console.log(err)
                 reject(err)
             }
@@ -1974,7 +1738,7 @@ DbClass.prototype.assignJobsToConGroup = async function (selGroup) {
         let sql = `SELECT * FROM individuals WHERE ind_id IN (${self.selectedDoneInd.join(',')})`
         connection.query(sql, (err, data) => {
             if (err) {
-                alert('Unable to get individuals done')
+                alert('ERROR on SELECT individuals')
                 reject(err)
             }
             resolve(data)
@@ -2808,7 +2572,7 @@ DbClass.prototype.confirmConsGroup = async function (data) {
         let sql = `SELECT c.*, cg.* FROM consolidations c JOIN consolidation_groups cg on cg.con_group_id = c.con_group_id   WHERE c.con_group_id = (${data.con_group_id})`
         self.mysqlConn.query(sql, (err, data) => {
             if (err) {
-                alert('Unable to get individuals done')
+                alert('ERROR on SELECT consolidations')
                 reject(err)
             }
             resolve(data)
@@ -2846,7 +2610,7 @@ DbClass.prototype.confirmConsGroup = async function (data) {
         let sql = `UPDATE consolidation_groups set con_group_confirmation_date = now(), con_group_active = 0 WHERE con_group_id =  ${data.con_group_id}`
         self.mysqlConn.query(sql, (err, data) => {
             if (err) {
-                alert('Unable to get individuals done')
+                alert('Erroron on UPDATE consolidation_groups ')
                 console.log(err)
                 reject(err)
             }
@@ -2857,7 +2621,7 @@ DbClass.prototype.confirmConsGroup = async function (data) {
         let sql = `DELETE FROM consolidations WHERE con_group_id =  ${data.con_group_id}`
         self.mysqlConn.query(sql, (err, data) => {
             if (err) {
-                alert('Unable to delete consolidaitons')
+                alert('Error on DELETE consolidations')
                 console.log(err)
                 reject(err)
             }
@@ -2890,7 +2654,7 @@ DbClass.prototype.getAllDoneConsolidations = function () {
     return new Promise((resolve, reject) => {
         self.mysqlConn.query(sql, function (error, data) {
             if (error) {
-                alert('Unable to get done consolidations.')
+                alert('Error on SELECT consolidations_done')
                 reject(error)
             }
             resolve(data)
@@ -3151,6 +2915,54 @@ DbClass.prototype.revertOnBoardDelivery = async function (jobId) {
                 reject(err)
             }
             resolve(data)
+        })
+    })
+}
+
+DbClass.prototype.splitJob = async function (jd) {
+    let self = this
+
+    const insertedIndividuals = await new Promise(function (resolve, reject) {
+        let vessels = jd.ind_vessels.split(';')
+        for (let vess of vessels) {
+            let sql =
+                `INSERT INTO individuals (ind_user_id, ind_division_id, ind_vessels, ind_ex, ind_to, ind_request_date, ind_is_grouped, ind_consolidated, ind_deadline, ind_status, ind_forwarder, ind_mode, ind_confirmation_date, ind_group_id, ind_deleted, ind_service_type, ind_splitted, ind_parent)` +
+                ` VALUES (${jd.ind_user_id}, ${jd.ind_division_id}, '${vess}',  ${jd.ind_ex}, ${jd.ind_to}, '${jd.original_request_date}', ${jd.ind_is_grouped}, 0, '${jd.original_deadline}', 'Done', '${jd.ind_forwarder}', '${jd.ind_mode}', '${jd.original_confirmation_date}', ${jd.ind_group_id}, 0, ${jd.ind_service_type}, 0, ${jd.ind_id});`
+            self.mysqlConn.query(sql, (err, data) => {
+                if (err) {
+                    alert('ERROR on INSERT individuals')
+                    console.log(err)
+                    reject(false)
+                }
+            })
+        }
+        resolve(true)
+    })
+    if (!insertedIndividuals) return
+    await new Promise(function (resolve, reject) {
+        let sql = `UPDATE individuals SET ind_splitted = 1 WHERE ind_id = ${jd.ind_id} LIMIT 1;`
+        self.mysqlConn.query(sql, (err, data) => {
+            if (err) {
+                alert('ERROR on UPDATED individuals')
+                console.log(err)
+                reject(false)
+            }
+            resolve(true)
+        })
+    })
+}
+
+DbClass.prototype.updateIndDoneJob = async function (jd) {
+    let self = this
+    return new Promise(function (resolve, reject) {
+        const sql = `UPDATE individuals SET ind_products = '${jd.products}', ind_pieces = ${jd.pieces}, ind_kg = ${jd.kg}, ind_notes = '${jd.notes}', ind_reference = '${jd.reference}' WHERE ind_id = ${jd.id} LIMIT 1;`
+        self.mysqlConn.query(sql, (err, data) => {
+            if (err) {
+                alert('ERROR on UPDATED individuals')
+                console.log(err)
+                reject(false)
+            }
+            resolve(true)
         })
     })
 }

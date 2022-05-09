@@ -11,6 +11,7 @@ let HelpersClass = function () {
     this.LOCAL_SERVICE_TYPE_ID = 0
     this.LOCAL_SERVICE_TYPE_TEXT = ''
     this.LOCAL_SERVICE_FULL_TEXT = ''
+    this.LOCAL_SERVICE_COLOR = ''
     this.GROUPED_TEXT = ''
     this.GROUPED_COLOR = ''
     this.INDIVIDUAL_TEXT = ''
@@ -225,7 +226,7 @@ HelpersClass.prototype.findChoosenValueForServiceType = function (serviceTypes, 
 
 HelpersClass.prototype.findChoosenValueForProducts = function (products, product_names) {
     let self = this
-
+    if (product_names == null) return ''
     var productNames = product_names.split(';')
     var productIds = []
     for (i = 0; i < products.length; i++) {
@@ -233,6 +234,7 @@ HelpersClass.prototype.findChoosenValueForProducts = function (products, product
             productIds.push(products[i].product_id)
         }
     }
+    console.log(productIds)
     $('#product-select').val(productIds)
     $('#product-select').trigger('chosen:updated')
 }
@@ -328,24 +330,7 @@ HelpersClass.prototype.checkIfUserHasPriviledges = function (jobUserName) {
 
 HelpersClass.prototype.jobsHaveSameDestination = function (jobsDestinations) {
     for (let i = 1; i < jobsDestinations.length; i++) if (jobsDestinations[i - 1] !== jobsDestinations[i]) return false
-
     return true
-}
-
-HelpersClass.prototype.initInstructionFiles = async function (myDB) {
-    let self = this
-
-    const instFiles = await myDB.getInstructionFiles()
-    this.instructionFiles = instFiles
-
-    $('#append-scenarios').html()
-    let appendStr = ''
-    for (let instf of this.instructionFiles) {
-        if (instf.type != 'scenario') continue
-        appendStr += `<p class="help-text"><a href="#" class="help-scenario-link" data-id="${instf.id}" style="cursor: pointer">${instf.name}</a></p>`
-    }
-    $('#append-scenarios').html(appendStr)
-    self.initializeHelp()
 }
 
 HelpersClass.prototype.initCurrencies = function (currencyInputs) {
@@ -574,4 +559,20 @@ HelpersClass.prototype.bindCloseBtnsAlerts = function () {
         })
         return
     })
+}
+
+HelpersClass.prototype.jobHasMultiVessels = function (job) {
+    if (job.ind_vessels.indexOf(';') != -1) return true
+    return false
+}
+
+HelpersClass.prototype.changeProductIdstoString = function (selectedProducts, myDB) {
+    let productsNames = []
+    for (i = 0; i < myDB.products.length; i++) {
+        if (selectedProducts.indexOf(myDB.products[i].product_id.toString()) !== -1) {
+            //this means i found the product
+            productsNames.push(myDB.products[i].product_description)
+        }
+    }
+    return productsNames.join(';')
 }

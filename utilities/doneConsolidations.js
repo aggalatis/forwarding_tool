@@ -144,15 +144,19 @@ DoneConsolidationsClass.prototype.initializetable = async function () {
                 orderable: false,
                 data: 'cond_type',
                 createdCell: function (td, cellData, rowData, row, col) {
-                    if (rowData.cond_type == 'Individual') {
-                        $(td).css('color', 'blue').css('font-weight', 'bold')
+                    if (rowData.cond_type == self.Helpers.INDIVIDUAL_TEXT) {
+                        $(td).css('color', self.Helpers.INDIVIDUAL_COLOR)
                     }
-                    if (rowData.cond_type == 'Grouped') {
-                        $(td).css('color', '#32CD32').css('font-weight', 'bold')
+                    if (rowData.cond_type == self.Helpers.GROUPED_TEXT) {
+                        $(td).css('color', self.Helpers.GROUPED_COLOR)
                     }
                     if (rowData.cond_type == self.Helpers.LOCAL_SERVICE_TYPE_TEXT) {
-                        $(td).css('color', 'red').css('font-weight', 'bold')
+                        $(td).css('color', self.Helpers.LOCAL_SERVICE_COLOR)
                     }
+                    if (rowData.cond_type == self.Helpers.PERSONNEL_TEXT) {
+                        $(td).css('color', self.Helpers.PERSONNEL_COLOR)
+                    }
+                    $(td).css('font-weight', 'bold')
                 },
             },
             { title: 'PRODUCTS', orderable: false, data: 'cond_products' },

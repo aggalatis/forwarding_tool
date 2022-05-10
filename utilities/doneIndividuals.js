@@ -72,7 +72,7 @@ DoneIndividualsClass.prototype.bindEventsOnButtons = function () {
         if (selGroup == 0) {
             self.DB.assignJobsToNewGroup(self.selectedDoneInd)
         } else {
-            self.DB.assignJobsToConGroup(selGroup)
+            self.DB.assignJobsToConGroup(selGroup, self.selectedDoneInd)
         }
     })
 

@@ -1721,22 +1721,12 @@ DbClass.prototype.assignJobsToNewGroup = async function (selectedIds) {
     window.location.replace('consolidations.html')
 }
 
-DbClass.prototype.assignJobsToConGroup = async function (selGroup) {
-    var mysql = require('mysql')
+DbClass.prototype.assignJobsToConGroup = async function (selGroup, doneIds) {
     let self = this
-    var connection = mysql.createConnection({
-        host: self.serverIP,
-        user: self.user,
-        password: self.dbpass,
-        database: self.database,
-        port: self.port,
-        dateStrings: true,
-        multipleStatements: true,
-    })
 
     const inds = await new Promise((resolve, reject) => {
-        let sql = `SELECT * FROM individuals WHERE ind_id IN (${self.selectedDoneInd.join(',')})`
-        connection.query(sql, (err, data) => {
+        let sql = `SELECT * FROM individuals WHERE ind_id IN (${doneIds.join(',')})`
+        self.mysqlConn.query(sql, (err, data) => {
             if (err) {
                 alert('ERROR on SELECT individuals')
                 reject(err)
@@ -1755,7 +1745,7 @@ DbClass.prototype.assignJobsToConGroup = async function (selGroup) {
             }
             sql = `INSERT INTO consolidations (con_ind_id, con_user_id, con_division_id, con_products, con_vessels, con_reference, con_kg, con_status, con_request_date, con_group_id, con_pieces, con_is_grouped, con_type)
                     VALUES (${ind.ind_id}, ${self.Helpers.user_id}, ${ind.ind_division_id}, '${ind.ind_products}', '${ind.ind_vessels}', '${ind.ind_reference}', ${ind.ind_kg}, 'Pending', now(), ${selGroup}, ${ind.ind_pieces}, ${ind.ind_is_grouped}, '${typeText}');`
-            connection.query(sql, (err, data) => {
+            self.mysqlConn.query(sql, (err, data) => {
                 if (err) {
                     alert('Unable to add consolidations')
                     console.log(err)
@@ -1770,8 +1760,8 @@ DbClass.prototype.assignJobsToConGroup = async function (selGroup) {
         return
     }
     await new Promise(function (resolve, reject) {
-        let sql = `UPDATE individuals set ind_consolidated = 1 WHERE ind_id IN (${self.selectedDoneInd.join(',')})`
-        connection.query(sql, (err, data) => {
+        let sql = `UPDATE individuals set ind_consolidated = 1 WHERE ind_id IN (${doneIds.join(',')})`
+        self.mysqlConn.query(sql, (err, data) => {
             if (err) {
                 alert('Unable to update consolidations done')
                 console.log(err)
@@ -1780,7 +1770,6 @@ DbClass.prototype.assignJobsToConGroup = async function (selGroup) {
             resolve(data)
         })
     })
-    connection.end()
     window.location.replace('consolidations.html')
 }
 

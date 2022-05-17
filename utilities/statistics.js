@@ -324,6 +324,8 @@ StatisticsClass.prototype.initializeTable = function () {
         ],
         pageLength: 25,
     })
+
+    self.Helpers.applyMouseInteractions('overview-table')
 }
 
 StatisticsClass.prototype.initializeChart = function () {

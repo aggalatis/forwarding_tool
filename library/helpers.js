@@ -18,6 +18,34 @@ let HelpersClass = function () {
     this.INDIVIDUAL_COLOR = ''
     this.PERSONNEL_TEXT = ''
     this.PERSONNEL_COLOR = ''
+    this.ENGLISH_LETTER = [
+        'A',
+        'B',
+        'C',
+        'D',
+        'E',
+        'F',
+        'G',
+        'H',
+        'I',
+        'J',
+        'K',
+        'L',
+        'M',
+        'N',
+        'O',
+        'P',
+        'Q',
+        'R',
+        'S',
+        'T',
+        'U',
+        'V',
+        'W',
+        'X',
+        'Y',
+        'Z',
+    ]
     this.initializeTypes()
 }
 
@@ -187,6 +215,7 @@ HelpersClass.prototype.initliazeModalToEditJob = function (divisions, products, 
     $('#reference').val(jobData.ind_reference)
     $('#pieces').val(jobData.ind_pieces)
     $('#kg').val(jobData.ind_kg)
+    $('#dims').val(jobData.ind_dims)
 
     if (jobData.ind_kg == '0') {
         $('#kg').val('')
@@ -575,4 +604,22 @@ HelpersClass.prototype.changeProductIdstoString = function (selectedProducts, my
         }
     }
     return productsNames.join(';')
+}
+
+HelpersClass.prototype.applyMouseInteractions = function (tableID) {
+    $(`#${tableID}`).on('mouseenter', 'tbody tr', function () {
+        $(this).addClass('hover-table-tr')
+    })
+
+    $(`#${tableID}`).on('mouseleave', 'tbody tr', function () {
+        if ($(this).hasClass('hover-table-tr')) $(this).removeClass('hover-table-tr')
+    })
+
+    $(`#${tableID}`).on('click', 'tbody tr', function () {
+        if ($(this).hasClass('click-table-tr')) {
+            $(this).removeClass('click-table-tr')
+        } else {
+            $(this).addClass('click-table-tr')
+        }
+    })
 }

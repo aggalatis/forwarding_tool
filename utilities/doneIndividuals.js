@@ -121,7 +121,7 @@ DoneIndividualsClass.prototype.initializetable = async function () {
                 title: 'JOB ID',
                 orderable: false,
                 createdCell: function (td, cellData, rowData, row, col) {
-                    if (rowData.ind_parent != 0) $(td).html(`${rowData.ind_id} (${rowData.ind_parent})`)
+                    if (rowData.ind_parent != 0) $(td).html(`${rowData.ind_subid}`)
                 },
                 data: 'ind_id',
             },
@@ -188,6 +188,8 @@ DoneIndividualsClass.prototype.initializetable = async function () {
             { title: 'Timestamp', visible: false, data: 'ind_timestamp' },
             { title: 'Splitted', visible: false, data: 'ind_splitted' },
             { title: 'Parent', visible: false, data: 'ind_parent' },
+            { title: 'Is grouped', visible: false, data: 'ind_is_grouped' },
+            { title: 'Subid', visible: false, data: 'ind_subid' },
             {
                 title: 'ACTIONS',
                 orderable: false,
@@ -217,7 +219,7 @@ DoneIndividualsClass.prototype.initializetable = async function () {
                 defaultContent:
                     "<i class='fa fa-search job-edit action-btn' style='cursor: pointer' title='modify'></i> \
                     <i class='fa fa-dollar done-job-cost action-btn' style='cursor: pointer' title='costs'></i> \
-                    <i class='fa fa-sitemap split-job action-btn' style='cursor: pointer' title='split-job'></i> \
+                    <i class='fa fa-sitemap split-job action-btn' style='cursor: pointer' title='dissolve'></i> \
                     <i class='select-done-jobs' style='cursor: pointer' title='select'><img src='../assets/icons/consolidations.png'/ style='width: 15px'></i> ",
             },
         ],
@@ -225,14 +227,19 @@ DoneIndividualsClass.prototype.initializetable = async function () {
             if (data.ind_parent != 0 || data.ind_splitted != 0) {
                 $('td:eq(0)', row).css('border-left', '4px solid blue')
             }
+            if (data.ind_parent != 0) $('td', row).css('font-style', 'italic')
         },
         order: [
+            [30, 'desc'],
+            [3, 'desc'],
             [4, 'asc'],
-            [27, 'desc'],
-            [28, 'asc'],
+            [28, 'desc'],
+            [31, 'asc'],
         ],
         pageLength: 25,
     })
+
+    self.Helpers.applyMouseInteractions('done_individuals_table')
 
     $('#done_individuals_table').on('click', 'i.select-done-jobs', function () {
         var data = jobs_table.row($(this).parents('tr')).data()
@@ -258,7 +265,7 @@ DoneIndividualsClass.prototype.initializetable = async function () {
             return
         }
         Swal.fire({
-            title: 'Split Job?',
+            title: 'Dissolve Job?',
             text: `Are you sure you want to split job per vessel?`,
             icon: 'warning',
             showCancelButton: true,
@@ -322,8 +329,8 @@ DoneIndividualsClass.prototype.initializetable = async function () {
 
             var savings_percent = ((1 - group_cost / sum_estimate_cost) * 100).toFixed(2)
 
-            var savings_amount = ((data.sum_estimated_cost * savings_percent) / 100).toFixed(2)
-            var shared_cost = ((group_cost / sum_estimate_cost) * data.sum_estimated_cost).toFixed(2)
+            var savings_amount = ((data.ind_estimate_cost * savings_percent) / 100).toFixed(2)
+            var shared_cost = ((group_cost / data.sum_estimated_cost) * data.ind_estimate_cost).toFixed(2)
 
             $('#group_cost').val(self.Helpers.formatFloatValue(String(group_cost)))
             $('#group_id').val(data.ind_group_id)

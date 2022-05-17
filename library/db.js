@@ -170,7 +170,7 @@ DbClass.prototype.initializeGroupCitySelect = function (exCityName, toCityName) 
 
 /**************** INDIVIDUALS ***********************/
 
-DbClass.prototype.getAllIndividuals = function () {
+DbClass.prototype.getAllIndividuals = function (helpers) {
     let self = this
 
     var sql =
@@ -208,7 +208,8 @@ DbClass.prototype.getAllIndividuals = function () {
         ' ind_jobs.ind_currency,' +
         ' ind_jobs.ind_rate,' +
         ' individual_groups.ind_group_rate,' +
-        ' individual_groups.ind_group_currency' +
+        ' individual_groups.ind_group_currency,' +
+        ' ind_jobs.ind_dims' +
         ' FROM individuals as ind_jobs' +
         ' LEFT JOIN divisions on divisions.division_id = ind_jobs.ind_division_id' +
         ' LEFT JOIN users on users.user_id = ind_jobs.ind_user_id' +
@@ -335,7 +336,7 @@ DbClass.prototype.getAllIndividuals = function () {
                 },
             ],
             rowCallback: function (row, data, index, cells) {
-                // Here I am changing background Color
+                // Here I am changing background Color for grouped rows
                 if (data.ind_group_color != 'empty') {
                     $('td', row).css('background-color', data.ind_group_color)
                 }
@@ -347,6 +348,8 @@ DbClass.prototype.getAllIndividuals = function () {
             ],
             pageLength: 25,
         })
+
+        self.Helpers.applyMouseInteractions('jobs_table')
 
         $('#jobs_table').on('click', 'i.job-edit', function () {
             var data = jobs_table.row($(this).closest('tr')).data()
@@ -383,6 +386,7 @@ DbClass.prototype.getAllIndividuals = function () {
                 var deadline = $('#deadline_date').val()
                 let serviceType = $('#service-type-select').val()
                 let pieces = self.Helpers.formatFloatValue($('#pieces').val())
+                let dims = $('#dims').val()
 
                 if ((deadline != '') & (modeSelectValue != '') && divisionSelectValue != '' && productSelectValue != '' && vesselSelectValue != '') {
                     $(this).attr('disabled', 'disabled')
@@ -425,6 +429,7 @@ DbClass.prototype.getAllIndividuals = function () {
                             ind_service_type: serviceType == '' ? 0 : serviceType,
                             ind_rate: rate,
                             ind_currency: currencyText,
+                            ind_dims: dims,
                             old_group_id: data.ind_group_id,
                         }
 
@@ -720,7 +725,8 @@ DbClass.prototype.getAllDoneIndividuals = async function () {
         ' ind_jobs.ind_consolidated,' +
         ' ind_jobs.ind_splitted,' +
         ' ind_jobs.ind_parent,' +
-        ' UNIX_TIMESTAMP(ind_jobs.ind_confirmation_date) as ind_timestamp' +
+        ' UNIX_TIMESTAMP(ind_jobs.ind_confirmation_date) as ind_timestamp,' +
+        ' ind_jobs.ind_subid' +
         ' FROM individuals as ind_jobs' +
         ' LEFT JOIN divisions on divisions.division_id = ind_jobs.ind_division_id' +
         ' LEFT JOIN users on users.user_id = ind_jobs.ind_user_id' +
@@ -742,7 +748,7 @@ DbClass.prototype.getAllDoneIndividuals = async function () {
     })
 }
 
-DbClass.prototype.getAllDeletedIndividuals = function () {
+DbClass.prototype.getAllDeletedIndividuals = function (helpers) {
     let self = this
 
     const sql =
@@ -836,6 +842,7 @@ DbClass.prototype.getAllDeletedIndividuals = function () {
             pageLength: 25,
         })
 
+        helpers.applyMouseInteractions('deleted_individuals_table')
         $('#search_datatable').keyup(function () {
             if ($(this).val() != '') {
                 let regexp = `\\b${$(this).val()}`
@@ -853,7 +860,7 @@ DbClass.prototype.updateJob = function (jobObject) {
     let sql =
         `UPDATE individuals SET ind_division_id = ${jobObject.ind_division_id}, ind_service_type = ${jobObject.ind_service_type}, ind_products='${jobObject.ind_products}', ind_mode='${jobObject.ind_mode}', ind_vessels='${jobObject.ind_vessels}', ind_notes = '${jobObject.ind_notes}', ind_rate = ${jobObject.ind_rate}, ind_currency = '${jobObject.ind_currency}',` +
         ` ind_ex=${jobObject.ind_ex}, ind_to=${jobObject.ind_to}, ind_deadline='${jobObject.ind_deadline}', ind_forwarder='${jobObject.ind_forwarder}', ind_reference='${jobObject.ind_reference}', ind_kg = ${jobObject.ind_kg}, ind_pieces = ${jobObject.ind_pieces}, ind_estimate_cost = ${jobObject.ind_estimate_cost},` +
-        ` ind_group_id = 0 WHERE ind_id = ${jobObject.ind_id};`
+        ` ind_group_id = 0, ind_dims = '${jobObject.ind_dims}' WHERE ind_id = ${jobObject.ind_id};`
 
     self.mysqlConn.query(sql, function (error, result) {
         if (error) {
@@ -898,14 +905,14 @@ DbClass.prototype.addIndividual = function (indObj) {
     let self = this
 
     let sql =
-        `INSERT INTO individuals (ind_user_id, ind_division_id, ind_products, ind_mode, ind_vessels, ind_ex, ind_to, ind_request_date, ind_deadline, ind_forwarder, ind_status, ind_reference, ind_kg, ind_estimate_cost, ind_notes, ind_service_type, ind_pieces, ind_deleted, ind_rate, ind_currency)` +
+        `INSERT INTO individuals (ind_user_id, ind_division_id, ind_products, ind_mode, ind_vessels, ind_ex, ind_to, ind_request_date, ind_deadline, ind_forwarder, ind_status, ind_reference, ind_kg, ind_estimate_cost, ind_notes, ind_service_type, ind_pieces, ind_deleted, ind_rate, ind_currency, ind_dims, ind_subid)` +
         ` VALUES (${indObj.ind_user_id}, ${indObj.ind_division_id}, '${indObj.ind_products}', '${indObj.ind_mode}', '${indObj.ind_vessels}', '${
             indObj.ind_ex
         }', '${indObj.ind_to}', '${self.Helpers.getDateTimeNow()}', '${indObj.ind_deadline}', '${indObj.ind_forwarder}', 'Pending', '${
             indObj.ind_reference
         }', ${indObj.ind_kg}, ${indObj.ind_estimate_cost}, '${indObj.ind_notes}', ${indObj.ind_service_type}, ${indObj.ind_pieces}, 0, ${
             indObj.ind_rate
-        }, '${indObj.ind_currency}');`
+        }, '${indObj.ind_currency}', '${indObj.ind_dims}', 'w');`
 
     self.mysqlConn.query(sql, function (error, result) {
         if (error) {
@@ -1690,8 +1697,8 @@ DbClass.prototype.assignJobsToNewGroup = async function (selectedIds) {
             } else {
                 ind.ind_is_grouped == 1 ? (typeText = 'Grouped') : (typeText = 'Individual')
             }
-            sql = `INSERT INTO consolidations (con_ind_id, con_user_id, con_division_id, con_products, con_vessels, con_reference, con_kg, con_status, con_request_date, con_group_id, con_pieces, con_is_grouped, con_type)
-                    VALUES (${ind.ind_id}, ${self.Helpers.user_id}, ${ind.ind_division_id}, '${ind.ind_products}', '${ind.ind_vessels}', '${ind.ind_reference}', ${ind.ind_kg}, 'Pending', now(), ${newConGroup.insertId}, ${ind.ind_pieces}, ${ind.ind_is_grouped}, '${typeText}');`
+            sql = `INSERT INTO consolidations (con_ind_id, con_user_id, con_division_id, con_products, con_vessels, con_reference, con_kg, con_status, con_request_date, con_group_id, con_pieces, con_is_grouped, con_type, con_subid)
+                    VALUES (${ind.ind_id}, ${self.Helpers.user_id}, ${ind.ind_division_id}, '${ind.ind_products}', '${ind.ind_vessels}', '${ind.ind_reference}', ${ind.ind_kg}, 'Pending', now(), ${newConGroup.insertId}, ${ind.ind_pieces}, ${ind.ind_is_grouped}, '${typeText}', '${ind.ind_subid}');`
             connection.query(sql, (err, data) => {
                 if (err) {
                     alert('Unable to add consolidations')
@@ -1743,8 +1750,8 @@ DbClass.prototype.assignJobsToConGroup = async function (selGroup, doneIds) {
             } else {
                 ind.ind_is_grouped == 1 ? (typeText = 'Grouped') : (typeText = 'Individual')
             }
-            sql = `INSERT INTO consolidations (con_ind_id, con_user_id, con_division_id, con_products, con_vessels, con_reference, con_kg, con_status, con_request_date, con_group_id, con_pieces, con_is_grouped, con_type)
-                    VALUES (${ind.ind_id}, ${self.Helpers.user_id}, ${ind.ind_division_id}, '${ind.ind_products}', '${ind.ind_vessels}', '${ind.ind_reference}', ${ind.ind_kg}, 'Pending', now(), ${selGroup}, ${ind.ind_pieces}, ${ind.ind_is_grouped}, '${typeText}');`
+            sql = `INSERT INTO consolidations (con_ind_id, con_user_id, con_division_id, con_products, con_vessels, con_reference, con_kg, con_status, con_request_date, con_group_id, con_pieces, con_is_grouped, con_type, con_subid)
+                    VALUES (${ind.ind_id}, ${self.Helpers.user_id}, ${ind.ind_division_id}, '${ind.ind_products}', '${ind.ind_vessels}', '${ind.ind_reference}', ${ind.ind_kg}, 'Pending', now(), ${selGroup}, ${ind.ind_pieces}, ${ind.ind_is_grouped}, '${typeText}', '${ind.ind_subid}');`
             self.mysqlConn.query(sql, (err, data) => {
                 if (err) {
                     alert('Unable to add consolidations')
@@ -1821,8 +1828,8 @@ DbClass.prototype.assignConJobsToNewGroup = async function (jobs) {
     let conAdded = await new Promise(function (resolve, reject) {
         let sql = ''
         for (let con of cons) {
-            sql = `INSERT INTO consolidations (con_ind_id, con_done_id, con_user_id, con_division_id, con_products, con_vessels, con_reference, con_kg, con_status, con_request_date, con_group_id, con_pieces, con_type)
-                    VALUES (${con.cond_ind_id}, ${con.cond_id}, ${self.Helpers.user_id}, ${con.cond_division_id}, '${con.cond_products}', '${con.cond_vessels}', '${con.cond_reference}', ${con.cond_kg}, 'Pending', now(), ${newConGroup.insertId}, ${con.cond_pieces}, '${self.Helpers.LOCAL_SERVICE_TYPE_TEXT}');`
+            sql = `INSERT INTO consolidations (con_ind_id, con_done_id, con_user_id, con_division_id, con_products, con_vessels, con_reference, con_kg, con_status, con_request_date, con_group_id, con_pieces, con_type, con_subid)
+                    VALUES (${con.cond_ind_id}, ${con.cond_id}, ${self.Helpers.user_id}, ${con.cond_division_id}, '${con.cond_products}', '${con.cond_vessels}', '${con.cond_reference}', ${con.cond_kg}, 'Pending', now(), ${newConGroup.insertId}, ${con.cond_pieces}, '${self.Helpers.LOCAL_SERVICE_TYPE_TEXT}', '${con.cond_subid}');`
             connection.query(sql, (err, data) => {
                 if (err) {
                     alert('Unable to add consolidations')
@@ -1883,8 +1890,8 @@ DbClass.prototype.assignConJobsToConGroup = async function (selGroup, jobs) {
     let conAdded = await new Promise(function (resolve, reject) {
         let sql = ''
         for (let con of cons) {
-            sql = `INSERT INTO consolidations (con_ind_id, con_done_id, con_user_id, con_division_id, con_products, con_vessels, con_reference, con_kg, con_status, con_request_date, con_group_id, con_pieces, con_type)
-                    VALUES (${con.cond_ind_id}, ${con.cond_id}, ${self.Helpers.user_id}, ${con.cond_division_id}, '${con.cond_products}', '${con.cond_vessels}', '${con.cond_reference}', ${con.cond_kg}, 'Pending', now(), ${selGroup}, ${con.cond_pieces}, '${self.Helpers.LOCAL_SERVICE_TYPE_TEXT}');`
+            sql = `INSERT INTO consolidations (con_ind_id, con_done_id, con_user_id, con_division_id, con_products, con_vessels, con_reference, con_kg, con_status, con_request_date, con_group_id, con_pieces, con_type, con_subid)
+                    VALUES (${con.cond_ind_id}, ${con.cond_id}, ${self.Helpers.user_id}, ${con.cond_division_id}, '${con.cond_products}', '${con.cond_vessels}', '${con.cond_reference}', ${con.cond_kg}, 'Pending', now(), ${selGroup}, ${con.cond_pieces}, '${self.Helpers.LOCAL_SERVICE_TYPE_TEXT}', '${con.cond_subid}');`
             connection.query(sql, (err, data) => {
                 if (err) {
                     alert('Unable to add consolidations')
@@ -2575,11 +2582,11 @@ DbClass.prototype.confirmConsGroup = async function (data) {
         let sql = ''
         for (let con of cons) {
             if (con.con_done_id == null) {
-                sql = `INSERT INTO consolidations_done (cond_ind_id, cond_con_done_id, cond_user_id, cond_division_id, cond_products, cond_vessels, cond_reference, cond_kg, cond_status, cond_request_date, cond_group_id, cond_pieces, cond_is_grouped, cond_estimate_cost, cond_service_type, cond_type)
-                VALUES (${con.con_ind_id}, ${con.con_done_id}, ${self.Helpers.user_id}, ${con.con_division_id}, '${con.con_products}', '${con.con_vessels}', '${con.con_reference}', ${con.con_kg}, 'Done', '${con.con_request_date}', ${con.con_group_id}, ${con.con_pieces}, ${con.con_is_grouped}, ${con.con_estimate_cost}, ${con.con_group_service_type}, '${con.con_type}');`
+                sql = `INSERT INTO consolidations_done (cond_ind_id, cond_con_done_id, cond_user_id, cond_division_id, cond_products, cond_vessels, cond_reference, cond_kg, cond_status, cond_request_date, cond_group_id, cond_pieces, cond_is_grouped, cond_estimate_cost, cond_service_type, cond_type, cond_subid)
+                VALUES (${con.con_ind_id}, ${con.con_done_id}, ${self.Helpers.user_id}, ${con.con_division_id}, '${con.con_products}', '${con.con_vessels}', '${con.con_reference}', ${con.con_kg}, 'Done', '${con.con_request_date}', ${con.con_group_id}, ${con.con_pieces}, ${con.con_is_grouped}, ${con.con_estimate_cost}, ${con.con_group_service_type}, '${con.con_type}', '${con.con_subid}');`
             } else {
-                sql = `INSERT INTO consolidations_done (cond_ind_id, cond_con_done_id, cond_consolidated, cond_user_id, cond_division_id, cond_products, cond_vessels, cond_reference, cond_kg, cond_status, cond_request_date, cond_group_id, cond_pieces, cond_is_grouped, cond_estimate_cost, cond_service_type, cond_type)
-                VALUES (${con.con_ind_id}, ${con.con_done_id}, 1, ${self.Helpers.user_id}, ${con.con_division_id}, '${con.con_products}', '${con.con_vessels}', '${con.con_reference}', ${con.con_kg}, 'Done', '${con.con_request_date}', ${con.con_group_id}, ${con.con_pieces}, ${con.con_is_grouped}, ${con.con_estimate_cost}, ${con.con_group_service_type}, '${con.con_type}');`
+                sql = `INSERT INTO consolidations_done (cond_ind_id, cond_con_done_id, cond_consolidated, cond_user_id, cond_division_id, cond_products, cond_vessels, cond_reference, cond_kg, cond_status, cond_request_date, cond_group_id, cond_pieces, cond_is_grouped, cond_estimate_cost, cond_service_type, cond_type, cond_subid)
+                VALUES (${con.con_ind_id}, ${con.con_done_id}, 2, ${self.Helpers.user_id}, ${con.con_division_id}, '${con.con_products}', '${con.con_vessels}', '${con.con_reference}', ${con.con_kg}, 'Done', '${con.con_request_date}', ${con.con_group_id}, ${con.con_pieces}, ${con.con_is_grouped}, ${con.con_estimate_cost}, ${con.con_group_service_type}, '${con.con_type}', '${con.con_subid}');`
             }
             self.mysqlConn.query(sql, (err, data) => {
                 if (err) {
@@ -2851,7 +2858,12 @@ DbClass.prototype.getConsolidationDoneByReference = async function (reference) {
         left join cities c ON c.city_id = cg.con_group_ex 
         left join cities c2 ON c2.city_id = cg.con_group_to
         left join service_types st on st.service_type_id = cg.con_group_service_type
-        where cond_reference like '%${reference}%';`
+        where 
+         (cond_reference like '%${reference}%' and con.cond_delivered_on_board = 1)
+        or
+         (cond_reference like '%${reference}%'
+         and con.cond_delivered_on_board = 0 
+         and (SELECT count(*) FROM consolidations_done cd WHERE cd.cond_delivered_on_board != con.cond_delivered_on_board and cd.cond_group_id = con.cond_group_id) = 0)`
         self.mysqlConn.query(sql, (err, data) => {
             if (err) {
                 alert('Unable to find cond by reference')
@@ -2913,10 +2925,11 @@ DbClass.prototype.splitJob = async function (jd) {
 
     const insertedIndividuals = await new Promise(function (resolve, reject) {
         let vessels = jd.ind_vessels.split(';')
+        let counter = 0
         for (let vess of vessels) {
             let sql =
-                `INSERT INTO individuals (ind_user_id, ind_division_id, ind_vessels, ind_ex, ind_to, ind_request_date, ind_is_grouped, ind_consolidated, ind_deadline, ind_status, ind_forwarder, ind_mode, ind_confirmation_date, ind_group_id, ind_deleted, ind_service_type, ind_splitted, ind_parent)` +
-                ` VALUES (${jd.ind_user_id}, ${jd.ind_division_id}, '${vess}',  ${jd.ind_ex}, ${jd.ind_to}, '${jd.original_request_date}', ${jd.ind_is_grouped}, 0, '${jd.original_deadline}', 'Done', '${jd.ind_forwarder}', '${jd.ind_mode}', '${jd.original_confirmation_date}', ${jd.ind_group_id}, 0, ${jd.ind_service_type}, 0, ${jd.ind_id});`
+                `INSERT INTO individuals (ind_user_id, ind_division_id, ind_vessels, ind_ex, ind_to, ind_request_date, ind_is_grouped, ind_consolidated, ind_deadline, ind_status, ind_forwarder, ind_mode, ind_confirmation_date, ind_group_id, ind_deleted, ind_service_type, ind_splitted, ind_parent, ind_subid)` +
+                ` VALUES (${jd.ind_user_id}, ${jd.ind_division_id}, '${vess}',  ${jd.ind_ex}, ${jd.ind_to}, '${jd.original_request_date}', ${jd.ind_is_grouped}, 0, '${jd.original_deadline}', 'Done', '${jd.ind_forwarder}', '${jd.ind_mode}', '${jd.original_confirmation_date}', ${jd.ind_group_id}, 0, ${jd.ind_service_type}, 0, ${jd.ind_id}, '${jd.ind_id} (${self.Helpers.ENGLISH_LETTER[counter]})');`
             self.mysqlConn.query(sql, (err, data) => {
                 if (err) {
                     alert('ERROR on INSERT individuals')
@@ -2924,6 +2937,7 @@ DbClass.prototype.splitJob = async function (jd) {
                     reject(false)
                 }
             })
+            counter++
         }
         resolve(true)
     })

@@ -2950,3 +2950,10 @@ body .jqstooltip {
     color: black !important;
     font-weight: bold !important;
 }
+
+.hover-table-tr {
+    border: 3px solid #00ffff;
+}
+.click-table-tr {
+    border: 3px solid #00ffff;
+}

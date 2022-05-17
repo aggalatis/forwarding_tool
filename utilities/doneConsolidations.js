@@ -127,7 +127,14 @@ DoneConsolidationsClass.prototype.initializetable = async function () {
         bLengthChange: false,
         columns: [
             { title: 'ID', orderable: false, data: 'cond_id', visible: false },
-            { title: 'JOB ID', orderable: false, data: 'cond_ind_id' },
+            {
+                title: 'JOB ID',
+                orderable: false,
+                data: 'cond_ind_id',
+                createdCell: function (td, cellData, rowData, row, col) {
+                    if (rowData.cond_subid != null && rowData.cond_subid != 'w') $(td).html(`${rowData.cond_subid}`)
+                },
+            },
             {
                 title: 'CONSOL. ID',
                 orderable: false,
@@ -178,7 +185,7 @@ DoneConsolidationsClass.prototype.initializetable = async function () {
                 title: 'RE-CONSOLIDATED',
                 orderable: false,
                 createdCell: function (td, cellData, rowData, row, col) {
-                    if (rowData.cond_consolidated != 1) {
+                    if (rowData.cond_consolidated == null || rowData.cond_consolidated == 0) {
                         $(td).html('NO').css('color', 'red').css('font-weight', 'bold')
                     } else {
                         $(td).html('YES').css('color', 'green').css('font-weight', 'bold')
@@ -204,7 +211,11 @@ DoneConsolidationsClass.prototype.initializetable = async function () {
                 createdCell: function (td, cellData, rowData, row, col) {
                     if (rowData.cond_status != 'Done') $(td).children('.select-done-jobs').hide()
                     if (rowData.cond_delivered_on_board != '' && rowData.cond_delivered_on_board != null) $(td).children('.select-done-jobs').hide()
-                    if (rowData.cond_consolidated == 1) $(td).children('.select-done-jobs').hide()
+                    if (rowData.cond_consolidated == 1) {
+                        $(td).children('.select-done-jobs').hide()
+                        $(td).children('.delivery-edit').hide()
+                        $(td).children('.flag-job').hide()
+                    }
                 },
                 defaultContent:
                     "<i class='fa fa-search job-edit action-btn' style='cursor: pointer' title='modify'></i> \
@@ -224,6 +235,8 @@ DoneConsolidationsClass.prototype.initializetable = async function () {
         order: [[2, 'desc']],
         pageLength: 25,
     })
+
+    self.Helpers.applyMouseInteractions('done_consolidations_table')
     $('#done_consolidations_table').on('click', 'i.select-done-jobs', function () {
         var data = doneConsTable.row($(this).parents('tr')).data()
         if (!self.Helpers.checkIfUserHasPriviledges(data.user_username)) {
@@ -277,8 +290,8 @@ DoneConsolidationsClass.prototype.initializetable = async function () {
         const data = doneConsTable.row($(this).parents('tr')).data()
         if (data.cond_delivered_on_board == 1) {
             Swal.fire({
-                title: 'Revert Delivery?',
-                text: `Undo delivery on board for this job. Once you apply the job will be available for reconsolidation.`,
+                title: 'Undo Delivery?',
+                text: `Once confirmed the job will be available for reconsolidation.`,
                 icon: 'warning',
                 showCancelButton: true,
                 cancelButtonText: 'Cancel',
@@ -292,8 +305,8 @@ DoneConsolidationsClass.prototype.initializetable = async function () {
             })
         } else {
             Swal.fire({
-                title: 'Deliver group?',
-                text: `Group delivered on board? Once you confirm delivery you wan't be able to revert it.`,
+                title: 'Delivered on board?',
+                text: ``,
                 icon: 'warning',
                 showCancelButton: true,
                 cancelButtonText: 'Cancel',

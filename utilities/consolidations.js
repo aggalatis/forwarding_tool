@@ -36,7 +36,15 @@ ConsolidationsClass.prototype.initializetable = async function () {
         bLengthChange: false,
         columns: [
             { title: 'ID', orderable: false, data: 'con_id', visible: false },
-            { title: 'JOB ID', orderable: false, data: 'con_ind_id', visible: true },
+            {
+                title: 'JOB ID',
+                orderable: false,
+                data: 'con_ind_id',
+                visible: true,
+                createdCell: function (td, cellData, rowData, row, col) {
+                    if (rowData.con_subid != null && rowData.con_subid != 'w') $(td).html(`${rowData.con_subid}`)
+                },
+            },
             { title: 'CONSOLIDATION ID', orderable: false, data: 'group_id' },
             { title: 'REQ. DATE', orderable: false, data: 'con_request_date' },
             { title: 'USER', orderable: false, data: 'user_username' },
@@ -109,6 +117,8 @@ ConsolidationsClass.prototype.initializetable = async function () {
         order: [[2, 'desc']],
         pageLength: 25,
     })
+
+    self.Helpers.applyMouseInteractions('consolidations_table')
     $('#consolidations_table').on('click', 'i.delete-job', function () {
         var data = consolidationsTable.row($(this).closest('tr')).data()
         console.log(data)

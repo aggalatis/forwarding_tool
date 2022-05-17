@@ -11,11 +11,7 @@ let win
 // Some APIs can only be used after this event occurs.
 
 app.on('ready', () => {
-    const { width, height } = electron.screen.getPrimaryDisplay().workAreaSize
-
     win = new BrowserWindow({
-        width: width,
-        height: height,
         //frame: false, makes the application to have no frame at all
         webPreferences: {
             nodeIntegration: true,

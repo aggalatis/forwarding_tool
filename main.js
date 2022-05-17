@@ -5,6 +5,7 @@ const ipcRenderer = require('electron').ipcRenderer
 // Keep a global reference of the window object, if you don't, the window will
 // be closed automatically when the JavaScript object is garbage collected.
 let win
+let win_transfers
 
 // This method will be called when Electron has finished.
 // initialization and is ready to create browser windows.
@@ -68,6 +69,16 @@ app.on('ready', () => {
             if (win) {
                 win.close()
             }
+        })
+    })
+    ipcMain.on('print', (event, arg) => {
+        win_transfers.webContents.print({
+            pageRanges: [
+                {
+                    from: 0,
+                    to: 1,
+                },
+            ],
         })
     })
 })

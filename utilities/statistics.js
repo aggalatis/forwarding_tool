@@ -375,9 +375,5 @@ StatisticsClass.prototype.initializeChart = function () {
 }
 
 StatisticsClass.prototype.takeScreenShot = async function () {
-    $('.page-container').printThis({
-        importCSS: true,
-        importStyle: true,
-        canvas: true,
-    })
+    ipcRenderer.send('print')
 }

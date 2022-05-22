@@ -20,16 +20,13 @@ let DbClass = function () {
 
 DbClass.prototype.getServerDataFromRegistry = function () {
     let self = this
+    const params = require('C:\\ForwardTool\\parameters.json')
 
-    let fs = require('fs')
-    var dbFile = fs.readFileSync('C:\\ForwardTool\\dbdata.agcfg', 'utf8')
-
-    var dbFileData = dbFile.split(';')
-    self.database = dbFileData[0]
-    self.port = dbFileData[1]
-    self.serverIP = dbFileData[2]
-    self.user = dbFileData[3]
-    self.dbpass = dbFileData[4]
+    self.database = params.db.database
+    self.port = params.db.port
+    self.serverIP = params.db.host
+    self.user = params.db.username
+    self.dbpass = params.db.password
     self.connectToDatabase()
 }
 
@@ -208,8 +205,7 @@ DbClass.prototype.getAllIndividuals = function (helpers) {
         ' ind_jobs.ind_currency,' +
         ' ind_jobs.ind_rate,' +
         ' individual_groups.ind_group_rate,' +
-        ' individual_groups.ind_group_currency,' +
-        ' ind_jobs.ind_dims' +
+        ' individual_groups.ind_group_currency' +
         ' FROM individuals as ind_jobs' +
         ' LEFT JOIN divisions on divisions.division_id = ind_jobs.ind_division_id' +
         ' LEFT JOIN users on users.user_id = ind_jobs.ind_user_id' +
@@ -251,6 +247,11 @@ DbClass.prototype.getAllIndividuals = function (helpers) {
                     title: 'SERVICE',
                     orderable: false,
                     data: 'service_type_description',
+                    createdCell: function (td, cellData, rowData, row, col) {
+                        if (rowData.service_type_description == self.Helpers.LOCAL_SERVICE_TYPE_TEXT) {
+                            $(td).css('color', self.Helpers.LOCAL_SERVICE_COLOR).css('font-weight', 'bold')
+                        }
+                    },
                 },
                 { title: 'VESSELS', orderable: false, data: 'ind_vessels' },
                 {
@@ -328,7 +329,8 @@ DbClass.prototype.getAllIndividuals = function (helpers) {
                                 if (self.Helpers.groupDataAreEmpty(rowData)) $(td).children('.confirm-job').hide()
                             }
                         } else {
-                            if (self.Helpers.individualDataAreEmpty(rowData, false)) $(td).children('.confirm-job').hide()
+                            let isLocal = rowData.service_type_description == self.Helpers.LOCAL_SERVICE_TYPE_TEXT ? true : false
+                            if (self.Helpers.individualDataAreEmpty(rowData, false, isLocal)) $(td).children('.confirm-job').hide()
                         }
                     },
                     defaultContent:
@@ -386,7 +388,6 @@ DbClass.prototype.getAllIndividuals = function (helpers) {
                 var deadline = $('#deadline_date').val()
                 let serviceType = $('#service-type-select').val()
                 let pieces = self.Helpers.formatFloatValue($('#pieces').val())
-                let dims = $('#dims').val()
 
                 if ((deadline != '') & (modeSelectValue != '') && divisionSelectValue != '' && productSelectValue != '' && vesselSelectValue != '') {
                     $(this).attr('disabled', 'disabled')
@@ -429,7 +430,6 @@ DbClass.prototype.getAllIndividuals = function (helpers) {
                             ind_service_type: serviceType == '' ? 0 : serviceType,
                             ind_rate: rate,
                             ind_currency: currencyText,
-                            ind_dims: dims,
                             old_group_id: data.ind_group_id,
                         }
 
@@ -458,8 +458,9 @@ DbClass.prototype.getAllIndividuals = function (helpers) {
                 return
             }
 
-            if (data.ind_mode == 'Personnel') {
-                if (self.Helpers.individualDataAreEmpty(data, false)) {
+            if (data.ind_mode == self.Helpers.PERSONNEL_TEXT || data.service_type_description == self.Helpers.LOCAL_SERVICE_TYPE_TEXT) {
+                let isLocal = data.service_type_description == self.Helpers.LOCAL_SERVICE_TYPE_TEXT ? true : false
+                if (self.Helpers.individualDataAreEmpty(data, false, isLocal)) {
                     Swal.fire({
                         title: 'Unable to confirm this job.',
                         text: 'Some data are empty. You cannot confirm this job.',
@@ -726,7 +727,8 @@ DbClass.prototype.getAllDoneIndividuals = async function () {
         ' ind_jobs.ind_splitted,' +
         ' ind_jobs.ind_parent,' +
         ' UNIX_TIMESTAMP(ind_jobs.ind_confirmation_date) as ind_timestamp,' +
-        ' ind_jobs.ind_subid' +
+        ' ind_jobs.ind_subid,' +
+        ' ind_jobs.ind_split_color' +
         ' FROM individuals as ind_jobs' +
         ' LEFT JOIN divisions on divisions.division_id = ind_jobs.ind_division_id' +
         ' LEFT JOIN users on users.user_id = ind_jobs.ind_user_id' +
@@ -860,7 +862,7 @@ DbClass.prototype.updateJob = function (jobObject) {
     let sql =
         `UPDATE individuals SET ind_division_id = ${jobObject.ind_division_id}, ind_service_type = ${jobObject.ind_service_type}, ind_products='${jobObject.ind_products}', ind_mode='${jobObject.ind_mode}', ind_vessels='${jobObject.ind_vessels}', ind_notes = '${jobObject.ind_notes}', ind_rate = ${jobObject.ind_rate}, ind_currency = '${jobObject.ind_currency}',` +
         ` ind_ex=${jobObject.ind_ex}, ind_to=${jobObject.ind_to}, ind_deadline='${jobObject.ind_deadline}', ind_forwarder='${jobObject.ind_forwarder}', ind_reference='${jobObject.ind_reference}', ind_kg = ${jobObject.ind_kg}, ind_pieces = ${jobObject.ind_pieces}, ind_estimate_cost = ${jobObject.ind_estimate_cost},` +
-        ` ind_group_id = 0, ind_dims = '${jobObject.ind_dims}' WHERE ind_id = ${jobObject.ind_id};`
+        ` ind_group_id = 0 WHERE ind_id = ${jobObject.ind_id};`
 
     self.mysqlConn.query(sql, function (error, result) {
         if (error) {
@@ -869,8 +871,8 @@ DbClass.prototype.updateJob = function (jobObject) {
             throw error
         } else {
             $('#add-job-modal').modal('hide')
-            if (jobObject.ind_mode == 'Personnel') {
-                self.handleGroupForPersonnel(jobObject.ind_id)
+            if (jobObject.ind_mode == self.Helpers.PERSONNEL_TEXT || jobObject.ind_service_type == self.Helpers.LOCAL_SERVICE_TYPE_ID) {
+                self.handleGroupForNonGrouping(jobObject.ind_id)
             } else {
                 self.handleIndividualGroupsUpdate(jobObject)
             }
@@ -905,14 +907,14 @@ DbClass.prototype.addIndividual = function (indObj) {
     let self = this
 
     let sql =
-        `INSERT INTO individuals (ind_user_id, ind_division_id, ind_products, ind_mode, ind_vessels, ind_ex, ind_to, ind_request_date, ind_deadline, ind_forwarder, ind_status, ind_reference, ind_kg, ind_estimate_cost, ind_notes, ind_service_type, ind_pieces, ind_deleted, ind_rate, ind_currency, ind_dims, ind_subid)` +
+        `INSERT INTO individuals (ind_user_id, ind_division_id, ind_products, ind_mode, ind_vessels, ind_ex, ind_to, ind_request_date, ind_deadline, ind_forwarder, ind_status, ind_reference, ind_kg, ind_estimate_cost, ind_notes, ind_service_type, ind_pieces, ind_deleted, ind_rate, ind_currency, ind_subid)` +
         ` VALUES (${indObj.ind_user_id}, ${indObj.ind_division_id}, '${indObj.ind_products}', '${indObj.ind_mode}', '${indObj.ind_vessels}', '${
             indObj.ind_ex
         }', '${indObj.ind_to}', '${self.Helpers.getDateTimeNow()}', '${indObj.ind_deadline}', '${indObj.ind_forwarder}', 'Pending', '${
             indObj.ind_reference
         }', ${indObj.ind_kg}, ${indObj.ind_estimate_cost}, '${indObj.ind_notes}', ${indObj.ind_service_type}, ${indObj.ind_pieces}, 0, ${
             indObj.ind_rate
-        }, '${indObj.ind_currency}', '${indObj.ind_dims}', 'w');`
+        }, '${indObj.ind_currency}', 'w');`
 
     self.mysqlConn.query(sql, function (error, result) {
         if (error) {
@@ -921,8 +923,8 @@ DbClass.prototype.addIndividual = function (indObj) {
             throw error
         } else {
             $('#add-job-modal').modal('hide')
-            if (indObj.ind_mode == 'Personnel') {
-                self.handleGroupForPersonnel(result.insertId)
+            if (indObj.ind_mode == self.Helpers.PERSONNEL_TEXT || indObj.ind_service_type == self.Helpers.LOCAL_SERVICE_TYPE_ID) {
+                self.handleGroupForNonGrouping(result.insertId)
             } else {
                 self.handleIndividualGroups(indObj, result.insertId)
             }
@@ -973,21 +975,7 @@ DbClass.prototype.confirmPersonnel = function (personnelID) {
         personnelID +
         ' AND ind_deleted = 0;'
 
-    var mysql = require('mysql')
-
-    var connection = mysql.createConnection({
-        host: self.serverIP,
-        user: self.user,
-        password: self.dbpass,
-        database: self.database,
-        port: self.port,
-        dateStrings: true,
-        multipleStatements: true,
-    })
-
-    connection.connect()
-
-    connection.query(sql, function (error, result) {
+    self.mysqlConn.query(sql, function (error, result) {
         if (error) {
             alert('Unable to confirm job.')
             throw error
@@ -999,8 +987,6 @@ DbClass.prototype.confirmPersonnel = function (personnelID) {
             self.getAllIndividuals()
         }
     })
-
-    connection.end()
 }
 
 DbClass.prototype.handleIndividualGroups = function (individualData, insertedID) {
@@ -1130,7 +1116,6 @@ DbClass.prototype.handleIndividualGroups = function (individualData, insertedID)
                             newConnection.end()
                         }
                     })
-
                     updateConnections.end()
                 } else {
                     var new_sql =
@@ -1148,7 +1133,6 @@ DbClass.prototype.handleIndividualGroups = function (individualData, insertedID)
                         if (error) throw error
                         self.checkIfThereIsOneJobAloneGrouped()
                     })
-
                     newConnection.end()
                 }
             }
@@ -1554,25 +1538,12 @@ DbClass.prototype.emptyDeletedIndividuals = function () {
     connection.end()
 }
 
-DbClass.prototype.handleGroupForPersonnel = function (individualId) {
+DbClass.prototype.handleGroupForNonGrouping = function (individualId) {
     let self = this
 
-    var updateInd = 'UPDATE individuals SET ind_group_id = 0, ind_is_grouped = 0 WHERE ind_id = ' + individualId + ';'
+    const updateInd = 'UPDATE individuals SET ind_group_id = 0, ind_is_grouped = 0 WHERE ind_id = ' + individualId + ';'
 
-    var mysql = require('mysql')
-
-    var connection = mysql.createConnection({
-        host: self.serverIP,
-        user: self.user,
-        password: self.dbpass,
-        database: self.database,
-        port: self.port,
-        dateStrings: true,
-    })
-
-    connection.connect()
-
-    connection.query(updateInd, function (error, result) {
+    self.mysqlConn.query(updateInd, function (error, result) {
         if (error) {
             self.Helpers.toastr('error', 'Unable to manage personnel Group.')
             throw error
@@ -2018,7 +1989,7 @@ DbClass.prototype.updateServiceType = function (serviceTypeData) {
     connection.end()
 }
 
-DbClass.prototype.addCity = function (cityName) {
+DbClass.prototype.addCity = function (cityName, refresh = true) {
     let self = this
 
     var sql = 'INSERT INTO cities (city_name) VALUES ("' + cityName + '");'
@@ -2044,7 +2015,7 @@ DbClass.prototype.addCity = function (cityName) {
         } else {
             self.Helpers.toastr('success', 'City added successfully.')
             setTimeout(function () {
-                window.location.reload()
+                if (refresh) window.location.reload()
             }, 2000)
         }
     })
@@ -2549,7 +2520,7 @@ DbClass.prototype.updateConGroupData = function (groupData) {
     if (groupData.groupServiceType == '') groupData.groupServiceType = null
 
     const sql = `UPDATE consolidation_groups SET con_group_ex = ${groupData.groupEx}, con_group_to = ${groupData.groupTo}, con_group_cost = ${groupData.groupCost}, con_group_forwarder = '${groupData.groupForwarder}', con_group_rate = ${groupData.groupRate},
-        con_group_deadline = '${groupData.groupDeadline}', con_group_mode = '${groupData.groupMode}', con_group_service_type = ${groupData.groupServiceType}, con_group_local_cost = ${groupData.groupLocalCost}, con_group_currency = '${groupData.groupCurrency}' WHERE con_group_id = ${groupData.groupId}`
+        con_group_deadline = '${groupData.groupDeadline}', con_group_mode = '${groupData.groupMode}', con_group_service_type = ${groupData.groupServiceType}, con_group_local_cost = ${groupData.groupLocalCost}, con_group_currency = '${groupData.groupCurrency}', con_group_notes = '${groupData.groupNotes}' WHERE con_group_id = ${groupData.groupId}`
     return new Promise((resolve, reject) => {
         self.mysqlConn.query(sql, function (error, data) {
             if (error) {
@@ -2923,13 +2894,15 @@ DbClass.prototype.revertOnBoardDelivery = async function (jobId) {
 DbClass.prototype.splitJob = async function (jd) {
     let self = this
 
+    const randomNumber = Math.floor(Math.random() * (self.colors.length - 1))
+    const colorCode = self.colors[randomNumber].color_code
     const insertedIndividuals = await new Promise(function (resolve, reject) {
         let vessels = jd.ind_vessels.split(';')
         let counter = 0
         for (let vess of vessels) {
             let sql =
-                `INSERT INTO individuals (ind_user_id, ind_division_id, ind_vessels, ind_ex, ind_to, ind_request_date, ind_is_grouped, ind_consolidated, ind_deadline, ind_status, ind_forwarder, ind_mode, ind_confirmation_date, ind_group_id, ind_deleted, ind_service_type, ind_splitted, ind_parent, ind_subid)` +
-                ` VALUES (${jd.ind_user_id}, ${jd.ind_division_id}, '${vess}',  ${jd.ind_ex}, ${jd.ind_to}, '${jd.original_request_date}', ${jd.ind_is_grouped}, 0, '${jd.original_deadline}', 'Done', '${jd.ind_forwarder}', '${jd.ind_mode}', '${jd.original_confirmation_date}', ${jd.ind_group_id}, 0, ${jd.ind_service_type}, 0, ${jd.ind_id}, '${jd.ind_id} (${self.Helpers.ENGLISH_LETTER[counter]})');`
+                `INSERT INTO individuals (ind_user_id, ind_division_id, ind_vessels, ind_ex, ind_to, ind_request_date, ind_is_grouped, ind_consolidated, ind_deadline, ind_status, ind_forwarder, ind_mode, ind_confirmation_date, ind_group_id, ind_deleted, ind_service_type, ind_splitted, ind_parent, ind_subid, ind_split_color)` +
+                ` VALUES (${jd.ind_user_id}, ${jd.ind_division_id}, '${vess}',  ${jd.ind_ex}, ${jd.ind_to}, '${jd.original_request_date}', ${jd.ind_is_grouped}, 0, '${jd.original_deadline}', 'Done', '${jd.ind_forwarder}', '${jd.ind_mode}', '${jd.original_confirmation_date}', ${jd.ind_group_id}, 0, ${jd.ind_service_type}, 0, ${jd.ind_id}, '${jd.ind_id} (${self.Helpers.ENGLISH_LETTER[counter]})', '${colorCode}');`
             self.mysqlConn.query(sql, (err, data) => {
                 if (err) {
                     alert('ERROR on INSERT individuals')
@@ -2943,7 +2916,7 @@ DbClass.prototype.splitJob = async function (jd) {
     })
     if (!insertedIndividuals) return
     await new Promise(function (resolve, reject) {
-        let sql = `UPDATE individuals SET ind_splitted = 1 WHERE ind_id = ${jd.ind_id} LIMIT 1;`
+        let sql = `UPDATE individuals SET ind_splitted = 1, ind_split_color = '${colorCode}'  WHERE ind_id = ${jd.ind_id} LIMIT 1;`
         self.mysqlConn.query(sql, (err, data) => {
             if (err) {
                 alert('ERROR on UPDATED individuals')

@@ -2944,6 +2944,8 @@ body .jqstooltip {
 .parent-header {
     color: black;
     text-align: center;
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
 }
 
 .bold-label {
@@ -2956,4 +2958,33 @@ body .jqstooltip {
 }
 .click-table-tr {
     border: 3px solid #00ffff;
+}
+
+.ind-table-header {
+    background: #f08080 !important;
+    background-color: #f08080;
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact;
+}
+.group-table-header {
+    background: #90ee90 !important;
+    background-color: #90ee90;
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact;
+}
+.pers-table-header {
+    background: #add8e6 !important;
+    background-color: #add8e6;
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact;
+}
+.cons-table-header {
+    background: #f0e68c !important;
+    background-color: #f0e68c;
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact;
+}
+
+.company-logo {
+    display: none;
 }

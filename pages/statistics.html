@@ -142,7 +142,7 @@
                 <div class="col-12 p-0">
 
 
-                    <img src="../assets/icons/new_diana_logo.png">
+                    <img class="company-logo" src="../assets/icons/new_diana_logo.png">
 
                     <ul class="list-unstyled m-0 float-right">
                         <li class="">
@@ -361,19 +361,19 @@
                         </div>
                         <div class="chart-legends d-block d-md-flex justify-content-center">
                             <div class="legend-value-w ml-0 ml-md-2 mr-0 mr-md-2">
-                                <div class="legend-pin" style="background-color: #F08080;"></div>
+                                <div class="legend-pin ind-table-header" ></div>
                                 <div class="legend-value">INDIVIDUAL</div>
                             </div>
                             <div class="legend-value-w ml-0 ml-md-2 mr-0 mr-md-2">
-                                <div class="legend-pin" style="background-color: #90EE90;"></div>
+                                <div class="legend-pin group-table-header" ></div>
                                 <div class="legend-value">GROUP</div>
                             </div>
                             <div class="legend-value-w ml-0 ml-md-2 mr-0 mr-md-2">
-                                <div class="legend-pin" style="background-color: #ADD8E6;"></div>
+                                <div class="legend-pin pers-table-header"></div>
                                 <div class="legend-value">PERSONNEL</div>
                             </div>
                             <div class="legend-value-w ml-0 ml-md-2 mr-0 mr-md-2">
-                                <div class="legend-pin" style="background-color: #F0E68C;"></div>
+                                <div class="legend-pin cons-table-header"></div>
                                 <div class="legend-value">CONSOLIDATED</div>
                             </div>
                         </div>
@@ -385,10 +385,10 @@
                         <thead>
                             <tr>
                                 <th rowspan="2" class="parent-header">DEPARTMENT</th>
-                                <th colspan="1" class="parent-header" style="background-color: #F08080">INDIVIDUAL</th>
-                                <th colspan="4" class="parent-header" style="background-color: #90EE90">GROUP</th>
-                                <th colspan="4" class="parent-header" style="background-color: #ADD8E6">PERSONNEL</th>
-                                <th colspan="4" class="parent-header" style="background-color: #F0E68C">CONSOLIDATED</th>
+                                <th colspan="1" class="parent-header ind-table-header">INDIVIDUAL</th>
+                                <th colspan="4" class="parent-header group-table-header">GROUP</th>
+                                <th colspan="4" class="parent-header pers-table-header">PERSONNEL</th>
+                                <th colspan="4" class="parent-header cons-table-header">CONSOLIDATED</th>
                                 <th colspan="3" class="parent-header">TOTALS</th>
                             </tr>
                             <tr>
@@ -410,6 +410,7 @@
                                 <th class="parent-header">TOTAL SAVING</th>
                             </tr>
                         </thead>
+                        <tbody id="overview-table-body"></tbody>
                     </table>
 
                 </div>

@@ -47,6 +47,7 @@ let HelpersClass = function () {
         'Z',
     ]
     this.initializeTypes()
+    this.initializeLogo()
 }
 
 HelpersClass.prototype.bindMovingEvents = function (elementID) {
@@ -119,24 +120,21 @@ HelpersClass.prototype.initializeUser = function () {
 HelpersClass.prototype.initializeTypes = function () {
     let self = this
 
-    let fs = require('fs')
-    console.log('Initialiazing Types Text.....')
-    var typesFile = fs.readFileSync('C:\\ForwardTool\\types.agcfg', 'utf8')
+    const params = require('C:\\ForwardTool\\parameters.json')
 
-    let typesLines = typesFile.split('\n')
-    self.LOCAL_SERVICE_TYPE_ID = typesLines[0].split(';')[0]
-    self.LOCAL_SERVICE_TYPE_TEXT = typesLines[0].split(';')[1]
-    self.LOCAL_SERVICE_FULL_TEXT = typesLines[0].split(';')[1]
-    self.LOCAL_SERVICE_COLOR = typesLines[0].split(';')[2]
+    self.LOCAL_SERVICE_TYPE_ID = params.jobs[0].id
+    self.LOCAL_SERVICE_TYPE_TEXT = params.jobs[0].text
+    self.LOCAL_SERVICE_FULL_TEXT = params.jobs[0].text
+    self.LOCAL_SERVICE_COLOR = params.jobs[0].color
 
-    self.GROUPED_TEXT = typesLines[1].split(';')[1]
-    self.GROUPED_COLOR = typesLines[1].split(';')[2]
+    self.GROUPED_TEXT = params.jobs[1].text
+    self.GROUPED_COLOR = params.jobs[1].color
 
-    self.INDIVIDUAL_TEXT = typesLines[2].split(';')[1]
-    self.INDIVIDUAL_COLOR = typesLines[2].split(';')[2]
+    self.INDIVIDUAL_TEXT = params.jobs[2].text
+    self.INDIVIDUAL_COLOR = params.jobs[2].color
 
-    self.PERSONNEL_TEXT = typesLines[3].split(';')[1]
-    self.PERSONNEL_COLOR = typesLines[3].split(';')[2]
+    self.PERSONNEL_TEXT = params.jobs[3].text
+    self.PERSONNEL_COLOR = params.jobs[3].color
 }
 HelpersClass.prototype.initializeHelp = function () {
     let self = this
@@ -215,7 +213,6 @@ HelpersClass.prototype.initliazeModalToEditJob = function (divisions, products, 
     $('#reference').val(jobData.ind_reference)
     $('#pieces').val(jobData.ind_pieces)
     $('#kg').val(jobData.ind_kg)
-    $('#dims').val(jobData.ind_dims)
 
     if (jobData.ind_kg == '0') {
         $('#kg').val('')
@@ -263,7 +260,6 @@ HelpersClass.prototype.findChoosenValueForProducts = function (products, product
             productIds.push(products[i].product_id)
         }
     }
-    console.log(productIds)
     $('#product-select').val(productIds)
     $('#product-select').trigger('chosen:updated')
 }
@@ -344,7 +340,7 @@ HelpersClass.prototype.addCityAlert = function (myDB) {
             }
             let cityName = $('#city_name').val()
             if ($('#city_associate').val() != '') cityName += ` (${$('#city_associate').val()})`
-            myDB.addCity(cityName)
+            myDB.addCity(cityName, false)
         }
     })
 }
@@ -443,7 +439,9 @@ HelpersClass.prototype.initGlobalSearch = function (myDB) {
                     cond.cond_reference
                 }"</span> found in <span style="color: red">Consolidations-Done ID: ${
                     cond.cond_group_id
-                }</span> SERVICE: <span style="color: red">${self.validOutput(
+                }</span> EX: <span style="color: red">${self.validOutput(cond.ex_city)}</span> TO: <span style="color: red">${self.validOutput(
+                    cond.to_city
+                )}</span> SERVICE: <span style="color: red">${self.validOutput(
                     cond.service_name
                 )}</span> was delivered on board with DEADLINE: <span style="color: red">${self.validOutput(cond.group_deadline)}</span></li>`
             }
@@ -460,8 +458,43 @@ HelpersClass.prototype.initGlobalSearch = function (myDB) {
     self.bindMovingEvents('global-search-modal-header')
 }
 
-HelpersClass.prototype.individualDataAreEmpty = function (indData, allowTBA = false) {
+HelpersClass.prototype.individualDataAreEmpty = function (indData, allowTBA = false, isLocal = false) {
     let self = this
+    // Local checking
+    if (isLocal) {
+        if (
+            indData.division_description == '' ||
+            indData.division_description == null ||
+            indData.ex_city == '' ||
+            indData.ex_city == null ||
+            indData.ind_deadline == '' ||
+            indData.ind_deadline == null ||
+            indData.ind_forwarder == '' ||
+            indData.ind_forwarder == null ||
+            indData.ind_kg == '' ||
+            indData.ind_kg == null ||
+            indData.ind_mode == '' ||
+            indData.ind_mode == null ||
+            indData.ind_pieces == '' ||
+            indData.ind_pieces == null ||
+            indData.ind_products == '' ||
+            indData.ind_products == null ||
+            indData.ind_reference == '' ||
+            indData.ind_reference == null ||
+            indData.ind_vessels == '' ||
+            indData.ind_vessels == null ||
+            indData.to_city == '' ||
+            indData.to_city == null ||
+            indData.service_type_description == '' ||
+            indData.service_type_description == null ||
+            indData.sum_estimated_cost == null ||
+            indData.sum_estimated_cost == ''
+        )
+            return true
+        return false
+    }
+
+    // Rest checking..
     if (
         indData.division_description == '' ||
         indData.division_description == null ||
@@ -622,4 +655,9 @@ HelpersClass.prototype.applyMouseInteractions = function (tableID) {
             $(this).addClass('click-table-tr')
         }
     })
+}
+
+HelpersClass.prototype.initializeLogo = function () {
+    const params = require('C:\\ForwardTool\\parameters.json')
+    if (params.logo == true) $('.company-logo').show()
 }

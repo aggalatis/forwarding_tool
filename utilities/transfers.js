@@ -55,7 +55,6 @@ TransfersClass.prototype.bindEventsOnButtons = function () {
         $('#notes').val('')
         $('#deadline_date').val('')
         $('#estimate_cost_eur').val('')
-        $('#dims').val('')
         $('#ex-input').val('').trigger('chosen:updated')
         $('#to-input').val('').trigger('chosen:updated')
 
@@ -215,7 +214,6 @@ TransfersClass.prototype.bindSaveEventOnSaveJobButton = function () {
         var deadline = $('#deadline_date').val()
         let serviceType = $('#service-type-select').val()
         let pieces = self.Helpers.formatFloatValue($('#pieces').val())
-        let dims = $('#dims').val()
 
         $(this).attr('disabled', 'disabled')
         if (
@@ -266,9 +264,7 @@ TransfersClass.prototype.bindSaveEventOnSaveJobButton = function () {
             ind_pieces: pieces,
             ind_rate: rate,
             ind_currency: currencyText,
-            ind_dims: dims,
         }
-        console.log(individualData)
         self.DB.addIndividual(individualData)
     })
 }

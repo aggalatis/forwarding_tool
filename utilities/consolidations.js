@@ -248,6 +248,7 @@ ConsolidationsClass.prototype.initializetable = async function () {
         self.Helpers.findChoosenValueForServiceType(self.DB.consolidationServiceTypes, data.service_type_description)
 
         $('#group-mode-select').val(data.con_group_mode)
+        $('#notes').val(data.con_group_notes)
         $('#group-mode-select').trigger('chosen:updated')
         $('#group-forwarder').val(data.con_group_forwarder)
         $('#group-deadline').val(data.con_group_deadline)
@@ -294,6 +295,7 @@ ConsolidationsClass.prototype.bindEventsOnButtons = function () {
             groupLocalCost: self.Helpers.applyRate($('#locals-cost').val(), rate),
             groupCurrency: $('#currency option:selected').text(),
             groupRate: 1 / $('#currency').val(),
+            groupNotes: $('#notes').val(),
         }
         let updateData = await self.DB.updateConGroupData(groupData)
 
@@ -343,6 +345,17 @@ ConsolidationsClass.prototype.bindEventsOnButtons = function () {
 
     $('#calculate-group-savings').on('click', function () {
         self.calculateGroupSavings()
+    })
+
+    $('#add-city-btn').on('click', function () {
+        self.Helpers.addCityAlert(self.DB, self)
+    })
+
+    $('#refresh-city-btn').on('click', function () {
+        self.DB.getAllCities()
+        setTimeout(function () {
+            self.initialiazeCitiesSelect()
+        }, 1000)
     })
 }
 
@@ -406,10 +419,8 @@ ConsolidationsClass.prototype.bindSaveEventOnSaveJobButton = function () {
                     con_request_date: self.Helpers.getDateTimeNow(),
                     con_deadline: self.Helpers.changeDateToMysql($('#deadline_date').val()),
                     con_cut_off_date: self.Helpers.changeDateToMysql($('#cutoff_date').val()),
-                    con_notes: $('#notes').val(),
                     con_carrier: $('#carrier').val() == '' ? null : $('#carrier').val(),
                 }
-
                 self.DB.addConsolidation(consolidationData)
             } else {
                 $(this).attr('disabled', null)

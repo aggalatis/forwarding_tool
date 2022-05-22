@@ -225,14 +225,14 @@ DoneIndividualsClass.prototype.initializetable = async function () {
         ],
         createdRow: function (row, data, index, cells) {
             if (data.ind_parent != 0 || data.ind_splitted != 0) {
-                $('td:eq(0)', row).css('border-left', '4px solid blue')
+                $('td:eq(0)', row).css('border-left', `4px solid ${data.ind_split_color}`)
             }
             if (data.ind_parent != 0) $('td', row).css('font-style', 'italic')
         },
         order: [
             [30, 'desc'],
-            [3, 'desc'],
             [4, 'asc'],
+            [3, 'desc'],
             [28, 'desc'],
             [31, 'asc'],
         ],

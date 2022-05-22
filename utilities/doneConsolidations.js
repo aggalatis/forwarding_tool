@@ -379,6 +379,7 @@ DoneConsolidationsClass.prototype.initializetable = async function () {
         $('#service-type-select').val(data.con_group_service_type)
         $('#group-forwarder').val(data.con_group_forwarder)
         $('#group-deadline').val(data.con_group_deadline)
+        $('#group-notes').val(data.con_group_notes)
 
         $('#group-ex-select').trigger('chosen:updated')
         $('#group-to-select').trigger('chosen:updated')

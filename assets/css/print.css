@@ -6,7 +6,33 @@
         margin: 0;
     }
     html {
-        zoom: 70%;
+        zoom: 60%;
         margin: 0;
+        -webkit-print-color-adjust: exact !important;
+        print-color-adjust: exact;
+    }
+    body {
+        -webkit-print-color-adjust: exact !important;
+        print-color-adjust: exact;
+    }
+    .ind-table-header {
+        color: #f08080;
+        text-decoration: underline;
+        font-weight: bolder;
+    }
+    .group-table-header {
+        color: #90ee90;
+        text-decoration: underline;
+        font-weight: bolder;
+    }
+    .pers-table-header {
+        color: #add8e6;
+        text-decoration: underline;
+        font-weight: bolder;
+    }
+    .cons-table-header {
+        color: #f0e68c;
+        text-decoration: underline;
+        font-weight: bolder;
     }
 }

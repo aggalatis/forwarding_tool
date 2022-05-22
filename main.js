@@ -58,6 +58,7 @@ app.on('ready', () => {
             webPreferences: {
                 nodeIntegration: true,
                 contextIsolation: false,
+                nativeWindowOpen: true,
             },
             icon: __dirname + '/assets/icons/efglobal_logo_transparent.png',
         })
@@ -73,12 +74,8 @@ app.on('ready', () => {
     })
     ipcMain.on('print', (event, arg) => {
         win_transfers.webContents.print({
-            pageRanges: [
-                {
-                    from: 0,
-                    to: 1,
-                },
-            ],
+            printBackground: true,
+            color: true,
         })
     })
 })

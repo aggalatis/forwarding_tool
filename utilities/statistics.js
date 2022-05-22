@@ -324,7 +324,6 @@ StatisticsClass.prototype.initializeTable = function () {
         ],
         pageLength: 25,
     })
-
     self.Helpers.applyMouseInteractions('overview-table')
 }
 
@@ -343,7 +342,7 @@ StatisticsClass.prototype.initializeChart = function () {
     }
     $('#pie-div').show(500)
     let pieData = {
-        labels: ['INDIVIDUAL', 'GROUP', 'PERSONNEL', 'CONSOLIDATED'],
+        labels: ['IND', 'GROUP', 'PERS', 'CONS'],
         datasets: [
             {
                 data: [

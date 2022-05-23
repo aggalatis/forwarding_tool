@@ -35,4 +35,7 @@
         text-decoration: underline;
         font-weight: bolder;
     }
+    #overview-table-body {
+        font-size: 21px;
+    }
 }

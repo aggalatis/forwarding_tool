@@ -728,7 +728,8 @@ DbClass.prototype.getAllDoneIndividuals = async function () {
         ' ind_jobs.ind_parent,' +
         ' UNIX_TIMESTAMP(ind_jobs.ind_confirmation_date) as ind_timestamp,' +
         ' ind_jobs.ind_subid,' +
-        ' ind_jobs.ind_split_color' +
+        ' ind_jobs.ind_split_color,' +
+        ' ind_jobs.ind_dispatch_number' +
         ' FROM individuals as ind_jobs' +
         ' LEFT JOIN divisions on divisions.division_id = ind_jobs.ind_division_id' +
         ' LEFT JOIN users on users.user_id = ind_jobs.ind_user_id' +
@@ -2935,6 +2936,26 @@ DbClass.prototype.updateIndDoneJob = async function (jd) {
         self.mysqlConn.query(sql, (err, data) => {
             if (err) {
                 alert('ERROR on UPDATED individuals')
+                console.log(err)
+                reject(false)
+            }
+            resolve(true)
+        })
+    })
+}
+
+DbClass.prototype.updateJobDispatchNumber = async function (jobDispatch) {
+    let self = this
+    return new Promise(function (resolve, reject) {
+        let sql = ''
+        if (jobDispatch.dispatchGroupID !== '' && jobDispatch.dispatchGroupID !== null) {
+            sql = `UPDATE individuals SET ind_dispatch_number = '${jobDispatch.dispatchNumber}' WHERE ind_group_id = ${jobDispatch.dispatchGroupID}`
+        } else {
+            sql = `UPDATE individuals SET ind_dispatch_number = '${jobDispatch.dispatchNumber}' WHERE ind_id = ${jobDispatch.id}`
+        }
+        self.mysqlConn.query(sql, (err, data) => {
+            if (err) {
+                alert('ERROR on UPDATED dispatch number')
                 console.log(err)
                 reject(false)
             }

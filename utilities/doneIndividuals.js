@@ -12,6 +12,7 @@ let DoneIndividualsClass = function () {
     this.Helpers.bindMovingEvents('done-personnel-modal-header')
     this.Helpers.bindMovingEvents('assignment-modal-header')
     this.Helpers.bindMovingEvents('edit-done-job-modal-header')
+    this.Helpers.bindMovingEvents('edit-dispatch-modal-header')
     this.bindEventsOnButtons()
     this.selectedJobs = []
     this.selectedDoneInd = []
@@ -99,6 +100,17 @@ DoneIndividualsClass.prototype.bindEventsOnButtons = function () {
         indJobData.products = self.Helpers.changeProductIdstoString($('#product-select').val(), self.DB)
         await self.DB.updateIndDoneJob(indJobData)
         $('#edit-done-job-modal').modal('hide')
+        self.refreshTable()
+    })
+
+    $('#save-dispatch-number').on('click', async function () {
+        let indDispatchData = {
+            id: $('#done_dispatch_ind_id').val(),
+            dispatchNumber: $('#dispatch-number').val(),
+            dispatchGroupID: $('#done_dispatch_group_id').val(),
+        }
+        await self.DB.updateJobDispatchNumber(indDispatchData)
+        $('#dispatch-job-modal').modal('hide')
         self.refreshTable()
     })
 }
@@ -190,6 +202,7 @@ DoneIndividualsClass.prototype.initializetable = async function () {
             { title: 'Parent', visible: false, data: 'ind_parent' },
             { title: 'Is grouped', visible: false, data: 'ind_is_grouped' },
             { title: 'Subid', visible: false, data: 'ind_subid' },
+            { title: 'AWB / BL / CMR', visible: true, orderable: false, data: 'ind_dispatch_number' },
             {
                 title: 'ACTIONS',
                 orderable: false,
@@ -220,7 +233,8 @@ DoneIndividualsClass.prototype.initializetable = async function () {
                     "<i class='fa fa-search job-edit action-btn' style='cursor: pointer' title='modify'></i> \
                     <i class='fa fa-dollar done-job-cost action-btn' style='cursor: pointer' title='costs'></i> \
                     <i class='fa fa-sitemap split-job action-btn' style='cursor: pointer' title='dissolve'></i> \
-                    <i class='select-done-jobs' style='cursor: pointer' title='select'><img src='../assets/icons/consolidations.png'/ style='width: 15px'></i> ",
+                    <i class='select-done-jobs' style='cursor: pointer' title='select'><img src='../assets/icons/consolidations.png'/ style='width: 15px'></i> \
+                    <i class='fa fa-file-pdf-o dispatch-job action-btn' style='cursor: pointer' title='dispatch docs'></i>",
             },
         ],
         createdRow: function (row, data, index, cells) {
@@ -301,6 +315,23 @@ DoneIndividualsClass.prototype.initializetable = async function () {
             self.Helpers.findChoosenValueForProducts(self.DB.products, data.ind_products)
             $('#edit-done-job-modal').modal('show')
         }
+    })
+
+    $('#done_individuals_table').on('click', 'i.dispatch-job', function () {
+        $('#edit-dispatch-modal-header').removeClass('noFloat floatMeLeft floatMeRight')
+        var data = jobs_table.row($(this).parents('tr')).data()
+        if (!self.Helpers.checkIfUserHasPriviledges(data.user_username)) {
+            self.Helpers.swalUserPermissionError()
+            return
+        }
+        if (data.ind_is_grouped != 0) {
+            $('#done_dispatch_group_id').val(data.ind_group_id)
+        } else {
+            $('#done_dispatch_group_id').val(null)
+        }
+        $('#done_dispatch_ind_id').val(data.ind_id)
+        $('#dispatch-number').val(data.ind_dispatch_number)
+        $('#dispatch-job-modal').modal('show')
     })
 
     $('#done_individuals_table').on('click', 'i.done-job-cost', function () {

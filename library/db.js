@@ -524,7 +524,7 @@ DbClass.prototype.getAllIndividuals = function (helpers) {
                     let allData = jobs_table.rows().data()
                     for (let i = 0; i < allData.length; i++) {
                         if (allData[i].ind_group_id == data.ind_group_id) {
-                            if (self.Helpers.individualDataAreEmpty(allData[i], false)) {
+                            if (self.Helpers.individualDataAreEmpty(allData[i], false, false)) {
                                 Swal.fire({
                                     title: 'Unable to confirm this job.',
                                     text: `Some data are empty. You cannot confirm this group.`,
@@ -560,7 +560,7 @@ DbClass.prototype.getAllIndividuals = function (helpers) {
                 return
             }
 
-            if (data.ind_mode == 'Personnel') {
+            if (data.ind_mode == self.Helpers.PERSONNEL_TEXT) {
                 if (data.ind_estimate_cost == 0) {
                     Swal.fire({
                         title: 'Unable to manage group costs.',
@@ -599,7 +599,7 @@ DbClass.prototype.getAllIndividuals = function (helpers) {
                     var allData = jobs_table.rows().data()
                     for (var i = 0; i < allData.length; i++) {
                         if (allData[i].ind_group_id == data.ind_group_id) {
-                            if (self.Helpers.individualDataAreEmpty(allData[i], true)) {
+                            if (self.Helpers.individualDataAreEmpty(allData[i], true, false)) {
                                 if (self.Helpers.user_role_id != 2) {
                                     self.Helpers.swalFieldsMissingError()
                                     return

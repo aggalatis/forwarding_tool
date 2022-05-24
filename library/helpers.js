@@ -197,14 +197,10 @@ HelpersClass.prototype.initliazeModalToEditJob = function (divisions, products, 
     self.findChoosenValueForCities(cities, jobData.ex_city, jobData.to_city)
     myTransfers.initialiazeServiceTypeSelect()
     self.findChoosenValueForServiceType(serviceTypes, jobData.service_type_description)
-    if (jobData.ind_estimate_cost == '0') {
-        $('#estimate_cost').val('')
-    } else {
-        $('#estimate_cost').val(self.revertRate(jobData.ind_estimate_cost, jobData.ind_rate))
-    }
+
+    $('#estimate_cost').val(self.revertRate(jobData.ind_estimate_cost, jobData.ind_rate))
 
     self.initCurrencyInput(jobData.ind_currency)
-
     $('#modal-title-text').html('Edit Job')
     $('#mode-select').val(jobData.ind_mode)
     $('#mode-select').trigger('chosen:updated')
@@ -292,24 +288,12 @@ HelpersClass.prototype.findChoosenValueForCities = function (cities, ex_city, to
     }
 }
 HelpersClass.prototype.formatFloatValue = function (num) {
-    if (num == null || num == '') return null
+    if (num == null) return null
     if (typeof num == 'string') {
+        if (num == '') return null
         return parseFloat(num.replace(',', '.')).toFixed(2)
     }
     return num.toFixed(2)
-    // if (num.includes('.')) {
-    //     var slpittedNum = num.split('.')
-
-    //     if (slpittedNum[1].length > 1) {
-    //         return num
-    //     } else {
-    //         return num + '0'
-    //     }
-    // } else if (num !== '' && num !== 'null') {
-    //     return num + '.00'
-    // } else {
-    //     return 0
-    // }
 }
 
 HelpersClass.prototype.addCityAlert = function (myDB) {
@@ -488,13 +472,14 @@ HelpersClass.prototype.individualDataAreEmpty = function (indData, allowTBA = fa
             indData.service_type_description == '' ||
             indData.service_type_description == null ||
             indData.sum_estimated_cost == null ||
-            indData.sum_estimated_cost == ''
+            indData.ind_estimate_cost === null
         )
             return true
         return false
     }
 
     // Rest checking..
+    console.log(indData.ind_estimate_cost)
     if (
         indData.division_description == '' ||
         indData.division_description == null ||
@@ -502,8 +487,9 @@ HelpersClass.prototype.individualDataAreEmpty = function (indData, allowTBA = fa
         indData.ex_city == null ||
         indData.ind_deadline == '' ||
         indData.ind_deadline == null ||
-        indData.ind_estimate_cost == '' ||
-        indData.ind_estimate_cost == null ||
+        indData.ind_estimate_cost === '' ||
+        indData.ind_estimate_cost === null ||
+        indData.ind_estimate_cost <= 0 ||
         indData.ind_forwarder == '' ||
         indData.ind_forwarder == null ||
         indData.ind_kg == '' ||
@@ -522,8 +508,8 @@ HelpersClass.prototype.individualDataAreEmpty = function (indData, allowTBA = fa
         indData.to_city == null ||
         indData.service_type_description == '' ||
         indData.service_type_description == null ||
-        indData.sum_estimated_cost == null ||
-        indData.sum_estimated_cost == ''
+        indData.sum_estimated_cost === null ||
+        indData.sum_estimated_cost === ''
     )
         return true
     if (indData.ind_mode == self.PERSONNEL_TEXT && indData.ind_actual_cost == null) return true
@@ -550,11 +536,13 @@ HelpersClass.prototype.validOutput = function (field) {
 }
 
 HelpersClass.prototype.applyRate = function (value, rate) {
-    return rate == '' ? this.formatFloatValue(value) : this.formatFloatValue(value * rate)
+    if (value == null || value === '') return null
+    return rate === '' ? this.formatFloatValue(value) : this.formatFloatValue(value * rate)
 }
 
 HelpersClass.prototype.revertRate = function (value, rate) {
-    return rate == '' ? this.formatFloatValue(value) : this.formatFloatValue(value / rate)
+    if (value == null || value === '') return null
+    return rate === '' ? this.formatFloatValue(value) : this.formatFloatValue(value / rate)
 }
 
 HelpersClass.prototype.swalUserPermissionError = function () {

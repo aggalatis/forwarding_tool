@@ -98,6 +98,10 @@ addDataClass.prototype.addEventsOnButtons = function () {
         $('#service_type_description').val('')
         $('#service-type-modal').modal('show')
     })
+
+    Mousetrap.bind('s e r v i c e !', function () {
+        $('#service-types-btn').show()
+    })
 }
 
 addDataClass.prototype.initCitiesTable = async function () {

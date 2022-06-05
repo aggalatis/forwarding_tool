@@ -3,6 +3,7 @@ let DoneConsolidationsClass = function () {
     this.Helpers = new HelpersClass()
     this.Helpers.initGlobalSearch(this.DB)
     this.Helpers.bindMovingEvents('help-modal-header')
+    this.Helpers.bindMovingEvents('cost-modal-header')
     this.Helpers.bindMovingEvents('cost-done-cons-head')
     this.Helpers.bindMovingEvents('edit-notes-consolidation-head')
     this.Helpers.bindMovingEvents('delivery-on-board-modal-header')
@@ -176,7 +177,7 @@ DoneConsolidationsClass.prototype.initializetable = async function () {
             { title: 'CONFIRMATION DATE	', orderable: false, data: 'con_group_confirmation_date' },
             { title: 'FORWARDER', orderable: false, data: 'con_group_forwarder' },
             { title: 'REFERENCE', orderable: false, data: 'cond_reference' },
-            { title: 'CONSOL. COST (€)', orderable: false, data: 'con_group_cost' },
+            { title: 'CONSOL. COST (€)', orderable: false, data: 'visible_group_cost' },
             { title: 'PIECES', orderable: false, data: 'cond_pieces' },
             { title: 'WEIGHT (KG)', orderable: false, data: 'cond_kg' },
             { title: 'COST / KG (€)', orderable: false, data: 'cond_cost_per_kg' },
@@ -232,7 +233,10 @@ DoneConsolidationsClass.prototype.initializetable = async function () {
                 $('td:eq(23)', row).css('border-right', '2px solid red')
             }
         },
-        order: [[2, 'desc']],
+        order: [
+            [2, 'desc'],
+            [6, 'asc'],
+        ],
         pageLength: 25,
     })
 
@@ -434,26 +438,30 @@ DoneConsolidationsClass.prototype.formatData = function (consolidations) {
         cons.cond_request_date = self.Helpers.changeMysqlDateToNormal(cons.cond_request_date)
         cons.con_group_confirmation_date = self.Helpers.changeMysqlDateToNormal(cons.con_group_confirmation_date)
 
-        if (typeof groupSumKG[cons.group_id] === 'undefined') groupSumKG[cons.group_id] = 0
-        groupSumKG[cons.group_id] += cons.cond_kg
+        if (typeof groupSumKG[cons.group_id] === 'undefined') groupSumKG[cons.group_id] = { local: 0, grouped: 0 }
+        if (cons.cond_type == self.Helpers.GROUPED_TEXT) groupSumKG[cons.group_id].grouped += cons.cond_kg
+        if (cons.cond_type == self.Helpers.LOCAL_SERVICE_TYPE_TEXT) groupSumKG[cons.group_id].local += cons.cond_kg
         retData.push(cons)
     }
     for (let con of retData) {
         try {
-            if (con.cond_type == 'Grouped') {
+            if (con.cond_type == self.Helpers.GROUPED_TEXT) {
                 // Job was grouped
-                con.cond_cost_per_kg = (con.con_group_cost / groupSumKG[con.group_id]).toFixed(2)
-                con.cond_shared_cost = ((con.cond_kg * con.con_group_cost) / groupSumKG[con.group_id]).toFixed(2)
+                con.visible_group_cost = con.con_group_cost
+                con.cond_cost_per_kg = (con.con_group_cost / groupSumKG[con.group_id].grouped).toFixed(2)
+                con.cond_shared_cost = ((con.cond_kg * con.con_group_cost) / groupSumKG[con.group_id].grouped).toFixed(2)
             }
-            if (con.cond_type == 'Individual') {
+            if (con.cond_type == self.Helpers.INDIVIDUAL_TEXT) {
                 // Job is a simple individual
+                con.visible_group_cost = con.cond_estimate_cost
                 con.cond_cost_per_kg = (con.cond_estimate_cost / con.cond_kg).toFixed(2)
                 con.cond_shared_cost = con.cond_estimate_cost.toFixed(2)
             }
             if (con.cond_type == self.Helpers.LOCAL_SERVICE_TYPE_TEXT) {
                 // Job is a local dispatch
-                con.cond_cost_per_kg = (con.con_group_local_cost / con.cond_kg).toFixed(2)
-                con.cond_shared_cost = con.con_group_local_cost.toFixed(2)
+                con.visible_group_cost = con.con_group_local_cost
+                con.cond_cost_per_kg = (con.con_group_local_cost / groupSumKG[con.group_id].local).toFixed(2)
+                con.cond_shared_cost = ((con.cond_kg * con.con_group_local_cost) / groupSumKG[con.group_id].local).toFixed(2)
             }
             finalData.push(con)
         } catch (err) {

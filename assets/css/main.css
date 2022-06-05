@@ -1718,7 +1718,6 @@ body.top-navigation nav.fixed-header {
 ----------------------------------------------------------------*/
 
 .form-group label {
-    color: var(--dark-color);
     font-size: 11px;
     letter-spacing: 0.06em;
     text-transform: uppercase;
@@ -2987,4 +2986,9 @@ body .jqstooltip {
 
 .company-logo {
     display: none;
+}
+
+.green-label {
+    color: #32cd32;
+    font-style: bold;
 }

@@ -114,7 +114,10 @@ ConsolidationsClass.prototype.initializetable = async function () {
             //Here I am changing background Color
             $('td', row).css('background-color', data.con_group_color)
         },
-        order: [[2, 'desc']],
+        order: [
+            [2, 'desc'],
+            [6, 'asc'],
+        ],
         pageLength: 25,
     })
 
@@ -443,12 +446,12 @@ ConsolidationsClass.prototype.formatData = function (consolidations) {
         cons.con_request_date = self.Helpers.changeMysqlDateToNormal(cons.con_request_date)
 
         if (typeof groupSumKG[cons.group_id] === 'undefined') groupSumKG[cons.group_id] = { local: 0, grouped: 0 }
-        if (cons.con_type == 'Grouped') groupSumKG[cons.group_id].grouped += cons.con_kg
+        if (cons.con_type == self.Helpers.GROUPED_TEXT) groupSumKG[cons.group_id].grouped += cons.con_kg
         if (cons.con_type == self.Helpers.LOCAL_SERVICE_TYPE_TEXT) groupSumKG[cons.group_id].local += cons.con_kg
         retData.push(cons)
     }
     for (let con of retData) {
-        if (con.con_type == 'Individual') {
+        if (con.con_type == self.Helpers.INDIVIDUAL_TEXT) {
             // JOB IS JUST A SIMPLE INDIVIDUAL JOB
             con.visible_consolidation_cost = con.con_estimate_cost
             con.con_cost_per_kg = (con.con_estimate_cost / con.con_kg).toFixed(2)
@@ -460,7 +463,7 @@ ConsolidationsClass.prototype.formatData = function (consolidations) {
             con.con_cost_per_kg = (con.con_group_local_cost / groupSumKG[con.group_id].local).toFixed(2)
             con.con_shared_cost = ((con.con_kg * con.con_group_local_cost) / groupSumKG[con.group_id].local).toFixed(2)
         }
-        if (con.con_type == 'Grouped') {
+        if (con.con_type == self.Helpers.GROUPED_TEXT) {
             // Job is grouped
             con.visible_consolidation_cost = con.con_group_cost
             con.con_cost_per_kg = (con.con_group_cost / groupSumKG[con.group_id].grouped).toFixed(2)

@@ -144,6 +144,7 @@ DoneIndividualsClass.prototype.initializetable = async function () {
                 orderable: false,
                 createdCell: function (td, cellData, rowData, row, col) {
                     $(td).css('background-color', rowData.ind_group_color)
+                    if (rowData.ind_type != self.Helpers.GROUPED_TEXT) $(td).html('0')
                 },
                 data: 'ind_group_id',
             },
@@ -249,6 +250,7 @@ DoneIndividualsClass.prototype.initializetable = async function () {
             [3, 'desc'],
             [28, 'desc'],
             [31, 'asc'],
+            [27, 'desc'],
         ],
         pageLength: 25,
     })

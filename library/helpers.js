@@ -389,15 +389,19 @@ HelpersClass.prototype.initGlobalSearch = function (myDB) {
         let doneCons = await myDB.getConsolidationDoneByReference(reference)
         $('#search-reslts-list').html('')
         let resultsHtml = ''
-        for (let ind of individuals)
+        for (let ind of individuals) {
+            let myId = ind.ind_id
+            if (ind.ind_subid != 'w') myId = ind.ind_subid
             resultsHtml += `<li style="color: black; font-size: 15px">Ref: <span style="color: red">"${self.validOutput(
                 ind.ind_reference
-            )}"</span> found in <span style="color: red">Individals-${ind.ind_status} ID: ${ind.ind_id}</span> EX: <span style="color: red">${
+            )}"</span> found in <span style="color: red">Individals-${ind.ind_status} ID: ${myId}</span> EX: <span style="color: red">${
                 ind.ex_city
             }</span> TO: <span style="color: red">${self.validOutput(ind.to_city)}</span> SERVICE: <span style="color: red">${self.validOutput(
                 ind.service_name
             )}</span> DEADLINE: <span style="color: red">${self.changeMysqlDateToNormal(self.validOutput(ind.ind_deadline))}</span></li>`
-        for (let con of consoliadtions)
+        }
+
+        for (let con of consoliadtions) {
             resultsHtml += `<li style="color: black; font-size: 15px">Ref: <span style="color: red">"${self.validOutput(
                 con.con_reference
             )}"</span> found in <span style="color: red">Consolidations-Pending ID: ${
@@ -407,6 +411,8 @@ HelpersClass.prototype.initGlobalSearch = function (myDB) {
             )}</span> SERVICE: <span style="color: red">${self.validOutput(
                 con.service_name
             )}</span> DEADLINE: <span style="color: red">${self.validOutput(con.group_deadline)}</span></li>`
+        }
+
         for (let cond of doneCons) {
             if (cond.cond_delivered_on_board == null || cond.cond_delivered_on_board == '') {
                 resultsHtml += `<li style="color: black; font-size: 15px">Ref: <span style="color: red">"${

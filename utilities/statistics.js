@@ -233,13 +233,18 @@ StatisticsClass.prototype.initializeTable = function () {
             {
                 data: 'groupedSavings',
                 createdCell: function (td, cellData, rowData, row, col) {
-                    if (rowData.department == 'Total') $(td).css('font-weight', 'bold')
+                    if (rowData.department == 'Total') {
+                        $(td).css('font-weight', 'bold')
+                    }
                 },
             },
             {
                 data: 'groupedSavingsPercent',
                 createdCell: function (td, cellData, rowData, row, col) {
-                    if (rowData.department == 'Total') $(td).css('font-weight', 'bold')
+                    if (rowData.department == 'Total') {
+                        $(td).css('font-weight', 'bold')
+                        $(td).html('-')
+                    }
                 },
             },
             {
@@ -263,7 +268,10 @@ StatisticsClass.prototype.initializeTable = function () {
             {
                 data: 'personnelSavingsPercent',
                 createdCell: function (td, cellData, rowData, row, col) {
-                    if (rowData.department == 'Total') $(td).css('font-weight', 'bold')
+                    if (rowData.department == 'Total') {
+                        $(td).css('font-weight', 'bold')
+                        $(td).html('-')
+                    }
                 },
             },
             {
@@ -287,7 +295,10 @@ StatisticsClass.prototype.initializeTable = function () {
             {
                 data: 'consolidatedSavingsPercent',
                 createdCell: function (td, cellData, rowData, row, col) {
-                    if (rowData.department == 'Total') $(td).css('font-weight', 'bold')
+                    if (rowData.department == 'Total') {
+                        $(td).css('font-weight', 'bold')
+                        $(td).html('-')
+                    }
                 },
             },
             {

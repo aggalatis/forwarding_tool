@@ -3,6 +3,8 @@ let HelpersClass = function () {
     console.log('%c App Created by AG! Visit: aggalatis.com', 'background: #222; color: yellow')
     console.log('Constructing Helpers...')
     this.API_URL = 'https://api.portalx.eu'
+    this.USER_FILE = '/home/aggalatis/projects/forwarding_tool/usrdata.agcfg'
+    this.PARAMETERS_FILE = '/home/aggalatis/projects/forwarding_tool/parameters.json'
     this.instructionFiles = []
     this.user_username = ''
     this.user_fullname = ''
@@ -85,11 +87,12 @@ HelpersClass.prototype.handleLogout = function () {
 }
 
 HelpersClass.prototype.saveUserData = function (userData) {
+    let self = this
     let fs = require('fs')
     var userString = ''
     userString = userData.user_username + ';' + userData.user_fullname + ';' + userData.user_id + ';' + userData.user_role_id
 
-    fs.writeFile('C:\\ForwardTool\\usrdata.agcfg', userString, function (err) {
+    fs.writeFile(self.USER_FILE, userString, function (err) {
         if (err) throw err
     })
 }
@@ -99,7 +102,7 @@ HelpersClass.prototype.initializeUser = function () {
 
     let fs = require('fs')
     console.log('Initialiazing User.....')
-    var userFile = fs.readFileSync('C:\\ForwardTool\\usrdata.agcfg', 'utf8')
+    var userFile = fs.readFileSync(self.USER_FILE, 'utf8')
 
     var userFileData = userFile.split(';')
     self.user_username = userFileData[0]
@@ -120,7 +123,7 @@ HelpersClass.prototype.initializeUser = function () {
 HelpersClass.prototype.initializeTypes = function () {
     let self = this
 
-    const params = require('C:\\ForwardTool\\parameters.json')
+    const params = require(self.PARAMETERS_FILE)
 
     self.LOCAL_SERVICE_TYPE_ID = params.jobs[0].id
     self.LOCAL_SERVICE_TYPE_TEXT = params.jobs[0].text
@@ -652,6 +655,7 @@ HelpersClass.prototype.applyMouseInteractions = function (tableID) {
 }
 
 HelpersClass.prototype.initializeLogo = function () {
-    const params = require('C:\\ForwardTool\\parameters.json')
+    let self = this
+    const params = require(self.PARAMETERS_FILE)
     if (params.logo == true) $('.company-logo').show()
 }

@@ -20,7 +20,7 @@ let DbClass = function () {
 
 DbClass.prototype.getServerDataFromRegistry = function () {
     let self = this
-    const params = require('C:\\ForwardTool\\parameters.json')
+    const params = require(self.Helpers.PARAMETERS_FILE)
 
     self.database = params.db.database
     self.port = params.db.port
@@ -936,18 +936,8 @@ DbClass.prototype.addIndividual = function (indObj) {
 DbClass.prototype.confirmIndividualGroup = function (groupID) {
     let self = this
 
-    var sql =
-        'UPDATE individuals SET ' +
-        'ind_status = "Done", ' +
-        'ind_confirmation_date = "' +
-        self.Helpers.getDateTimeNow() +
-        '"' +
-        ' WHERE ind_group_id = ' +
-        groupID +
-        ' AND ind_deleted = 0; UPDATE individual_groups SET ind_group_active = 0, ind_group_confirmation_date = "' +
-        self.Helpers.getDateTimeNow() +
-        '" WHERE ind_group_id = ' +
-        groupID
+    var sql = `UPDATE individuals SET ind_status = "Done", ind_confirmation_date = "${self.Helpers.getDateTimeNow()}" WHERE ind_group_id = ${groupID} AND ind_deleted = 0; \
+         UPDATE individual_groups SET ind_group_active = 0, ind_group_confirmation_date = "${self.Helpers.getDateTimeNow()}" WHERE ind_group_id = ${groupID};`
 
     self.mysqlConn.query(sql, function (error, result) {
         if (error) {
@@ -1442,16 +1432,8 @@ DbClass.prototype.updateGroupCost = function (groupCostData) {
             alert('Unable to update job cost')
             throw error
         }
-        var searchIndSql =
-            'Select * from individuals WHERE ind_ex = ' +
-            groupCostData.ind_group_ex +
-            ' AND ind_to = ' +
-            groupCostData.ind_group_to +
-            ' AND ind_deadline = "' +
-            groupCostData.ind_group_deadline +
-            '" AND ind_group_id != ' +
-            groupCostData.ind_group_id +
-            ' AND ind_deleted = 0 AND ind_status = "Pending" AND ind_estimate_cost != 0 AND ind_mode != "Personnel"'
+        var searchIndSql = `Select * from individuals WHERE ind_ex = ${groupCostData.ind_group_ex} AND ind_to = ${groupCostData.ind_group_to} AND ind_deadline = "${groupCostData.ind_group_deadline}" AND ind_group_id != ${groupCostData.ind_group_id} \
+            AND ind_deleted = 0 AND ind_status = "Pending" AND ind_estimate_cost != 0 AND ind_mode != "${self.Helpers.PERSONNEL_TEXT}" AND ind_service_type != ${self.Helpers.LOCAL_SERVICE_TYPE_ID}`
 
         var mysql = require('mysql')
 
@@ -2361,7 +2343,11 @@ DbClass.prototype.initializeManagerTable = function (indData, conData) {
                 orderable: false,
                 className: 'success-header',
             },
-            { title: 'Group Cost (€)', orderable: false, className: 'success-header' },
+            {
+                title: 'Group Cost (€)',
+                orderable: false,
+                className: 'success-header',
+            },
             { title: 'Savings %', orderable: false, className: 'success-header' },
             { title: 'Savings €', orderable: false, className: 'success-header' },
             { title: 'Individual (€)', orderable: false, className: 'danger-header' },
@@ -2743,16 +2729,20 @@ DbClass.prototype.getConGroupedReport = async function (fromDate, toDate) {
     return new Promise(function (resolve, reject) {
         let sql = `SELECT 
         d.division_description,
-        ROUND(sum(cd.cond_estimate_cost), 2) as sum_estimate_cost,
-        ROUND(sum(cd.cond_kg * cg.con_group_cost / (SELECT sum(cond_kg) FROM consolidations_done WHERE cond_group_id = cd.cond_group_id and cond_is_grouped = 1)), 2) as shared_cost,
-        ROUND(sum(cd.cond_estimate_cost) - sum(cd.cond_kg * cg.con_group_cost / (SELECT sum(cond_kg) FROM consolidations_done WHERE cond_group_id = cd.cond_group_id and cond_is_grouped = 1)), 2) as savings,
-        ROUND(((sum(cd.cond_estimate_cost) - sum(cd.cond_kg * cg.con_group_cost / (SELECT sum(cond_kg) FROM consolidations_done WHERE cond_group_id = cd.cond_group_id and cond_is_grouped = 1))) / sum(cd.cond_estimate_cost)) * 100, 2) AS savings_percent
+        CASE 
+	        WHEN cd.cond_type = '${self.Helpers.LOCAL_SERVICE_TYPE_TEXT}' THEN ROUND(sum(cd.cond_kg * cg.con_group_local_cost / (SELECT sum(cond_kg) FROM consolidations_done WHERE cond_group_id = cd.cond_group_id and cond_type = '${self.Helpers.LOCAL_SERVICE_TYPE_TEXT}')), 2)
+	        ELSE ROUND(sum(cd.cond_estimate_cost), 2)
+        END as sum_estimate_cost,
+        CASE 
+	        WHEN cd.cond_type = '${self.Helpers.GROUPED_TEXT}' THEN ROUND(sum(cd.cond_kg * cg.con_group_cost / (SELECT sum(cond_kg) FROM consolidations_done WHERE cond_group_id = cd.cond_group_id and cond_is_grouped = 1)), 2) 
+	        WHEN cd.cond_type = '${self.Helpers.INDIVIDUAL_TEXT}' THEN ROUND(sum(cd.cond_estimate_cost), 2) 
+	        WHEN cd.cond_type = '${self.Helpers.LOCAL_SERVICE_TYPE_TEXT}' THEN ROUND(sum(cd.cond_kg * cg.con_group_local_cost / (SELECT sum(cond_kg) FROM consolidations_done WHERE cond_group_id = cd.cond_group_id and cond_type = '${self.Helpers.LOCAL_SERVICE_TYPE_TEXT}')), 2)
+        END as shared_cost
         FROM consolidations_done cd
         LEFT JOIN divisions d on cd.cond_division_id = d.division_id
         LEFT JOIN consolidation_groups cg on cd.cond_group_id = cg.con_group_id
-        WHERE cd.cond_is_grouped = 1
-        AND cg.con_group_confirmation_date BETWEEN '${fromDate}' AND '${toDate}'
-        GROUP BY cd.cond_division_id
+        WHERE cg.con_group_confirmation_date BETWEEN '${fromDate}' AND '${toDate}'
+        GROUP BY cd.cond_division_id, cd.cond_type
         ORDER BY d.division_description;`
         self.mysqlConn.query(sql, (err, data) => {
             if (err) {

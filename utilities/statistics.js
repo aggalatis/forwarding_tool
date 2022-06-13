@@ -103,12 +103,12 @@ StatisticsClass.prototype.formatResultsData = function (individuals, personnel, 
         }
         finalData[con.division_description].consolidatedEstimateCost = con.sum_estimate_cost
         finalData[con.division_description].consolidatedSharedCost = con.shared_cost
-        finalData[con.division_description].consolidatedSavings = con.savings
-        finalData[con.division_description].consolidatedSavingsPercent = con.savings_percent
+        finalData[con.division_description].consolidatedSavings = con.sum_estimate_cost - con.shared_cost
+        finalData[con.division_description].consolidatedSavingsPercent = 100 * ((con.sum_estimate_cost - con.shared_cost) / con.sum_estimate_cost)
 
         totals.consolidatedEstimateCost += con.sum_estimate_cost
         totals.consolidatedSharedCost += con.shared_cost
-        totals.consolidatedSavings += con.savings
+        totals.consolidatedSavings += con.sum_estimate_cost - con.shared_cost
         totals.consolidatedSavingsPercent += con.savings_percent
     }
     finalData.Total = totals

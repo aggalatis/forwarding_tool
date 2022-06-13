@@ -3,8 +3,8 @@ let HelpersClass = function () {
     console.log('%c App Created by AG! Visit: aggalatis.com', 'background: #222; color: yellow')
     console.log('Constructing Helpers...')
     this.API_URL = 'https://api.portalx.eu'
-    this.USER_FILE = '/home/aggalatis/projects/forwarding_tool/usrdata.agcfg'
-    this.PARAMETERS_FILE = '/home/aggalatis/projects/forwarding_tool/parameters.json'
+    this.USER_FILE = 'C:\\ForwardTool\\usrdata.agcfg'
+    this.PARAMETERS_FILE = 'C:\\ForwardTool\\parameters.json'
     this.instructionFiles = []
     this.user_username = ''
     this.user_fullname = ''

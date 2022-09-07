@@ -1,0 +1,32 @@
+{
+    "db": {
+        "host": "localhost",
+        "username": "test",
+        "password": "test",
+        "port": "3366",
+        "database": "forwarding"
+    },
+    "jobs": [
+        {
+            "id": 1,
+            "text": "Local Orders",
+            "color": "#1E90FF"
+        },
+        {
+            "id": 0,
+            "text": "Grouped",
+            "color": "#32CD32"
+        },
+        {
+            "id": 0,
+            "text": "Individual",
+            "color": "#DC143C"
+        },
+        {
+            "id": 0,
+            "text": "Personnel",
+            "color": "#4B0082"
+        }
+    ],
+    "logo": true
+}

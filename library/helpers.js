@@ -2,9 +2,10 @@ let HelpersClass = function () {
     $.fn.modal.Constructor.prototype._enforceFocus = function () {}
     console.log('%c App Created by AG! Visit: aggalatis.com', 'background: #222; color: yellow')
     console.log('Constructing Helpers...')
+    const ROOT_FOLDER = 'C:\\ForwardTool\\'
     this.API_URL = 'https://api.portalx.eu'
-    this.USER_FILE = 'C:\\ForwardTool\\usrdata.agcfg'
-    this.PARAMETERS_FILE = 'C:\\ForwardTool\\parameters.json'
+    this.USER_FILE = `${ROOT_FOLDER}usrdata.agcfg`
+    this.PARAMETERS_FILE = `${ROOT_FOLDER}parameters.json`
     this.instructionFiles = []
     this.user_username = ''
     this.user_fullname = ''
